@@ -47,7 +47,7 @@ export default function Step3StagesCards({
 
   return (
     <div className="mt-8">
-      <h2 className="text-center text-4xl font-bold text-primary">Your Life Stages</h2>
+      <h2 className="text-center text-3xl font-bold text-primary">Your Life Stages</h2>
       <p className="mt-2 text-center text-sm text-muted-foreground">
         Define how your savings change over time
       </p>

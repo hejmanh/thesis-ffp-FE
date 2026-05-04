@@ -25,6 +25,8 @@ interface FormFieldProps {
   children?: ReactNode;
 
   placeholder?: string;
+  id?: string;
+  name?: string;
 
   // input
   inputProps?: InputHTMLAttributes<HTMLInputElement>;
@@ -33,6 +35,7 @@ interface FormFieldProps {
   options?: SelectOption[];
   value?: string;
   onChange?: (value: string) => void;
+  searchable?: boolean;
 }
 
 export default function FormField({
@@ -46,9 +49,12 @@ export default function FormField({
   children,
   options = [],
   placeholder,
+  id,
+  name,
   inputProps,
   value,
   onChange,
+  searchable = false,
 }: FormFieldProps) {
   return (
     <label
@@ -63,24 +69,27 @@ export default function FormField({
       {variant === "select" ? (
         children ?? (
           <DropdownField
+            id={id}
+            name={name}
             className={selectClassName}
+            buttonClassName={selectClassName}
             options={options}
             placeholder={placeholder}
             value={value}
             onChange={onChange}
+            searchable={searchable}
           />
         )
       ) : (
         <Input
+          id={id}
+          name={name}
           className={cn(inputClassName)}
           placeholder={placeholder}
           {...inputProps}
         />
       )}
 
-      {hint ? (
-        <p className="mt-1 text-xs text-gray-500">{hint}</p>
-      ) : null}
     </label>
   );
 }

@@ -49,7 +49,7 @@ export default function Step4AssetsCards({
 
   return (
     <div className="mt-8">
-      <h2 className="text-center text-4xl font-bold text-primary">Asset Data</h2>
+      <h2 className="text-center text-3xl font-bold text-primary">Asset Data</h2>
       <p className="mt-2 text-center text-sm text-muted-foreground">
         Add and organize your assets with growth assumptions
       </p>

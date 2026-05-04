@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Icon } from "@iconify/react";
 import Card from "@/components/common/Card";
 import Input from "@/components/common/Input";
@@ -12,9 +11,13 @@ export default function FeatureCard({
   placeholder,
   ctaText,
   href = "#",
-}: FeatureItem) {
+  onCardClick,
+}: FeatureItem & { onCardClick?: () => void }) {
   return (
-    <Card className="p-4 sm:p-5 xl:p-6">
+    <Card
+      className="p-4 sm:p-5 xl:p-6 cursor-pointer"
+      onClick={() => onCardClick?.()}
+    >
       <span className="mb-3 inline-flex rounded-full bg-primary-soft px-2 py-0.5 text-xs font-semibold text-primary sm:mb-4">
         {id}
       </span>
@@ -25,14 +28,17 @@ export default function FeatureCard({
         <div>
           <h3 className="text-lg font-semibold text-slate-900 xl:text-xl">{title}</h3>
           <p className="mt-2 text-sm leading-5 text-muted-foreground">{description}</p>
-          <Input className="mt-3 xl:mt-4" placeholder={placeholder} readOnly />
-          <Link
-            href={href}
+          <Input className="mt-3 xl:mt-4 !bg-primary-soft" placeholder={placeholder} readOnly />
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
             className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary-600 xl:mt-3"
           >
             {ctaText}
             <span aria-hidden="true">→</span>
-          </Link>
+          </button>
         </div>
       </div>
     </Card>

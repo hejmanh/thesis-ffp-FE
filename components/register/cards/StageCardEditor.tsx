@@ -58,46 +58,58 @@ export default function StageCardEditor({ stage, onSave, onDelete }: StageCardEd
       <h3 className="text-3xl font-semibold text-slate-900">Stage</h3>
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <FormField
+          id="ageStart"
+          name="ageStart"
           label="Age Start"
           placeholder="25"
           inputProps={{
             value: draft.ageStart,
             onChange: (event) => updateField("ageStart", event.target.value),
+            autoComplete: "off",
           }}
         />
         <FormField
+          id="ageEnd"
+          name="ageEnd"
           label="Age End"
           placeholder="35"
           inputProps={{
             value: draft.ageEnd,
             onChange: (event) => updateField("ageEnd", event.target.value),
+            autoComplete: "off",
           }}
         />
         <FormField
+          id="annualSaving"
+          name="annualSaving"
           label="Annual Saving"
           className="sm:col-span-2"
           placeholder="Enter annual saving"
           inputProps={{
             value: draft.annualSaving,
             onChange: (event) => updateField("annualSaving", event.target.value),
+            autoComplete: "off",
           }}
         />
         <FormField
+          id="currency"
+          name="currency"
           label="Currency"
           variant="select"
           placeholder="Select currency"
-          selectProps={{
-            value: draft.currency,
-            onChange: (event) => updateField("currency", event.target.value),
-          }}
+          value={draft.currency}
+          onChange={(value) => updateField("currency", value)}
           options={CURRENCY_OPTIONS.map((currency) => ({ label: currency, value: currency }))}
         />
         <FormField
+          id="annualRate"
+          name="annualRate"
           label="Annual Rate (%)"
           placeholder="8"
           inputProps={{
             value: draft.annualRate,
             onChange: (event) => updateField("annualRate", event.target.value),
+            autoComplete: "off",
           }}
         />
       </div>

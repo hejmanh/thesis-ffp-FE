@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
+import { Icon } from "@iconify/react";
 import Button from "@/components/common/Button";
 import FormField from "@/components/common/FormField";
 import { login } from "@/services/auth/mockAuth";
@@ -61,13 +62,15 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
             type="button"
             onClick={onClose}
             aria-label="Close login modal"
-            className="text-3xl leading-none text-slate-500 hover:text-slate-700"
+            className="flex h-8 w-8 items-center justify-center rounded transition"
           >
-            ×
+            <Icon icon="mdi:close" className="h-6 w-6 text-slate-500" />
           </button>
         </div>
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
           <FormField
+            id="email"
+            name="email"
             label="Username"
             inputClassName="h-11 border-primary/60"
             placeholder="Enter your username"
@@ -75,10 +78,11 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
               type: "email",
               value: email,
               onChange: (event) => setEmail(event.target.value),
-              required: true,
-            }}
+              required: true,              autoComplete: "email",            }}
           />
           <FormField
+            id="login-password"
+            name="password"
             label="Password"
             inputClassName="h-11 border-primary/60"
             placeholder="Enter your password"
@@ -86,8 +90,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
               type: "password",
               value: password,
               onChange: (event) => setPassword(event.target.value),
-              required: true,
-            }}
+              required: true,              autoComplete: "current-password",            }}
           />
           {error ? <p className="text-sm text-red-600">{error}</p> : null}
           <button type="button" className="text-sm font-semibold text-primary">

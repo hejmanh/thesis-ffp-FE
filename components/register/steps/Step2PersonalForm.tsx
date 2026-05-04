@@ -46,10 +46,12 @@ export default function Step2PersonalForm({
 
   return (
     <div className="mt-8">
-      <h2 className="text-center text-4xl font-bold text-primary">Personal Information</h2>
+      <h2 className="text-center text-3xl font-bold text-primary">Personal Information</h2>
       <div className="mx-auto mt-8 max-w-4xl space-y-7">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FormField
+            id="currentSavings"
+            name="currentSavings"
             label="Current Savings"
             className="sm:col-span-2"
             inputClassName="h-11"
@@ -57,25 +59,29 @@ export default function Step2PersonalForm({
             inputProps={{
               value: data.currentSavings,
               onChange: (event) => updateRoot("currentSavings", event.target.value),
+              autoComplete: "off",
             }}
           />
           <FormField
+            id="preferredCurrency"
+            name="preferredCurrency"
             label="Preferred Currency"
             variant="select"
             selectClassName="h-11"
-            selectProps={{
-              value: data.preferredCurrency,
-              onChange: (event) => updateRoot("preferredCurrency", event.target.value),
-            }}
+            value={data.preferredCurrency}
+            onChange={(value) => updateRoot("preferredCurrency", value)}
             options={CURRENCY_OPTIONS.map((currency) => ({ label: currency, value: currency }))}
           />
           <FormField
+            id="desiredLifeExpectancy"
+            name="desiredLifeExpectancy"
             label="Desired Life Expectancy"
             inputClassName="h-11"
             placeholder="90"
             inputProps={{
               value: data.desiredLifeExpectancy,
               onChange: (event) => updateRoot("desiredLifeExpectancy", event.target.value),
+              autoComplete: "off",
             }}
           />
         </div>
@@ -86,11 +92,14 @@ export default function Step2PersonalForm({
             {(["u", "mu", "rf"] as const).map((allocationKey) => (
               <FormField
                 key={allocationKey}
+                id={`beforeFfp_${allocationKey}`}
+                name={`beforeFfp_${allocationKey}`}
                 label={allocationKey.toUpperCase()}
                 placeholder="%"
                 inputProps={{
                   value: data.beforeFfp[allocationKey],
                   onChange: (event) => updateAllocation("beforeFfp", allocationKey, event.target.value),
+                  autoComplete: "off",
                 }}
               />
             ))}
@@ -103,11 +112,14 @@ export default function Step2PersonalForm({
             {(["u", "mu", "rf"] as const).map((allocationKey) => (
               <FormField
                 key={allocationKey}
+                id={`afterFfp_${allocationKey}`}
+                name={`afterFfp_${allocationKey}`}
                 label={allocationKey.toUpperCase()}
                 placeholder="%"
                 inputProps={{
                   value: data.afterFfp[allocationKey],
                   onChange: (event) => updateAllocation("afterFfp", allocationKey, event.target.value),
+                  autoComplete: "off",
                 }}
               />
             ))}
@@ -120,13 +132,13 @@ export default function Step2PersonalForm({
             {(Object.keys(data.habits) as Array<keyof Step2PersonalData["habits"]>).map((habitKey) => (
               <FormField
                 key={habitKey}
+                id={`habit_${habitKey}`}
+                name={`habit_${habitKey}`}
                 label={habitKey.charAt(0).toUpperCase() + habitKey.slice(1)}
                 variant="select"
                 placeholder="Select level"
-                selectProps={{
-                  value: data.habits[habitKey],
-                  onChange: (event) => updateHabit(habitKey, event.target.value),
-                }}
+                value={data.habits[habitKey]}
+                onChange={(value) => updateHabit(habitKey, value)}
                 options={HABIT_LEVELS.map((habit) => ({ label: habit, value: habit }))}
               />
             ))}

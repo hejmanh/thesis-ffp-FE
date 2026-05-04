@@ -8,9 +8,10 @@ import { getSession, logout } from "@/services/auth/mockAuth";
 interface HeaderProps {
   onLoginClick?: () => void;
   hideLoginButton?: boolean;
+  hideRegisterButton?: boolean;
 }
 
-export default function Header({ onLoginClick, hideLoginButton = false }: HeaderProps) {
+export default function Header({ onLoginClick, hideLoginButton = false, hideRegisterButton = false }: HeaderProps) {
   const [sessionEmail, setSessionEmail] = useState<string | null>(null);
 
   useEffect(() => {
@@ -60,9 +61,11 @@ export default function Header({ onLoginClick, hideLoginButton = false }: Header
                   </Link>
                 )
               ) : null}
-              <Link href="/register">
-                <Button size="sm">Register</Button>
-              </Link>
+              {!hideRegisterButton ? (
+                <Link href="/register">
+                  <Button size="sm">Register</Button>
+                </Link>
+              ) : null}
             </>
           )}
         </nav>

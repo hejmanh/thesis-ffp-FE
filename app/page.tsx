@@ -18,7 +18,7 @@ export default function Home() {
     <>
       <MainLayout onLoginClick={() => setShowLoginModal(true)}>
         <HeroSection />
-        <FeatureGrid features={FEATURES} />
+        <FeatureGrid features={FEATURES} onCardClick={() => setShowLoginModal(true)} />
       </MainLayout>
       <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
     </>
