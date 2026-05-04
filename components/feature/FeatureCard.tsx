@@ -29,16 +29,11 @@ export default function FeatureCard({
           <h3 className="text-lg font-semibold text-slate-900 xl:text-xl">{title}</h3>
           <p className="mt-2 text-sm leading-5 text-muted-foreground">{description}</p>
           <Input className="mt-3 xl:mt-4 !bg-primary-soft" placeholder={placeholder} readOnly />
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
+          <div
             className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary-600 xl:mt-3"
           >
             {ctaText}
-            <span aria-hidden="true">→</span>
-          </button>
+          </div>
         </div>
       </div>
     </Card>
