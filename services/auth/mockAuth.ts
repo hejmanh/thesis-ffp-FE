@@ -58,6 +58,7 @@ export async function registerStep1(payload: RegisterStep1Payload): Promise<Sess
   }
   const newUser: StoredUser = {
     id: crypto.randomUUID(),
+    name: payload.name,
     email: payload.email,
     password: payload.password,
     birthYear: payload.birthYear,
@@ -67,6 +68,7 @@ export async function registerStep1(payload: RegisterStep1Payload): Promise<Sess
   writeUsers([...users, newUser]);
   const sessionUser: SessionUser = {
     id: newUser.id,
+    name: newUser.name,
     email: newUser.email,
     birthYear: newUser.birthYear,
     country: newUser.country,
@@ -88,6 +90,7 @@ export async function login(payload: LoginPayload): Promise<SessionData> {
   }
   const sessionUser: SessionUser = {
     id: match.id,
+    name: match.name,
     email: match.email,
     birthYear: match.birthYear,
     country: match.country,
@@ -107,6 +110,7 @@ export async function autoLoginByEmail(email: string): Promise<SessionData> {
   }
   const sessionUser: SessionUser = {
     id: match.id,
+    name: match.name,
     email: match.email,
     birthYear: match.birthYear,
     country: match.country,

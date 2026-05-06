@@ -50,7 +50,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
       role="presentation"
     >
       <div
-        className="w-full max-w-2xl rounded-3xl bg-white p-6 shadow-xl sm:p-8"
+        className="w-full max-w-xl rounded-3xl bg-white p-5 shadow-xl sm:p-6"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-3">
@@ -67,30 +67,34 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
             <Icon icon="mdi:close" className="h-6 w-6 text-slate-500" />
           </button>
         </div>
-        <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+        <form className="mx-auto mt-6 w-full max-w-md space-y-4" onSubmit={handleSubmit}>
           <FormField
             id="email"
             name="email"
             label="Username"
-            inputClassName="h-11 border-primary/60"
+            inputClassName="h-10 border-primary/60"
             placeholder="Enter your username"
             inputProps={{
               type: "email",
               value: email,
               onChange: (event) => setEmail(event.target.value),
-              required: true,              autoComplete: "email",            }}
+              required: true,
+              autoComplete: "email",
+            }}
           />
           <FormField
             id="login-password"
             name="password"
             label="Password"
-            inputClassName="h-11 border-primary/60"
+            inputClassName="h-10 border-primary/60"
             placeholder="Enter your password"
             inputProps={{
               type: "password",
               value: password,
               onChange: (event) => setPassword(event.target.value),
-              required: true,              autoComplete: "current-password",            }}
+              required: true,
+              autoComplete: "current-password",
+            }}
           />
           {error ? <p className="text-sm text-red-600">{error}</p> : null}
           <button type="button" className="text-sm font-semibold text-primary">
@@ -98,7 +102,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
           </button>
           <Button
             type="submit"
-            className="h-11 w-full rounded-full"
+            className="h-10 w-full rounded-full"
             disabled={loading || !email || !password}
           >
             {loading ? "Logging in..." : "Log in"}

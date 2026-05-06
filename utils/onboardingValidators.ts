@@ -1,7 +1,15 @@
 import type { AssetItem, StageItem, Step1AccountData, Step2PersonalData } from "@/types/onboarding";
 
 export function validateStep1(data: Step1AccountData): string | null {
-  if (!data.email || !data.password || !data.confirmPassword || !data.birthYear || !data.country || !data.sex) {
+  if (
+    !data.name ||
+    !data.email ||
+    !data.password ||
+    !data.confirmPassword ||
+    !data.birthYear ||
+    !data.country ||
+    !data.sex
+  ) {
     return "Please fill all required fields.";
   }
   if (data.password !== data.confirmPassword) {

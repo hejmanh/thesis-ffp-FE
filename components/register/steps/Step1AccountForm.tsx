@@ -21,95 +21,110 @@ export default function Step1AccountForm({
   onFieldChange,
   onNext,
 }: Step1AccountFormProps) {
+  const currentYear = new Date().getFullYear();
+  const birthYearOptions = Array.from({ length: currentYear - 1940 + 1 }, (_, index) => {
+    const year = String(currentYear - index);
+    return { label: year, value: year };
+  });
+
   return (
     <div className="mt-8">
       <h2 className="text-center text-3xl font-bold text-primary">Registration</h2>
-      <div className="mx-auto mt-8 max-w-3xl space-y-5">
-        <FormField
-          id="email"
-          name="email"
-          label="Email"
-          labelClassName="text-3xl"
-          inputClassName="h-11 border-primary/60 text-lg"
-          placeholder="Enter your email"
-          inputProps={{
-            value: data.email,
-            type: "email",
-            onChange: (event) => onFieldChange("email", event.target.value),
-            autoComplete: "email",
-          }}
-        />
-        <FormField
-          id="password"
-          name="password"
-          label="Password"
-          labelClassName="text-3xl"
-          inputClassName="h-11 border-primary/60 text-lg"
-          placeholder="Enter your password"
-          inputProps={{
-            value: data.password,
-            type: "password",
-            onChange: (event) => onFieldChange("password", event.target.value),
-            autoComplete: "new-password",
-          }}
-        />
-        <FormField
-          id="confirmPassword"
-          name="confirmPassword"
-          label="Confirm Password"
-          labelClassName="text-3xl"
-          inputClassName="h-11 border-primary/60 text-lg"
-          placeholder="Confirm your password"
-          inputProps={{
-            value: data.confirmPassword,
-            type: "password",
-            onChange: (event) => onFieldChange("confirmPassword", event.target.value),
-            autoComplete: "new-password",
-          }}
-        />
-        <FormField
-          id="birthYear"
-          name="birthYear"
-          label="Birth Year"
-          labelClassName="text-3xl"
-          inputClassName="h-11 border-primary/60 text-lg"
-          placeholder="Enter your birth year"
-          inputProps={{
-            value: data.birthYear,
-            onChange: (event) => onFieldChange("birthYear", event.target.value),
-            autoComplete: "bday-year",
-          }}
-        />
-        <FormField
-          id="country"
-          name="country"
-          label="Country"
-          variant="select"
-          labelClassName="text-3xl"
-          selectClassName="h-11 border-primary/60 text-lg"
-          placeholder="Select your country"
-          value={data.country}
-          onChange={(value) => onFieldChange("country", value)}
-          options={COUNTRY_OPTIONS.map((country) => ({ label: country, value: country }))}
-          searchable={true}
-        />
-        <FormField
-          id="sex"
-          name="sex"
-          label="Gender"
-          variant="select"
-          labelClassName="text-3xl"
-          selectClassName="h-11 border-primary/60 text-lg"
-          placeholder="Select your gender"
-          value={data.sex}
-          onChange={(value) => onFieldChange("sex", value)}
-          options={SEX_OPTIONS.map((item) => ({ label: item, value: item }))}
-        />
+      <div className="mx-auto mt-8 max-w-2xl space-y-5">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
+          <FormField
+            id="name"
+            name="name"
+            label="Name"
+            inputClassName="h-10 border-primary/60"
+            placeholder="Enter your name"
+            inputProps={{
+              value: data.name,
+              onChange: (event) => onFieldChange("name", event.target.value),
+              autoComplete: "name",
+            }}
+          />
+          <FormField
+            id="sex"
+            name="sex"
+            label="Gender"
+            variant="select"
+            selectClassName="h-10 border-primary/60"
+            placeholder="Select gender"
+            value={data.sex}
+            onChange={(value) => onFieldChange("sex", value)}
+            options={SEX_OPTIONS.map((item) => ({ label: item, value: item }))}
+          />
+          <FormField
+            id="birthYear"
+            name="birthYear"
+            label="Birth Year"
+            variant="select"
+            selectClassName="h-10 border-primary/60"
+            placeholder="Select year"
+            value={data.birthYear}
+            onChange={(value) => onFieldChange("birthYear", value)}
+            options={birthYearOptions}
+          />
+          <FormField
+            id="country"
+            name="country"
+            label="Country"
+            variant="select"
+            selectClassName="h-10 border-primary/60"
+            placeholder="Select country"
+            value={data.country}
+            onChange={(value) => onFieldChange("country", value)}
+            options={COUNTRY_OPTIONS.map((country) => ({ label: country, value: country }))}
+            searchable={true}
+          />
+        </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <FormField
+            id="email"
+            name="email"
+            label="Email"
+            inputClassName="h-10 border-primary/60"
+            placeholder="Enter your email"
+            inputProps={{
+              value: data.email,
+              type: "email",
+              onChange: (event) => onFieldChange("email", event.target.value),
+              autoComplete: "email",
+            }}
+          />
+          <FormField
+            id="password"
+            name="password"
+            label="Password"
+            inputClassName="h-10 border-primary/60"
+            placeholder="Enter your password"
+            inputProps={{
+              value: data.password,
+              type: "password",
+              onChange: (event) => onFieldChange("password", event.target.value),
+              autoComplete: "new-password",
+            }}
+          />
+          <FormField
+            id="confirmPassword"
+            name="confirmPassword"
+            label="Confirm Password"
+            inputClassName="h-10 border-primary/60"
+            placeholder="Confirm your password"
+            inputProps={{
+              value: data.confirmPassword,
+              type: "password",
+              onChange: (event) => onFieldChange("confirmPassword", event.target.value),
+              autoComplete: "new-password",
+            }}
+          />
+        </div>
       </div>
       {error ? <p className="mt-4 text-center text-sm font-semibold text-red-600">{error}</p> : null}
-      <div className="mx-auto mt-8 max-w-3xl">
-        <Button className="h-11 w-full rounded-full text-lg" onClick={onNext} disabled={isSubmitting}>
-          {isSubmitting ? "Auto logging in..." : "Next"}
+      <div className="mx-auto mt-8 max-w-2xl">
+        <Button className="h-11 w-full rounded-full text-base" onClick={onNext} disabled={isSubmitting}>
+          {isSubmitting ? "Creating account..." : "Create account"}
         </Button>
       </div>
       <p className="mt-6 text-center text-sm text-muted-foreground">

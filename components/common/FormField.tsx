@@ -64,7 +64,7 @@ export default function FormField({
         className
       )}
     >
-      <span>{label}</span>
+      <span className="mb-1.5 inline-block">{label}</span>
 
       {variant === "select" ? (
         children ?? (

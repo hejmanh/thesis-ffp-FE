@@ -1,5 +1,6 @@
 export interface SessionUser {
   id: string;
+  name?: string;
   email: string;
   birthYear?: number;
   country?: string;
@@ -18,6 +19,7 @@ export interface LoginPayload {
 }
 
 export interface RegisterStep1Payload {
+  name: string;
   email: string;
   password: string;
   birthYear: number;

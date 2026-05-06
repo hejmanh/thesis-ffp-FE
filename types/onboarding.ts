@@ -1,4 +1,5 @@
 export interface Step1AccountData {
+  name: string;
   email: string;
   password: string;
   confirmPassword: string;

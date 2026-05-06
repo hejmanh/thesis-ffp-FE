@@ -8,7 +8,9 @@ export default function HeroSection() {
         Plan Your Financial Freedom
       </h1>
       <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">
-        Confused about your financial planning? Don&apos;t worry. Answer a few
+        Confused about your financial planning? Don&apos;t worry.
+        <br />
+        Answer a few
         simple questions and get clear insights to take control of your future.
       </p>
       <div className="absolute right-6 top-12 hidden items-center gap-1 rounded-full border border-border bg-surface px-2 py-1 shadow-md lg:flex">

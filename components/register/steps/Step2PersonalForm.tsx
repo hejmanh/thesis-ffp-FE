@@ -8,7 +8,7 @@ import { CURRENCY_OPTIONS, HABIT_LEVELS } from "@/utils/onboardingConstants";
 interface Step2PersonalFormProps {
   data: Step2PersonalData;
   error: string;
-  onBack: () => void;
+  onBack?: () => void;
   onNext: () => void;
   onChange: (next: Step2PersonalData) => void;
 }
@@ -147,9 +147,11 @@ export default function Step2PersonalForm({
       </div>
       {error ? <p className="mt-4 text-center text-sm font-semibold text-red-600">{error}</p> : null}
       <div className="mx-auto mt-8 flex max-w-4xl gap-3">
-        <Button variant="outline" className="h-12 flex-1 rounded-full text-base" onClick={onBack}>
-          Back
-        </Button>
+        {onBack ? (
+          <Button variant="outline" className="h-12 flex-1 rounded-full text-base" onClick={onBack}>
+            Back
+          </Button>
+        ) : null}
         <Button className="h-12 flex-1 rounded-full text-base" onClick={onNext}>
           Next
         </Button>

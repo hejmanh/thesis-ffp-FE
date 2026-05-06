@@ -39,6 +39,7 @@ export const COUNTRY_OPTIONS = [
 
 export const INITIAL_ONBOARDING_DRAFT: OnboardingDraft = {
   step1: {
+    name: "",
     email: "",
     password: "",
     confirmPassword: "",

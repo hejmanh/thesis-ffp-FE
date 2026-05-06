@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useSearchParams } from "next/navigation";
 import LoginModal from "@/components/auth/LoginModal";
 import FeatureGrid from "@/components/feature/FeatureGrid";
 import HeroSection from "@/components/hero/HeroSection";
@@ -9,10 +8,10 @@ import MainLayout from "@/layouts/MainLayout";
 import { FEATURES } from "@/utils/constants";
 
 export default function Home() {
-  const searchParams = useSearchParams();
-  const [showLoginModal, setShowLoginModal] = useState(
-    () => searchParams.get("login") === "1"
-  );
+  const [showLoginModal, setShowLoginModal] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return new URLSearchParams(window.location.search).get("login") === "1";
+  });
 
   return (
     <>
