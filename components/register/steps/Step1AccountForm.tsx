@@ -30,8 +30,8 @@ export default function Step1AccountForm({
   return (
     <div className="mt-8">
       <h2 className="text-center text-3xl font-bold text-primary">Registration</h2>
-      <div className="mx-auto mt-8 max-w-2xl space-y-5">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
+      <div className="mx-auto mt-8 max-w-5xl space-y-6">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-4">
           <FormField
             id="name"
             name="name"
@@ -122,7 +122,7 @@ export default function Step1AccountForm({
         </div>
       </div>
       {error ? <p className="mt-4 text-center text-sm font-semibold text-red-600">{error}</p> : null}
-      <div className="mx-auto mt-8 max-w-2xl">
+      <div className="mx-auto mt-8 max-w-5xl">
         <Button className="h-11 w-full rounded-full text-base" onClick={onNext} disabled={isSubmitting}>
           {isSubmitting ? "Creating account..." : "Create account"}
         </Button>
