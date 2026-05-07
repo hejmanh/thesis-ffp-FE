@@ -1,0 +1,120 @@
+"use client";
+
+import { useEffect, useState, type FormEvent } from "react";
+import Link from "next/link";
+import { Icon } from "@iconify/react";
+import Button from "@/components/common/Button";
+import FormField from "@/components/common/FormField";
+import { login } from "@/services/auth/mockAuth";
+
+interface LoginModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    function onEsc(event: KeyboardEvent) {
+      if (event.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", onEsc);
+    return () => window.removeEventListener("keydown", onEsc);
+  }, [isOpen, onClose]);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      await login({ email, password });
+      onClose();
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : "Login failed.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (!isOpen) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/35 p-4"
+      onClick={onClose}
+      role="presentation"
+    >
+      <div
+        className="w-full max-w-xl rounded-3xl bg-white p-5 shadow-xl sm:p-6"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1 text-center">
+            <h2 className="text-4xl font-bold text-primary">Welcome back</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Let&apos;s explore the app again with us.</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close login modal"
+            className="flex h-8 w-8 items-center justify-center rounded transition"
+          >
+            <Icon icon="mdi:close" className="h-6 w-6 text-slate-500" />
+          </button>
+        </div>
+        <form className="mx-auto mt-6 w-full max-w-md space-y-4" onSubmit={handleSubmit}>
+          <FormField
+            id="email"
+            name="email"
+            label="Username"
+            inputClassName="h-10 border-primary/60"
+            placeholder="Enter your username"
+            inputProps={{
+              type: "email",
+              value: email,
+              onChange: (event) => setEmail(event.target.value),
+              required: true,
+              autoComplete: "email",
+            }}
+          />
+          <FormField
+            id="login-password"
+            name="password"
+            label="Password"
+            inputClassName="h-10 border-primary/60"
+            placeholder="Enter your password"
+            inputProps={{
+              type: "password",
+              value: password,
+              onChange: (event) => setPassword(event.target.value),
+              required: true,
+              autoComplete: "current-password",
+            }}
+          />
+          {error ? <p className="text-sm text-red-600">{error}</p> : null}
+          <button type="button" className="text-sm font-semibold text-primary">
+            Forgot password?
+          </button>
+          <Button
+            type="submit"
+            className="h-10 w-full rounded-full"
+            disabled={loading || !email || !password}
+          >
+            {loading ? "Logging in..." : "Log in"}
+          </Button>
+          <p className="text-center text-sm text-muted-foreground">
+            Don&apos;t have an account?{" "}
+            <Link href="/register" className="font-semibold text-primary underline">
+              Sign up
+            </Link>
+          </p>
+        </form>
+      </div>
+    </div>
+  );
+}

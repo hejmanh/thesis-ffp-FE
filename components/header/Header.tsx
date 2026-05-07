@@ -41,10 +41,17 @@ export default function Header({ onLoginClick, hideLoginButton = false, hideRegi
         <nav className="flex items-center gap-3">
           {sessionEmail ? (
             <>
-              <span className="hidden text-sm text-muted-foreground sm:inline">{sessionEmail}</span>
-              <Button variant="outline" size="sm" onClick={handleLogout}>
-                Logout
-              </Button>
+              <Link
+                href="/account"
+                className="hidden text-sm text-muted-foreground underline-offset-4 hover:text-primary hover:underline sm:inline"
+              >
+                {sessionEmail}
+              </Link>
+              <Link href="/">
+                <Button variant="outline" size="sm" onClick={handleLogout}>
+                  Logout
+                </Button>
+              </Link>
             </>
           ) : (
             <>
