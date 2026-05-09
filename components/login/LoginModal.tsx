@@ -148,10 +148,10 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
             id="login-password"
             name="password"
             label="Password"
+            variant="password"
             inputClassName="h-10 border-primary/60"
             placeholder="Enter your password"
             inputProps={{
-              type: "password",
               value: password,
               onChange: (event) => setPassword(event.target.value),
               required: true,

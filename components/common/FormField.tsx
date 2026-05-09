@@ -3,9 +3,10 @@
 import type { InputHTMLAttributes, ReactNode } from "react";
 import DropdownField from "@/components/common/DropdownField";
 import Input from "@/components/common/Input";
+import PasswordInput from "@/components/common/PasswordInput";
 import { cn } from "@/utils/cn";
 
-type FormFieldVariant = "input" | "select";
+type FormFieldVariant = "input" | "select" | "password";
 
 interface SelectOption {
   label: string;
@@ -80,6 +81,14 @@ export default function FormField({
             searchable={searchable}
           />
         )
+      ) : variant === "password" ? (
+        <PasswordInput
+          id={id}
+          name={name}
+          className={cn(inputClassName)}
+          placeholder={placeholder}
+          {...inputProps}
+        />
       ) : (
         <Input
           id={id}

@@ -40,11 +40,11 @@ export default function PersonalInfoSection() {
         <h3 className="text-lg font-semibold text-slate-900">Security</h3>
         <p className="mt-1 text-sm text-muted-foreground">Update your password.</p>
         <div className="mt-6 space-y-4">
-          <FormField
+           <FormField
             label="Current password"
+            variant="password"
             inputClassName="h-11"
             inputProps={{
-              type: "password",
               value: securityData.currentPassword,
               placeholder: "Enter current password",
               onChange: (event) => updateSecurityField("currentPassword", event.target.value),
@@ -53,9 +53,9 @@ export default function PersonalInfoSection() {
           />
           <FormField
             label="New password"
+            variant="password"
             inputClassName="h-11"
             inputProps={{
-              type: "password",
               value: securityData.newPassword,
               placeholder: "Enter new password",
               onChange: (event) => updateSecurityField("newPassword", event.target.value),
@@ -64,9 +64,9 @@ export default function PersonalInfoSection() {
           />
           <FormField
             label="Confirm password"
+            variant="password"
             inputClassName="h-11"
             inputProps={{
-              type: "password",
               value: securityData.confirmPassword,
               placeholder: "Confirm new password",
               onChange: (event) => updateSecurityField("confirmPassword", event.target.value),

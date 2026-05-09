@@ -51,11 +51,11 @@ export default function Step1AccountForm({
             id="password"
             name="password"
             label="Password"
+            variant="password"
             inputClassName="h-10 border-primary/60"
             placeholder="Enter your password"
             inputProps={{
               value: data.password,
-              type: "password",
               onChange: (event) => onFieldChange("password", event.target.value),
               autoComplete: "new-password",
             }}
@@ -64,11 +64,11 @@ export default function Step1AccountForm({
             id="confirmPassword"
             name="confirmPassword"
             label="Confirm Password"
+            variant="password"
             inputClassName="h-10 border-primary/60"
             placeholder="Confirm your password"
             inputProps={{
               value: data.confirmPassword,
-              type: "password",
               onChange: (event) => onFieldChange("confirmPassword", event.target.value),
               autoComplete: "new-password",
             }}
