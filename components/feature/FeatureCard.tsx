@@ -28,7 +28,7 @@ export default function FeatureCard({
         <div>
           <h3 className="text-lg font-semibold text-slate-900 xl:text-xl">{title}</h3>
           <p className="mt-2 text-sm leading-5 text-muted-foreground">{description}</p>
-          <Input className="mt-3 bg-primary-soft! xl:mt-4" placeholder={placeholder} readOnly />
+          <Input className="mt-3 !bg-primary-soft xl:mt-4" placeholder={placeholder} readOnly />
           <div
             className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary-600 xl:mt-3"
           >
