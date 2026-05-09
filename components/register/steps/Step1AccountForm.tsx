@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import Button from "@/components/common/Button";
 import Link from "next/link";
 import FormField from "@/components/common/FormField";
@@ -21,6 +22,7 @@ export default function Step1AccountForm({
   onFieldChange,
   onNext,
 }: Step1AccountFormProps) {
+  const router = useRouter();
   const currentYear = new Date().getFullYear();
   const birthYearOptions = Array.from({ length: currentYear - 1940 + 1 }, (_, index) => {
     const year = String(currentYear - index);
@@ -129,9 +131,13 @@ export default function Step1AccountForm({
       </div>
       <p className="mt-6 text-center text-sm text-muted-foreground">
         Already have an account?{" "}
-        <Link href="/?login=1" className="font-semibold text-primary underline">
+        <button
+          type="button"
+          onClick={() => router.push("/?login=1")}
+          className="font-semibold text-primary underline hover:text-primary-600 transition"
+        >
           Sign in
-        </Link>
+        </button>
       </p>
     </div>
   );
