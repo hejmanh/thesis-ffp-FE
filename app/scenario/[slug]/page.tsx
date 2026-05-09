@@ -1,11 +1,11 @@
 import MainLayout from "@/layouts/MainLayout";
 
 interface ScenarioPageProps {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 }
 
 export default async function ScenarioPage({ params }: ScenarioPageProps) {
-  const { slug } = await params;
+  const { slug } = params;
 
   return (
     <MainLayout>
