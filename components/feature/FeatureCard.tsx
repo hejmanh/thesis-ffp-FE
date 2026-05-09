@@ -10,7 +10,6 @@ export default function FeatureCard({
   description,
   placeholder,
   ctaText,
-  href = "#",
   onCardClick,
 }: FeatureItem & { onCardClick?: () => void }) {
   return (
