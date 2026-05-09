@@ -99,6 +99,7 @@ export default function StageForm({ stage, index, onChange, onRemove }: StageFor
         <FormField
           label="Currency"
           variant="select"
+          selectClassName="h-11"
           placeholder="Select currency"
           value={draft.currency}
           onChange={(value) => updateField("currency", value)}

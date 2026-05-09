@@ -1,7 +1,6 @@
 "use client";
 
 import { useReducer } from "react";
-import Button from "@/components/common/Button";
 import Card from "@/components/common/Card";
 import AssetForm from "@/components/account/forms/AssetForm";
 import FinancialForm from "@/components/account/forms/FinancialForm";
@@ -139,9 +138,9 @@ export default function FinancialSection() {
         <div className="space-y-4 rounded-xl border border-border bg-slate-50 p-4">
           <div className="flex items-center justify-between">
             <h3 className="text-base font-semibold text-slate-900">Life Stages</h3>
-            <Button size="sm" onClick={() => dispatch({ type: "add_stage" })}>
+            <button type="button" onClick={() => dispatch({ type: "add_stage" })} className="text-sm font-semibold text-primary">
               + Add stage
-            </Button>
+            </button>
           </div>
           {financialData.stages.length === 0 ? (
             <p className="text-sm text-muted-foreground">No stages yet.</p>
@@ -161,9 +160,9 @@ export default function FinancialSection() {
         <div className="space-y-4 rounded-xl border border-border bg-slate-50 p-4">
           <div className="flex items-center justify-between">
             <h3 className="text-base font-semibold text-slate-900">Assets</h3>
-            <Button size="sm" onClick={() => dispatch({ type: "add_asset" })}>
+            <button type="button" onClick={() => dispatch({ type: "add_asset" })} className="text-sm font-semibold text-primary">
               + Add asset
-            </Button>
+            </button>
           </div>
           {financialData.assets.length === 0 ? (
             <p className="text-sm text-muted-foreground">No assets yet.</p>

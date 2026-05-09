@@ -90,6 +90,7 @@ export default function AssetForm({ asset, index, onChange, onRemove }: AssetFor
           label="Currency"
           variant="select"
           placeholder="Select currency"
+          selectClassName="h-11"
           value={draft.currency}
           onChange={(value) => updateField("currency", value)}
           options={CURRENCY_OPTIONS.map((currency) => ({ label: currency, value: currency }))}
@@ -98,6 +99,7 @@ export default function AssetForm({ asset, index, onChange, onRemove }: AssetFor
           label="Type"
           variant="select"
           placeholder="Select type"
+          selectClassName="h-11"
           value={draft.type}
           onChange={(value) => updateField("type", value)}
           options={ASSET_TYPES.map((type) => ({ label: type, value: type }))}

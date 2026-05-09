@@ -83,7 +83,7 @@ export default function FinancialForm({
 
       <div className="rounded-xl border border-border bg-slate-50 p-4">
         <h3 className="text-base font-semibold text-slate-900">Habits</h3>
-        <div className="mt-4 grid grid-cols-1 gap-4 space-y-2 sm:grid-cols-2">
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {(Object.keys(data.habits) as Array<keyof Habits>).map((habit) => (
             <div
               key={habit}
@@ -91,6 +91,7 @@ export default function FinancialForm({
               <FormField
                 label={HABIT_LABELS[habit]}
                 variant="select"
+                selectClassName="h-11"
                 placeholder="Select level"
                 value={data.habits[habit]}
                 onChange={(value) => onHabitChange(habit, value)}

@@ -31,6 +31,47 @@ export default function Step1AccountForm({
     <div className="mt-8">
       <h2 className="text-center text-3xl font-bold text-primary">Registration</h2>
       <div className="mx-auto mt-8 max-w-5xl space-y-6">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <FormField
+            id="email"
+            name="email"
+            label="Email"
+            inputClassName="h-10 border-primary/60"
+            placeholder="Enter your email"
+            inputProps={{
+              value: data.email,
+              type: "email",
+              onChange: (event) => onFieldChange("email", event.target.value),
+              autoComplete: "email",
+            }}
+          />
+          <FormField
+            id="password"
+            name="password"
+            label="Password"
+            inputClassName="h-10 border-primary/60"
+            placeholder="Enter your password"
+            inputProps={{
+              value: data.password,
+              type: "password",
+              onChange: (event) => onFieldChange("password", event.target.value),
+              autoComplete: "new-password",
+            }}
+          />
+          <FormField
+            id="confirmPassword"
+            name="confirmPassword"
+            label="Confirm Password"
+            inputClassName="h-10 border-primary/60"
+            placeholder="Confirm your password"
+            inputProps={{
+              value: data.confirmPassword,
+              type: "password",
+              onChange: (event) => onFieldChange("confirmPassword", event.target.value),
+              autoComplete: "new-password",
+            }}
+          />
+        </div>
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-4">
           <FormField
             id="name"
@@ -77,47 +118,6 @@ export default function Step1AccountForm({
             onChange={(value) => onFieldChange("country", value)}
             options={COUNTRY_OPTIONS.map((country) => ({ label: country, value: country }))}
             searchable={true}
-          />
-        </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <FormField
-            id="email"
-            name="email"
-            label="Email"
-            inputClassName="h-10 border-primary/60"
-            placeholder="Enter your email"
-            inputProps={{
-              value: data.email,
-              type: "email",
-              onChange: (event) => onFieldChange("email", event.target.value),
-              autoComplete: "email",
-            }}
-          />
-          <FormField
-            id="password"
-            name="password"
-            label="Password"
-            inputClassName="h-10 border-primary/60"
-            placeholder="Enter your password"
-            inputProps={{
-              value: data.password,
-              type: "password",
-              onChange: (event) => onFieldChange("password", event.target.value),
-              autoComplete: "new-password",
-            }}
-          />
-          <FormField
-            id="confirmPassword"
-            name="confirmPassword"
-            label="Confirm Password"
-            inputClassName="h-10 border-primary/60"
-            placeholder="Confirm your password"
-            inputProps={{
-              value: data.confirmPassword,
-              type: "password",
-              onChange: (event) => onFieldChange("confirmPassword", event.target.value),
-              autoComplete: "new-password",
-            }}
           />
         </div>
       </div>

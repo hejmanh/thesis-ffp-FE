@@ -27,7 +27,7 @@ export default function AccountSidebar({ activeTab, onTabChange, onLogout }: Acc
             onClick={() => onTabChange(tab.value)}
             className={cn(
               "w-full rounded-lg px-3 py-2 text-left text-sm font-medium transition",
-              activeTab === tab.value ? "bg-primary text-white" : "text-slate-700"
+              activeTab === tab.value ? "bg-primary-soft text-slate-700" : "text-slate-700"
             )}
           >
             {tab.label}

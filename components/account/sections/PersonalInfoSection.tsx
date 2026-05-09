@@ -46,6 +46,7 @@ export default function PersonalInfoSection() {
             inputProps={{
               type: "password",
               value: securityData.currentPassword,
+              placeholder: "Enter current password",
               onChange: (event) => updateSecurityField("currentPassword", event.target.value),
               autoComplete: "current-password",
             }}
@@ -56,6 +57,7 @@ export default function PersonalInfoSection() {
             inputProps={{
               type: "password",
               value: securityData.newPassword,
+              placeholder: "Enter new password",
               onChange: (event) => updateSecurityField("newPassword", event.target.value),
               autoComplete: "new-password",
             }}
@@ -66,6 +68,7 @@ export default function PersonalInfoSection() {
             inputProps={{
               type: "password",
               value: securityData.confirmPassword,
+              placeholder: "Confirm new password",
               onChange: (event) => updateSecurityField("confirmPassword", event.target.value),
               autoComplete: "new-password",
             }}
