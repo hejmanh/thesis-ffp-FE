@@ -6,13 +6,17 @@ import { Icon } from "@iconify/react";
 import Button from "@/components/common/Button";
 import FormField from "@/components/common/FormField";
 import { login } from "@/services/auth/mockAuth";
+import SharedLoginModal from "@/components/login/LoginModal";
 
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
+export default function LoginModal(props: LoginModalProps) {
+  return <SharedLoginModal {...props} />;
+
+  const { isOpen, onClose } = props;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
