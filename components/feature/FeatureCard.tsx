@@ -13,10 +13,10 @@ export default function FeatureCard({
   onCardClick,
 }: FeatureItem & { onCardClick?: () => void }) {
   return (
-  return (
     <Card
       className="w-full max-w-130 cursor-pointer p-4 sm:p-5 xl:p-6"
       onClick={() => onCardClick?.()}
+    >
       <span className="mb-3 inline-flex rounded-full bg-primary-soft px-2 py-0.5 text-xs font-semibold text-primary sm:mb-4">
         {id}
       </span>
