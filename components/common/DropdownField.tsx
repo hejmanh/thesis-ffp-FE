@@ -125,7 +125,7 @@ export default function DropdownField({
         onClick={() => setOpen(!open)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        aria-controls={`${id}-listbox`}
+        aria-controls={id ? `${id}-listbox` : undefined}
         className={cn(
           "inline-flex h-9 w-full items-center justify-between rounded-full border border-gray-300 bg-white px-3 text-sm leading-tight text-slate-700 outline-none transition focus-visible:ring-2 focus-visible:ring-ring hover:bg-gray-50",
           buttonClassName
