@@ -1,5 +1,9 @@
 "use client";
 
+// ⚠️ MOCK AUTH - DEVELOPMENT ONLY
+// This is for demo/testing purposes only. Do NOT use in production.
+// In production, all authentication must be server-side with proper security.
+
 import type {
   LoginPayload,
   RegisterStep1Payload,
@@ -11,14 +15,19 @@ import { deleteCookie, getCookie, setCookie } from "@/utils/cookies";
 const SESSION_COOKIE = "coinfused_mock_session";
 const USERS_KEY = "coinfused_mock_users";
 
+// Demo users - passwords are NOT persisted, only stored in memory during session
 interface StoredUser extends SessionUser {
-  password: string;
+  // Password is NEVER stored in localStorage - only kept in-memory for this session
 }
+
+// In-memory registry to validate logins (cleared on page refresh)
+const inMemoryUsers = new Map<string, { email: string; passwordHash: string }>();
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// Read user data WITHOUT passwords from localStorage
 function readUsers(): StoredUser[] {
   if (typeof window === "undefined") return [];
   const raw = window.localStorage.getItem(USERS_KEY);
@@ -30,9 +39,21 @@ function readUsers(): StoredUser[] {
   }
 }
 
+// Write user data (WITHOUT passwords) to localStorage
 function writeUsers(users: StoredUser[]): void {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(USERS_KEY, JSON.stringify(users));
+}
+
+// Simple hash for demo purposes (NOT production-grade)
+function simpleHash(str: string): string {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  return Math.abs(hash).toString(36);
 }
 
 function createSession(user: SessionUser): SessionData {
@@ -56,38 +77,42 @@ export async function registerStep1(payload: RegisterStep1Payload): Promise<Sess
   if (users.some((user) => user.email.toLowerCase() === payload.email.toLowerCase())) {
     throw new Error("This email has already been registered.");
   }
+  const newUserId = crypto.randomUUID();
   const newUser: StoredUser = {
-    id: crypto.randomUUID(),
+    id: newUserId,
     name: payload.name,
     email: payload.email,
-    password: payload.password,
     birthYear: payload.birthYear,
     country: payload.country,
     sex: payload.sex,
   };
   writeUsers([...users, newUser]);
-  const sessionUser: SessionUser = {
-    id: newUser.id,
-    name: newUser.name,
-    email: newUser.email,
-    birthYear: newUser.birthYear,
-    country: newUser.country,
-    sex: newUser.sex,
-  };
-  return sessionUser;
+  
+  // Store password hash in-memory only (cleared on page refresh)
+  inMemoryUsers.set(newUserId, {
+    email: payload.email,
+    passwordHash: simpleHash(payload.password),
+  });
+
+  return newUser;
 }
 
 export async function login(payload: LoginPayload): Promise<SessionData> {
   await sleep(600);
   const users = readUsers();
   const match = users.find(
-    (user) =>
-      user.email.toLowerCase() === payload.email.toLowerCase() &&
-      user.password === payload.password
+    (user) => user.email.toLowerCase() === payload.email.toLowerCase()
   );
   if (!match) {
     throw new Error("Invalid email or password.");
   }
+
+  // Verify password against in-memory hash
+  const storedHash = inMemoryUsers.get(match.id);
+  if (!storedHash || storedHash.passwordHash !== simpleHash(payload.password)) {
+    throw new Error("Invalid email or password.");
+  }
+
   const sessionUser: SessionUser = {
     id: match.id,
     name: match.name,
@@ -136,4 +161,13 @@ export function logout(): void {
   if (typeof window !== "undefined") {
     window.dispatchEvent(new Event("coinfused-auth-changed"));
   }
+}
+
+export function clearAllMockData(): void {
+  if (typeof window === "undefined") return;
+  window.localStorage.removeItem(USERS_KEY);
+  inMemoryUsers.clear();
+  console.warn(
+    "⚠️ All mock auth data cleared. This is a development-only utility."
+  );
 }

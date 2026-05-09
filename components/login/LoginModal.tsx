@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
 import Button from "@/components/common/Button";
@@ -17,14 +17,65 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const previouslyFocusedElement = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
-    function onEsc(event: KeyboardEvent) {
-      if (event.key === "Escape") onClose();
+
+    // Store the previously focused element to restore later
+    previouslyFocusedElement.current = document.activeElement as HTMLElement;
+
+    // Focus the close button as initial focus
+    const timer = setTimeout(() => {
+      closeButtonRef.current?.focus();
+    }, 0);
+
+    function handleEsc(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+      }
     }
-    window.addEventListener("keydown", onEsc);
-    return () => window.removeEventListener("keydown", onEsc);
+
+    function handleFocusTrap(event: KeyboardEvent) {
+      if (event.key !== "Tab" || !modalRef.current) return;
+
+      const focusableElements = modalRef.current.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      const firstElement = focusableElements[0] as HTMLElement;
+      const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+      if (event.shiftKey) {
+        if (document.activeElement === firstElement) {
+          event.preventDefault();
+          lastElement?.focus();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          event.preventDefault();
+          firstElement?.focus();
+        }
+      }
+    }
+
+    // Prevent body scroll when modal is open
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    window.addEventListener("keydown", handleEsc);
+    window.addEventListener("keydown", handleFocusTrap);
+
+    return () => {
+      window.removeEventListener("keydown", handleEsc);
+      window.removeEventListener("keydown", handleFocusTrap);
+      document.body.style.overflow = originalOverflow;
+      clearTimeout(timer);
+      // Restore focus to the previously focused element
+      previouslyFocusedElement.current?.focus();
+    };
   }, [isOpen, onClose]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -48,21 +99,32 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/35 p-4"
       onClick={onClose}
       role="presentation"
+      aria-hidden={!isOpen}
     >
       <div
+        ref={modalRef}
         className="w-full max-w-xl rounded-3xl bg-white p-5 shadow-xl sm:p-6"
         onClick={(event) => event.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="login-modal-title"
+        aria-describedby="login-modal-description"
       >
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 text-center">
-            <h2 className="text-4xl font-bold text-primary">Welcome back</h2>
-            <p className="mt-2 text-sm text-muted-foreground">Let&apos;s explore the app again with us.</p>
+            <h2 id="login-modal-title" className="text-4xl font-bold text-primary">
+              Welcome back
+            </h2>
+            <p id="login-modal-description" className="mt-2 text-sm text-muted-foreground">
+              Let&apos;s explore the app again with us.
+            </p>
           </div>
           <button
+            ref={closeButtonRef}
             type="button"
             onClick={onClose}
             aria-label="Close login modal"
-            className="flex h-8 w-8 items-center justify-center rounded transition"
+            className="flex h-8 w-8 items-center justify-center rounded transition hover:bg-gray-100"
           >
             <Icon icon="mdi:close" className="h-6 w-6 text-slate-500" />
           </button>
