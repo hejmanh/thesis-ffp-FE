@@ -85,7 +85,7 @@ export default function FinancialProfileFields<HabitKey extends string>({
   return (
     <div className="space-y-6">
       <div className={cardClassName}>
-        <h3 className={titleClassName}>Personal Profile</h3>
+        <h3 className={titleClassName}>Financial Profile</h3>
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FormField
             id={`${idPrefix}estimatedLifeExpectancy`}
