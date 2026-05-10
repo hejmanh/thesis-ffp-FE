@@ -77,8 +77,9 @@ export default function FinancialForm({
                   <p className="text-sm italic text-slate-500">{ALLOCATION_LABELS[key].symbol}</p>
                 </div>
                 <FormField
-                  inputClassName="h-11"
-                  placeholder="0"
+                  label=""
+                  inputClassName="h-11 w-24"
+                  suffix="%"
                   inputProps={{
                     value: data.allocation[period][key],
                     onChange: (event) => onAllocationChange(period, key, event.target.value),

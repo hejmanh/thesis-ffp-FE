@@ -102,10 +102,11 @@ export default function Step2PersonalForm({
                   <p className="text-sm italic text-slate-500">{allocationLabels[allocationKey].symbol}</p>
                 </div>
                 <FormField
-                  label={allocationLabels[allocationKey].symbol}
+                  label=""
                   id={`beforeFfp_${allocationKey}`}
                   name={`beforeFfp_${allocationKey}`}
-                  placeholder="%"
+                  inputClassName="w-24"
+                  suffix="%"
                   inputProps={{
                     value: data.beforeFfp[allocationKey],
                     onChange: (event) => updateAllocation("beforeFfp", allocationKey, event.target.value),
@@ -127,10 +128,11 @@ export default function Step2PersonalForm({
                   <p className="text-sm italic text-slate-500">{allocationLabels[allocationKey].symbol}</p>
                 </div>
                 <FormField
-                  label={allocationLabels[allocationKey].symbol}
+                  label=""
                   id={`afterFfp_${allocationKey}`}
                   name={`afterFfp_${allocationKey}`}
-                  placeholder="%"
+                  inputClassName="w-24"
+                  suffix="%"
                   inputProps={{
                     value: data.afterFfp[allocationKey],
                     onChange: (event) => updateAllocation("afterFfp", allocationKey, event.target.value),
