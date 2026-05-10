@@ -121,8 +121,8 @@ export default function Step2PersonalForm({
                     label=""
                     id={`${section.key}_${allocationKey}`}
                     name={`${section.key}_${allocationKey}`}
-                    inputContainerClassName="w-16"
-                    inputClassName="h-11"
+                    inputContainerClassName="w-20"
+                    inputClassName="h-11 px-2 pr-5"
                     suffix="%"
                     inputProps={{
                       value: data[section.key][allocationKey],

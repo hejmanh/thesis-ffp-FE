@@ -86,8 +86,8 @@ export default function FinancialForm({
                 </div>
                 <FormField
                   label=""
-                  inputContainerClassName="w-16"
-                  inputClassName="h-11"
+                  inputContainerClassName="w-20"
+                  inputClassName="h-11 px-2 pr-5"
                   suffix="%"
                   inputProps={{
                     value: data.allocation[period][key],
