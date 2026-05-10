@@ -30,6 +30,7 @@ export interface Asset {
 }
 
 export interface FinancialData {
+  estimatedLE: string;
   savings: string;
   currency: string;
   desiredLE: string;

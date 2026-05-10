@@ -1,9 +1,9 @@
 "use client";
 
 import Button from "@/components/common/Button";
-import FormField from "@/components/common/FormField";
+import FinancialProfileFields from "@/components/common/FinancialProfileFields";
 import type { Step2PersonalData } from "@/types/onboarding";
-import { CURRENCY_OPTIONS, HABIT_LEVELS } from "@/utils/onboardingConstants";
+ 
 
 interface Step2PersonalFormProps {
   data: Step2PersonalData;
@@ -12,6 +12,13 @@ interface Step2PersonalFormProps {
   onNext: () => void;
   onChange: (next: Step2PersonalData) => void;
 }
+
+const HABIT_LABELS: Record<keyof Step2PersonalData["habits"], string> = {
+  smoke: "Smoking",
+  physical: "Physical Activity",
+  diet: "Healthy Diet",
+  alcohol: "Alcohol Consumption",
+};
 
 export default function Step2PersonalForm({
   data,
@@ -48,102 +55,45 @@ export default function Step2PersonalForm({
     <div className="mt-8">
       <h2 className="text-center text-3xl font-bold text-primary">Personal Information</h2>
       <div className="mx-auto mt-8 max-w-4xl space-y-7">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <FormField
-            id="currentSavings"
-            name="currentSavings"
-            label="Current Savings"
-            className="sm:col-span-2"
-            inputClassName="h-11"
-            placeholder="Current savings amount"
-            inputProps={{
-              value: data.currentSavings,
-              onChange: (event) => updateRoot("currentSavings", event.target.value),
-              autoComplete: "off",
-            }}
-          />
-          <FormField
-            id="preferredCurrency"
-            name="preferredCurrency"
-            label="Preferred Currency"
-            variant="select"
-            selectClassName="h-11"
-            value={data.preferredCurrency}
-            onChange={(value) => updateRoot("preferredCurrency", value)}
-            options={CURRENCY_OPTIONS.map((currency) => ({ label: currency, value: currency }))}
-          />
-          <FormField
-            id="desiredLifeExpectancy"
-            name="desiredLifeExpectancy"
-            label="Desired Life Expectancy"
-            inputClassName="h-11"
-            placeholder="90"
-            inputProps={{
-              value: data.desiredLifeExpectancy,
-              onChange: (event) => updateRoot("desiredLifeExpectancy", event.target.value),
-              autoComplete: "off",
-            }}
-          />
-        </div>
-
-        <div className="rounded-2xl border border-border bg-white p-5">
-          <h3 className="text-lg font-semibold text-slate-900">Asset Allocation Before FFP</h3>
-          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {(["u", "mu", "rf"] as const).map((allocationKey) => (
-              <FormField
-                key={allocationKey}
-                id={`beforeFfp_${allocationKey}`}
-                name={`beforeFfp_${allocationKey}`}
-                label={allocationKey.toUpperCase()}
-                placeholder="%"
-                inputProps={{
-                  value: data.beforeFfp[allocationKey],
-                  onChange: (event) => updateAllocation("beforeFfp", allocationKey, event.target.value),
-                  autoComplete: "off",
-                }}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-border bg-white p-5">
-          <h3 className="text-lg font-semibold text-slate-900">Asset Allocation After FFP</h3>
-          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {(["u", "mu", "rf"] as const).map((allocationKey) => (
-              <FormField
-                key={allocationKey}
-                id={`afterFfp_${allocationKey}`}
-                name={`afterFfp_${allocationKey}`}
-                label={allocationKey.toUpperCase()}
-                placeholder="%"
-                inputProps={{
-                  value: data.afterFfp[allocationKey],
-                  onChange: (event) => updateAllocation("afterFfp", allocationKey, event.target.value),
-                  autoComplete: "off",
-                }}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-border bg-white p-5">
-          <h3 className="text-lg font-semibold text-slate-900">Habits</h3>
-          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {(Object.keys(data.habits) as Array<keyof Step2PersonalData["habits"]>).map((habitKey) => (
-              <FormField
-                key={habitKey}
-                id={`habit_${habitKey}`}
-                name={`habit_${habitKey}`}
-                label={habitKey.charAt(0).toUpperCase() + habitKey.slice(1)}
-                variant="select"
-                placeholder="Select level"
-                value={data.habits[habitKey]}
-                onChange={(value) => updateHabit(habitKey, value)}
-                options={HABIT_LEVELS.map((habit) => ({ label: habit, value: habit }))}
-              />
-            ))}
-          </div>
-        </div>
+        <FinancialProfileFields
+          profile={{
+            estimatedLifeExpectancy: data.estimatedLifeExpectancy,
+            desiredLifeExpectancy: data.desiredLifeExpectancy,
+            currentSavings: data.currentSavings,
+            preferredCurrency: data.preferredCurrency,
+          }}
+          allocations={{
+            before: data.beforeFfp,
+            after: data.afterFfp,
+          }}
+          habits={(Object.keys(data.habits) as Array<keyof Step2PersonalData["habits"]>).map((habit) => ({
+            key: habit,
+            label: HABIT_LABELS[habit],
+            value: data.habits[habit],
+          }))}
+          onRootChange={(field, value) => {
+            const fieldMap = {
+              estimatedLifeExpectancy: "estimatedLifeExpectancy",
+              desiredLifeExpectancy: "desiredLifeExpectancy",
+              currentSavings: "currentSavings",
+              preferredCurrency: "preferredCurrency",
+            } as const;
+            updateRoot(fieldMap[field], value);
+          }}
+          onAllocationChange={(period, key, value) =>
+            updateAllocation(period === "before" ? "beforeFfp" : "afterFfp", key, value)
+          }
+          onHabitChange={updateHabit}
+          idPrefix="step2_"
+          cardClassName="rounded-2xl border border-border bg-slate-50 p-5"
+          titleClassName="text-lg font-semibold text-slate-900"
+          fieldLabels={{
+            estimatedLifeExpectancy: "Estimated Life Expectancy",
+            desiredLifeExpectancy: "Desired Life Expectancy",
+            preferredCurrency: "Preferred Currency",
+          }}
+          currentSavingsPlaceholder="Current savings amount"
+        />
       </div>
       {error ? <p className="mt-4 text-center text-sm font-semibold text-red-600">{error}</p> : null}
       <div className="mx-auto mt-8 flex max-w-4xl gap-3">

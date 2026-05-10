@@ -1,12 +1,11 @@
 "use client";
 
-import FormField from "@/components/common/FormField";
+import FinancialProfileFields from "@/components/common/FinancialProfileFields";
 import type { Allocation, FinancialData, Habits } from "@/utils/types";
-import { CURRENCY_OPTIONS, HABIT_LEVELS } from "@/utils/onboardingConstants";
 
 interface FinancialFormProps {
   data: FinancialData;
-  onRootChange: (field: "savings" | "currency" | "desiredLE", value: string) => void;
+  onRootChange: (field: "estimatedLE" | "savings" | "currency" | "desiredLE", value: string) => void;
   onAllocationChange: (period: "before" | "after", key: keyof Allocation, value: string) => void;
   onHabitChange: (key: keyof Habits, value: string) => void;
 }
@@ -25,82 +24,30 @@ export default function FinancialForm({
   onHabitChange,
 }: FinancialFormProps) {
   return (
-    <div className="space-y-6">
-      <div className="rounded-xl border border-border bg-slate-50 p-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <FormField
-          label="Current Savings"
-          className="sm:col-span-2"
-          inputClassName="h-11"
-          placeholder="100000"
-          inputProps={{
-            value: data.savings,
-            onChange: (event) => onRootChange("savings", event.target.value),
-            autoComplete: "off",
-          }}
-        />
-        <FormField
-          label="Currency"
-          variant="select"
-          selectClassName="h-11"
-          value={data.currency}
-          onChange={(value) => onRootChange("currency", value)}
-          options={CURRENCY_OPTIONS.map((currency) => ({ label: currency, value: currency }))}
-        />
-        <FormField
-          label="Desired LE"
-          inputClassName="h-11"
-          placeholder="90"
-          inputProps={{
-            value: data.desiredLE,
-            onChange: (event) => onRootChange("desiredLE", event.target.value),
-            autoComplete: "off",
-          }}
-        />
-      </div>
-
-      {(["before", "after"] as const).map((period) => (
-        <div key={period} className="rounded-xl border border-border bg-slate-50 p-4">
-          <h3 className="text-base font-semibold text-slate-900">
-            Asset Allocation {period === "before" ? "Before FFP" : "After FFP"}
-          </h3>
-          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {(["u", "mu", "rf"] as const).map((key) => (
-              <FormField
-                key={`${period}_${key}`}
-                label={key.toUpperCase()}
-                inputClassName="h-11"
-                placeholder="0"
-                inputProps={{
-                  value: data.allocation[period][key],
-                  onChange: (event) => onAllocationChange(period, key, event.target.value),
-                  autoComplete: "off",
-                }}
-              />
-            ))}
-          </div>
-        </div>
-      ))}
-
-      <div className="rounded-xl border border-border bg-slate-50 p-4">
-        <h3 className="text-base font-semibold text-slate-900">Habits</h3>
-        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {(Object.keys(data.habits) as Array<keyof Habits>).map((habit) => (
-            <div
-              key={habit}
-            >
-              <FormField
-                label={HABIT_LABELS[habit]}
-                variant="select"
-                selectClassName="h-11"
-                placeholder="Select level"
-                value={data.habits[habit]}
-                onChange={(value) => onHabitChange(habit, value)}
-                options={HABIT_LEVELS.map((item) => ({ label: item, value: item }))}
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
+    <FinancialProfileFields
+      profile={{
+        estimatedLifeExpectancy: data.estimatedLE,
+        desiredLifeExpectancy: data.desiredLE,
+        currentSavings: data.savings,
+        preferredCurrency: data.currency,
+      }}
+      allocations={data.allocation}
+      habits={(Object.keys(data.habits) as Array<keyof Habits>).map((habit) => ({
+        key: habit,
+        label: HABIT_LABELS[habit],
+        value: data.habits[habit],
+      }))}
+      onRootChange={(field, value) => {
+        const fieldMap = {
+          estimatedLifeExpectancy: "estimatedLE",
+          desiredLifeExpectancy: "desiredLE",
+          currentSavings: "savings",
+          preferredCurrency: "currency",
+        } as const;
+        onRootChange(fieldMap[field], value);
+      }}
+      onAllocationChange={onAllocationChange}
+      onHabitChange={onHabitChange}
+    />
   );
 }

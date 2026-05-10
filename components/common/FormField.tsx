@@ -20,6 +20,7 @@ interface FormFieldProps {
   className?: string;
   labelClassName?: string;
   inputClassName?: string;
+  inputContainerClassName?: string;
   selectClassName?: string;
 
   hint?: ReactNode;
@@ -28,6 +29,7 @@ interface FormFieldProps {
   placeholder?: string;
   id?: string;
   name?: string;
+  suffix?: ReactNode;
 
   // input
   inputProps?: InputHTMLAttributes<HTMLInputElement>;
@@ -45,6 +47,7 @@ export default function FormField({
   className,
   labelClassName,
   inputClassName,
+  inputContainerClassName,
   selectClassName,
   hint,
   children,
@@ -56,6 +59,7 @@ export default function FormField({
   value,
   onChange,
   searchable = false,
+  suffix,
 }: FormFieldProps) {
   return (
     <label
@@ -65,7 +69,7 @@ export default function FormField({
         className
       )}
     >
-      <span className="mb-1.5 inline-block">{label}</span>
+      {label && <span className="mb-1.5 inline-block">{label}</span>}
 
       {variant === "select" ? (
         children ?? (
@@ -93,8 +97,10 @@ export default function FormField({
         <Input
           id={id}
           name={name}
+          containerClassName={inputContainerClassName}
           className={cn(inputClassName)}
           placeholder={placeholder}
+          suffix={suffix}
           {...inputProps}
         />
       )}
