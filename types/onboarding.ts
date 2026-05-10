@@ -22,6 +22,7 @@ export interface HabitsData {
 }
 
 export interface Step2PersonalData {
+  estimatedLifeExpectancy: string;
   currentSavings: string;
   preferredCurrency: string;
   desiredLifeExpectancy: string;

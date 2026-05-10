@@ -68,42 +68,56 @@ export default function Step2PersonalForm({
     <div className="mt-8">
       <h2 className="text-center text-3xl font-bold text-primary">Personal Information</h2>
       <div className="mx-auto mt-8 max-w-4xl space-y-7">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <FormField
-            id="currentSavings"
-            name="currentSavings"
-            label="Current Savings"
-            className="sm:col-span-2"
-            inputClassName="h-11"
-            placeholder="Current savings amount"
-            inputProps={{
-              value: data.currentSavings,
-              onChange: (event) => updateRoot("currentSavings", event.target.value),
-              autoComplete: "off",
-            }}
-          />
-          <FormField
-            id="preferredCurrency"
-            name="preferredCurrency"
-            label="Preferred Currency"
-            variant="select"
-            selectClassName="h-11"
-            value={data.preferredCurrency}
-            onChange={(value) => updateRoot("preferredCurrency", value)}
-            options={CURRENCY_OPTIONS.map((currency) => ({ label: currency, value: currency }))}
-          />
-          <FormField
-            id="desiredLifeExpectancy"
-            name="desiredLifeExpectancy"
-            label="Desired Life Expectancy"
-            inputClassName="h-11"
-            placeholder="90"
-            inputProps={{
-              value: data.desiredLifeExpectancy,
-              onChange: (event) => updateRoot("desiredLifeExpectancy", event.target.value),
-              autoComplete: "off",
-            }}
-          />
+        <div className="rounded-2xl border border-border bg-slate-50 p-5">
+          <h3 className="text-base font-semibold text-slate-900">Personal Profile</h3>
+          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <FormField
+              id="estimatedLifeExpectancy"
+              name="estimatedLifeExpectancy"
+              label="Estimated Life Expectancy"
+              inputClassName="h-11"
+              placeholder="90"
+              inputProps={{
+                value: data.estimatedLifeExpectancy,
+                onChange: (event) => updateRoot("estimatedLifeExpectancy", event.target.value),
+                autoComplete: "off",
+              }}
+            />
+            <FormField
+              id="desiredLifeExpectancy"
+              name="desiredLifeExpectancy"
+              label="Desired Life Expectancy"
+              inputClassName="h-11"
+              placeholder="90"
+              inputProps={{
+                value: data.desiredLifeExpectancy,
+                onChange: (event) => updateRoot("desiredLifeExpectancy", event.target.value),
+                autoComplete: "off",
+              }}
+            />
+            <FormField
+              id="currentSavings"
+              name="currentSavings"
+              label="Current Savings"
+              inputClassName="h-11"
+              placeholder="Current savings amount"
+              inputProps={{
+                value: data.currentSavings,
+                onChange: (event) => updateRoot("currentSavings", event.target.value),
+                autoComplete: "off",
+              }}
+            />
+            <FormField
+              id="preferredCurrency"
+              name="preferredCurrency"
+              label="Preferred Currency"
+              variant="select"
+              selectClassName="h-11"
+              value={data.preferredCurrency}
+              onChange={(value) => updateRoot("preferredCurrency", value)}
+              options={CURRENCY_OPTIONS.map((currency) => ({ label: currency, value: currency }))}
+            />
+          </div>
         </div>
 
         {ALLOCATION_SECTIONS.map((section) => (
@@ -136,7 +150,7 @@ export default function Step2PersonalForm({
           </div>
         ))}
 
-        <div className="rounded-2xl border border-border bg-white p-5">
+        <div className="rounded-2xl border border-border bg-slate-50 p-5">
           <h3 className="text-lg font-semibold text-slate-900">Habits</h3>
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
             {(Object.keys(data.habits) as Array<keyof Step2PersonalData["habits"]>).map((habitKey) => (

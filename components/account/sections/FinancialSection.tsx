@@ -8,7 +8,7 @@ import StageForm from "@/components/account/forms/StageForm";
 import type { Allocation, Asset, FinancialData, Habits, Stage } from "@/utils/types";
 
 type FinancialAction =
-  | { type: "update_root"; field: "savings" | "currency" | "desiredLE"; value: string }
+  | { type: "update_root"; field: "estimatedLE" | "savings" | "currency" | "desiredLE"; value: string }
   | { type: "update_allocation"; period: "before" | "after"; key: keyof Allocation; value: string }
   | { type: "update_habit"; key: keyof Habits; value: string }
   | { type: "add_stage" }
@@ -19,6 +19,7 @@ type FinancialAction =
   | { type: "remove_asset"; index: number };
 
 const INITIAL_FINANCIAL_DATA: FinancialData = {
+  estimatedLE: "",
   savings: "",
   currency: "USD",
   desiredLE: "",

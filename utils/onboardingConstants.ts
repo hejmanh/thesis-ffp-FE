@@ -48,6 +48,7 @@ export const INITIAL_ONBOARDING_DRAFT: OnboardingDraft = {
     sex: "",
   },
   step2: {
+    estimatedLifeExpectancy: "",
     currentSavings: "",
     preferredCurrency: "USD",
     desiredLifeExpectancy: "",

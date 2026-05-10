@@ -6,7 +6,7 @@ import { CURRENCY_OPTIONS, HABIT_LEVELS } from "@/utils/onboardingConstants";
 
 interface FinancialFormProps {
   data: FinancialData;
-  onRootChange: (field: "savings" | "currency" | "desiredLE", value: string) => void;
+  onRootChange: (field: "estimatedLE" | "savings" | "currency" | "desiredLE", value: string) => void;
   onAllocationChange: (period: "before" | "after", key: keyof Allocation, value: string) => void;
   onHabitChange: (key: keyof Habits, value: string) => void;
 }
@@ -39,36 +39,48 @@ export default function FinancialForm({
 }: FinancialFormProps) {
   return (
     <div className="space-y-6">
-      <div className="rounded-xl border border-border bg-slate-50 p-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <FormField
-          label="Current Savings"
-          className="sm:col-span-2"
-          inputClassName="h-11"
-          placeholder="100000"
-          inputProps={{
-            value: data.savings,
-            onChange: (event) => onRootChange("savings", event.target.value),
-            autoComplete: "off",
-          }}
-        />
-        <FormField
-          label="Currency"
-          variant="select"
-          selectClassName="h-11"
-          value={data.currency}
-          onChange={(value) => onRootChange("currency", value)}
-          options={CURRENCY_OPTIONS.map((currency) => ({ label: currency, value: currency }))}
-        />
-        <FormField
-          label="Desired LE"
-          inputClassName="h-11"
-          placeholder="90"
-          inputProps={{
-            value: data.desiredLE,
-            onChange: (event) => onRootChange("desiredLE", event.target.value),
-            autoComplete: "off",
-          }}
-        />
+      <div className="rounded-xl border border-border bg-slate-50 p-4">
+        <h3 className="text-base font-semibold text-slate-900">Personal Profile</h3>
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <FormField
+            label="Estimated LE"
+            inputClassName="h-11"
+            placeholder="90"
+            inputProps={{
+              value: data.estimatedLE,
+              onChange: (event) => onRootChange("estimatedLE", event.target.value),
+              autoComplete: "off",
+            }}
+          />
+          <FormField
+            label="Desired LE"
+            inputClassName="h-11"
+            placeholder="90"
+            inputProps={{
+              value: data.desiredLE,
+              onChange: (event) => onRootChange("desiredLE", event.target.value),
+              autoComplete: "off",
+            }}
+          />
+          <FormField
+            label="Current Savings"
+            inputClassName="h-11"
+            placeholder="100000"
+            inputProps={{
+              value: data.savings,
+              onChange: (event) => onRootChange("savings", event.target.value),
+              autoComplete: "off",
+            }}
+          />
+          <FormField
+            label="Currency"
+            variant="select"
+            selectClassName="h-11"
+            value={data.currency}
+            onChange={(value) => onRootChange("currency", value)}
+            options={CURRENCY_OPTIONS.map((currency) => ({ label: currency, value: currency }))}
+          />
+        </div>
       </div>
 
       {(["before", "after"] as const).map((period) => (

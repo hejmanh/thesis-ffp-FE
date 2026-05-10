@@ -20,6 +20,7 @@ export function validateStep1(data: Step1AccountData): string | null {
 
 export function validateStep2(data: Step2PersonalData): string | null {
   const required = [
+    data.estimatedLifeExpectancy,
     data.currentSavings,
     data.preferredCurrency,
     data.desiredLifeExpectancy,
