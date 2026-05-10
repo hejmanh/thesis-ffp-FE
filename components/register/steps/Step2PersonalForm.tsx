@@ -34,6 +34,12 @@ export default function Step2PersonalForm({
     });
   }
 
+  const allocationLabels: Record<"u" | "mu" | "rf", { description: string; symbol: string }> = {
+    u: { description: "Proportion of risky asset", symbol: "u" },
+    mu: { description: "Expected annual return rate of risky asset", symbol: "μ" },
+    rf: { description: "Risk-free annual return rate", symbol: "r_f" },
+  };
+
   function updateHabit(key: keyof Step2PersonalData["habits"], value: string) {
     onChange({
       ...data,
@@ -90,18 +96,23 @@ export default function Step2PersonalForm({
           <h3 className="text-lg font-semibold text-slate-900">Asset Allocation Before FFP</h3>
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
             {(["u", "mu", "rf"] as const).map((allocationKey) => (
-              <FormField
-                key={allocationKey}
-                id={`beforeFfp_${allocationKey}`}
-                name={`beforeFfp_${allocationKey}`}
-                label={allocationKey.toUpperCase()}
-                placeholder="%"
-                inputProps={{
-                  value: data.beforeFfp[allocationKey],
-                  onChange: (event) => updateAllocation("beforeFfp", allocationKey, event.target.value),
-                  autoComplete: "off",
-                }}
-              />
+              <div key={allocationKey}>
+                <div className="mb-2">
+                  <p className="text-sm text-slate-700">{allocationLabels[allocationKey].description}</p>
+                  <p className="text-sm italic text-slate-500">{allocationLabels[allocationKey].symbol}</p>
+                </div>
+                <FormField
+                  label={allocationLabels[allocationKey].symbol}
+                  id={`beforeFfp_${allocationKey}`}
+                  name={`beforeFfp_${allocationKey}`}
+                  placeholder="%"
+                  inputProps={{
+                    value: data.beforeFfp[allocationKey],
+                    onChange: (event) => updateAllocation("beforeFfp", allocationKey, event.target.value),
+                    autoComplete: "off",
+                  }}
+                />
+              </div>
             ))}
           </div>
         </div>
@@ -110,18 +121,23 @@ export default function Step2PersonalForm({
           <h3 className="text-lg font-semibold text-slate-900">Asset Allocation After FFP</h3>
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
             {(["u", "mu", "rf"] as const).map((allocationKey) => (
-              <FormField
-                key={allocationKey}
-                id={`afterFfp_${allocationKey}`}
-                name={`afterFfp_${allocationKey}`}
-                label={allocationKey.toUpperCase()}
-                placeholder="%"
-                inputProps={{
-                  value: data.afterFfp[allocationKey],
-                  onChange: (event) => updateAllocation("afterFfp", allocationKey, event.target.value),
-                  autoComplete: "off",
-                }}
-              />
+              <div key={allocationKey}>
+                <div className="mb-2">
+                  <p className="text-sm text-slate-700">{allocationLabels[allocationKey].description}</p>
+                  <p className="text-sm italic text-slate-500">{allocationLabels[allocationKey].symbol}</p>
+                </div>
+                <FormField
+                  label={allocationLabels[allocationKey].symbol}
+                  id={`afterFfp_${allocationKey}`}
+                  name={`afterFfp_${allocationKey}`}
+                  placeholder="%"
+                  inputProps={{
+                    value: data.afterFfp[allocationKey],
+                    onChange: (event) => updateAllocation("afterFfp", allocationKey, event.target.value),
+                    autoComplete: "off",
+                  }}
+                />
+              </div>
             ))}
           </div>
         </div>

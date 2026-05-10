@@ -18,6 +18,12 @@ const HABIT_LABELS: Record<keyof Habits, string> = {
   alcohol: "Alcohol Consumption",
 };
 
+const ALLOCATION_LABELS: Record<keyof Allocation, { description: string; symbol: string }> = {
+  u: { description: "Proportion of risky asset", symbol: "u" },
+  mu: { description: "Expected annual return rate of risky asset", symbol: "μ" },
+  rf: { description: "Risk-free annual return rate", symbol: "r_f" },
+};
+
 export default function FinancialForm({
   data,
   onRootChange,
@@ -65,17 +71,21 @@ export default function FinancialForm({
           </h3>
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
             {(["u", "mu", "rf"] as const).map((key) => (
-              <FormField
-                key={`${period}_${key}`}
-                label={key.toUpperCase()}
-                inputClassName="h-11"
-                placeholder="0"
-                inputProps={{
-                  value: data.allocation[period][key],
-                  onChange: (event) => onAllocationChange(period, key, event.target.value),
-                  autoComplete: "off",
-                }}
-              />
+              <div key={`${period}_${key}`}>
+                <div className="mb-2">
+                  <p className="text-sm text-slate-700">{ALLOCATION_LABELS[key].description}</p>
+                  <p className="text-sm italic text-slate-500">{ALLOCATION_LABELS[key].symbol}</p>
+                </div>
+                <FormField
+                  inputClassName="h-11"
+                  placeholder="0"
+                  inputProps={{
+                    value: data.allocation[period][key],
+                    onChange: (event) => onAllocationChange(period, key, event.target.value),
+                    autoComplete: "off",
+                  }}
+                />
+              </div>
             ))}
           </div>
         </div>
