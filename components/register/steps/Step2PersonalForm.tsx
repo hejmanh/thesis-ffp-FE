@@ -96,8 +96,8 @@ export default function Step2PersonalForm({
           <h3 className="text-lg font-semibold text-slate-900">Asset Allocation Before FFP</h3>
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
             {(["u", "mu", "rf"] as const).map((allocationKey) => (
-              <div key={allocationKey}>
-                <div className="mb-2">
+              <div key={allocationKey} className="grid h-full grid-rows-[1fr_auto] gap-2">
+                <div>
                   <p className="text-sm text-slate-700">{allocationLabels[allocationKey].description}</p>
                   <p className="text-sm italic text-slate-500">{allocationLabels[allocationKey].symbol}</p>
                 </div>
@@ -105,7 +105,7 @@ export default function Step2PersonalForm({
                   label=""
                   id={`beforeFfp_${allocationKey}`}
                   name={`beforeFfp_${allocationKey}`}
-                  inputClassName="w-24"
+                  inputContainerClassName="w-16"
                   suffix="%"
                   inputProps={{
                     value: data.beforeFfp[allocationKey],
@@ -122,8 +122,8 @@ export default function Step2PersonalForm({
           <h3 className="text-lg font-semibold text-slate-900">Asset Allocation After FFP</h3>
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
             {(["u", "mu", "rf"] as const).map((allocationKey) => (
-              <div key={allocationKey}>
-                <div className="mb-2">
+              <div key={allocationKey} className="grid h-full grid-rows-[1fr_auto] gap-2">
+                <div>
                   <p className="text-sm text-slate-700">{allocationLabels[allocationKey].description}</p>
                   <p className="text-sm italic text-slate-500">{allocationLabels[allocationKey].symbol}</p>
                 </div>
@@ -131,7 +131,7 @@ export default function Step2PersonalForm({
                   label=""
                   id={`afterFfp_${allocationKey}`}
                   name={`afterFfp_${allocationKey}`}
-                  inputClassName="w-24"
+                  inputContainerClassName="w-16"
                   suffix="%"
                   inputProps={{
                     value: data.afterFfp[allocationKey],

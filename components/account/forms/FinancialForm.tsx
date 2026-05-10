@@ -71,14 +71,14 @@ export default function FinancialForm({
           </h3>
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
             {(["u", "mu", "rf"] as const).map((key) => (
-              <div key={`${period}_${key}`}>
-                <div className="mb-2">
+              <div key={`${period}_${key}`} className="grid h-full grid-rows-[1fr_auto] gap-2">
+                <div>
                   <p className="text-sm text-slate-700">{ALLOCATION_LABELS[key].description}</p>
                   <p className="text-sm italic text-slate-500">{ALLOCATION_LABELS[key].symbol}</p>
                 </div>
                 <FormField
                   label=""
-                  inputClassName="h-11 w-24"
+                  inputClassName="h-11"
                   suffix="%"
                   inputProps={{
                     value: data.allocation[period][key],
