@@ -13,6 +13,26 @@ interface Step2PersonalFormProps {
   onChange: (next: Step2PersonalData) => void;
 }
 
+const ALLOCATION_LABELS: Record<keyof Step2PersonalData["beforeFfp"], { description: string; symbol: string }> = {
+  u: { description: "Proportion of risky asset", symbol: "u" },
+  mu: { description: "Expected annual return rate of risky asset", symbol: "μ" },
+  rf: { description: "Risk-free annual return rate", symbol: "r_f" },
+};
+
+const ALLOCATION_SECTIONS = [
+  {
+    key: "beforeFfp",
+    title: "Asset Allocation Before FFP",
+    hint:
+      "Used for savings and investments only. Rental income and other income sources are already included in life-stage savings.",
+  },
+  {
+    key: "afterFfp",
+    title: "Asset Allocation After FFP",
+    hint: "Used for remaining savings after retirement. Rental income and pension are handled separately.",
+  },
+] as const;
+
 export default function Step2PersonalForm({
   data,
   error,
@@ -33,12 +53,6 @@ export default function Step2PersonalForm({
       },
     });
   }
-
-  const allocationLabels: Record<"u" | "mu" | "rf", { description: string; symbol: string }> = {
-    u: { description: "Proportion of risky asset", symbol: "u" },
-    mu: { description: "Expected annual return rate of risky asset", symbol: "μ" },
-    rf: { description: "Risk-free annual return rate", symbol: "r_f" },
-  };
 
   function updateHabit(key: keyof Step2PersonalData["habits"], value: string) {
     onChange({
@@ -92,57 +106,35 @@ export default function Step2PersonalForm({
           />
         </div>
 
-        <div className="rounded-2xl border border-border bg-white p-5">
-          <h3 className="text-lg font-semibold text-slate-900">Asset Allocation Before FFP</h3>
-          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {(["u", "mu", "rf"] as const).map((allocationKey) => (
-              <div key={allocationKey} className="grid h-full grid-rows-[1fr_auto] gap-2">
-                <div>
-                  <p className="text-sm text-slate-700">{allocationLabels[allocationKey].description}</p>
-                  <p className="text-sm italic text-slate-500">{allocationLabels[allocationKey].symbol}</p>
+        {ALLOCATION_SECTIONS.map((section) => (
+          <div key={section.key} className="rounded-xl border border-border bg-slate-50 p-4">
+            <h3 className="text-base font-semibold text-slate-900">{section.title}</h3>
+            <p className="mt-1 text-xs italic text-slate-600">{section.hint}</p>
+            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+              {(["u", "mu", "rf"] as const).map((allocationKey) => (
+                <div key={`${section.key}_${allocationKey}`} className="grid h-full grid-rows-[1fr_auto] gap-2">
+                  <div>
+                    <p className="text-sm text-slate-700">{ALLOCATION_LABELS[allocationKey].description}</p>
+                    <p className="text-xs italic text-slate-500">{ALLOCATION_LABELS[allocationKey].symbol}</p>
+                  </div>
+                  <FormField
+                    label=""
+                    id={`${section.key}_${allocationKey}`}
+                    name={`${section.key}_${allocationKey}`}
+                    inputContainerClassName="w-16"
+                    inputClassName="h-11"
+                    suffix="%"
+                    inputProps={{
+                      value: data[section.key][allocationKey],
+                      onChange: (event) => updateAllocation(section.key, allocationKey, event.target.value),
+                      autoComplete: "off",
+                    }}
+                  />
                 </div>
-                <FormField
-                  label=""
-                  id={`beforeFfp_${allocationKey}`}
-                  name={`beforeFfp_${allocationKey}`}
-                  inputContainerClassName="w-16"
-                  suffix="%"
-                  inputProps={{
-                    value: data.beforeFfp[allocationKey],
-                    onChange: (event) => updateAllocation("beforeFfp", allocationKey, event.target.value),
-                    autoComplete: "off",
-                  }}
-                />
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-
-        <div className="rounded-2xl border border-border bg-white p-5">
-          <h3 className="text-lg font-semibold text-slate-900">Asset Allocation After FFP</h3>
-          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {(["u", "mu", "rf"] as const).map((allocationKey) => (
-              <div key={allocationKey} className="grid h-full grid-rows-[1fr_auto] gap-2">
-                <div>
-                  <p className="text-sm text-slate-700">{allocationLabels[allocationKey].description}</p>
-                  <p className="text-sm italic text-slate-500">{allocationLabels[allocationKey].symbol}</p>
-                </div>
-                <FormField
-                  label=""
-                  id={`afterFfp_${allocationKey}`}
-                  name={`afterFfp_${allocationKey}`}
-                  inputContainerClassName="w-16"
-                  suffix="%"
-                  inputProps={{
-                    value: data.afterFfp[allocationKey],
-                    onChange: (event) => updateAllocation("afterFfp", allocationKey, event.target.value),
-                    autoComplete: "off",
-                  }}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
+        ))}
 
         <div className="rounded-2xl border border-border bg-white p-5">
           <h3 className="text-lg font-semibold text-slate-900">Habits</h3>

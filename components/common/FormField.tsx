@@ -20,6 +20,7 @@ interface FormFieldProps {
   className?: string;
   labelClassName?: string;
   inputClassName?: string;
+  inputContainerClassName?: string;
   selectClassName?: string;
 
   hint?: ReactNode;
@@ -46,6 +47,7 @@ export default function FormField({
   className,
   labelClassName,
   inputClassName,
+  inputContainerClassName,
   selectClassName,
   hint,
   children,
@@ -95,6 +97,7 @@ export default function FormField({
         <Input
           id={id}
           name={name}
+          containerClassName={inputContainerClassName}
           className={cn(inputClassName)}
           placeholder={placeholder}
           suffix={suffix}

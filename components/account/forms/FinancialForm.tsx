@@ -24,6 +24,13 @@ const ALLOCATION_LABELS: Record<keyof Allocation, { description: string; symbol:
   rf: { description: "Risk-free annual return rate", symbol: "r_f" },
 };
 
+const ALLOCATION_HINTS = {
+  before:
+    "Used for savings and investments only. Rental income and other income sources are already included in life-stage savings.",
+  after:
+    "Used for remaining savings after retirement. Rental income and pension are handled separately.",
+} as const;
+
 export default function FinancialForm({
   data,
   onRootChange,
@@ -69,15 +76,17 @@ export default function FinancialForm({
           <h3 className="text-base font-semibold text-slate-900">
             Asset Allocation {period === "before" ? "Before FFP" : "After FFP"}
           </h3>
+          <p className="mt-1 text-xs italic text-slate-600">{ALLOCATION_HINTS[period]}</p>
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
             {(["u", "mu", "rf"] as const).map((key) => (
               <div key={`${period}_${key}`} className="grid h-full grid-rows-[1fr_auto] gap-2">
                 <div>
                   <p className="text-sm text-slate-700">{ALLOCATION_LABELS[key].description}</p>
-                  <p className="text-sm italic text-slate-500">{ALLOCATION_LABELS[key].symbol}</p>
+                  <p className="text-xs italic text-slate-500">{ALLOCATION_LABELS[key].symbol}</p>
                 </div>
                 <FormField
                   label=""
+                  inputContainerClassName="w-16"
                   inputClassName="h-11"
                   suffix="%"
                   inputProps={{

@@ -3,16 +3,18 @@ import { cn } from "@/utils/cn";
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   suffix?: ReactNode;
+  containerClassName?: string;
 }
 
 export default function Input({
   className,
+  containerClassName,
   suffix,
   ...props
 }: InputProps) {
   if (suffix) {
     return (
-      <div className="relative w-full">
+      <div className={cn("relative w-full", containerClassName)}>
         <input
           className={cn(
             "h-9 w-full rounded-full border border-gray-300 bg-white px-3 pr-7 text-sm text-slate-700 placeholder:text-slate-500 outline-none transition focus-visible:ring-2 focus-visible:ring-ring",
