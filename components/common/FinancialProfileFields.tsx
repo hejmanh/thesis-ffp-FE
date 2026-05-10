@@ -155,6 +155,7 @@ export default function FinancialProfileFields<HabitKey extends string>({
                   inputClassName="h-11 px-2 pr-5"
                   suffix="%"
                   inputProps={{
+                    "aria-label": `${section.title} ${ALLOCATION_LABELS[key].description} (${ALLOCATION_LABELS[key].symbol})`,
                     value: allocations[section.key][key],
                     onChange: (event) => onAllocationChange(section.key, key, event.target.value),
                     autoComplete: "off",
