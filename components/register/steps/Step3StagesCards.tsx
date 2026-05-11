@@ -1,7 +1,7 @@
 "use client";
 
 import Button from "@/components/common/Button";
-import StageCardEditor from "@/components/register/cards/StageCardEditor";
+import StageEditorCard, { type StageEditorValue } from "@/components/common/StageEditorCard";
 import type { StageItem } from "@/types/onboarding";
 import { isStageComplete } from "@/utils/onboardingValidators";
 
@@ -13,14 +13,21 @@ interface Step3StagesCardsProps {
   onChange: (stages: StageItem[]) => void;
 }
 
-function makeEmptyStage(): StageItem {
+function toStageEditorValue(stage: StageItem): StageEditorValue {
   return {
-    id: crypto.randomUUID(),
-    ageStart: "",
-    ageEnd: "",
-    annualSaving: "",
-    currency: "",
-    annualRate: "",
+    ageStart: stage.ageStart,
+    ageEnd: stage.ageEnd,
+    annualSaving: stage.annualSaving,
+    currency: stage.currency,
+    annualRate: stage.annualRate,
+  };
+}
+
+function fromStageEditorValue(stage: StageItem, next: StageEditorValue): StageItem {
+  return {
+    ...stage,
+    annualSaving: next.annualSaving,
+    annualRate: next.annualRate,
   };
 }
 
@@ -31,18 +38,6 @@ export default function Step3StagesCards({
   onNext,
   onChange,
 }: Step3StagesCardsProps) {
-  function handleSave(updated: StageItem) {
-    onChange(stages.map((stage) => (stage.id === updated.id ? updated : stage)));
-  }
-
-  function handleDelete(stageId: string) {
-    onChange(stages.filter((stage) => stage.id !== stageId));
-  }
-
-  function handleAddStage() {
-    onChange([...stages, makeEmptyStage()]);
-  }
-
   const canContinue = stages.length > 0 && stages.every(isStageComplete);
 
   return (
@@ -51,15 +46,19 @@ export default function Step3StagesCards({
       <p className="mt-2 text-center text-sm text-muted-foreground">
         Define how your savings change over time
       </p>
-      <div className="mx-auto mt-8 flex max-w-5xl flex-col gap-5">
-        {stages.map((stage) => (
-          <StageCardEditor key={stage.id} stage={stage} onSave={handleSave} onDelete={handleDelete} />
-        ))}
-      </div>
-      <div className="mx-auto mt-5 max-w-5xl">
-        <button type="button" onClick={handleAddStage} className="text-sm font-semibold text-primary">
-          + Add another stage
-        </button>
+      <p className="mt-1 text-xs text-center italic text-slate-600">Includes all pre-FFP income sources (e.g. salary, rental income, etc.)</p>
+      <div className="mx-auto mt-8 max-w-5xl">
+        <div className="max-h-[34rem] space-y-5 overflow-y-auto pr-2">
+          {stages.map((stage, index) => (
+            <StageEditorCard
+              key={stage.id}
+              variant="register"
+              index={index}
+              stage={toStageEditorValue(stage)}
+              onChange={(next) => onChange(stages.map((s) => (s.id === stage.id ? fromStageEditorValue(stage, next) : s)))}
+            />
+          ))}
+        </div>
       </div>
       {error ? <p className="mt-4 text-center text-sm font-semibold text-red-600">{error}</p> : null}
       <div className="mx-auto mt-8 flex max-w-5xl flex-col gap-3">

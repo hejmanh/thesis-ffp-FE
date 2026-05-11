@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import AnimatedPanel from "@/components/common/AnimatedPanel";
 import Step1AccountForm from "@/components/register/steps/Step1AccountForm";
 import { autoLoginByEmail, registerStep1 } from "@/services/auth/mockAuth";
 import type { Step1AccountData } from "@/types/onboarding";
@@ -49,13 +50,15 @@ export default function RegisterAccountForm() {
 
   return (
     <div className="relative mx-auto max-w-4xl rounded-3xl bg-slate-50 p-6 shadow-[0_20px_50px_-25px_rgba(15,23,42,0.4)] sm:p-8">
-      <Step1AccountForm
-        data={data}
-        error={error}
-        isSubmitting={loading}
-        onFieldChange={updateField}
-        onNext={handleNext}
-      />
+      <AnimatedPanel>
+        <Step1AccountForm
+          data={data}
+          error={error}
+          isSubmitting={loading}
+          onFieldChange={updateField}
+          onNext={handleNext}
+        />
+      </AnimatedPanel>
       {toastMessage ? (
         <div className="fixed right-6 top-6 z-50 rounded-xl bg-slate-900 px-4 py-3 text-sm font-medium text-white shadow-lg">
           {toastMessage}

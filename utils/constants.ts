@@ -3,7 +3,7 @@ import type { FeatureItem } from "@/types/feature";
 export const FEATURES: FeatureItem[] = [
   {
     id: "01",
-    icon: "solar:target-linear",
+    icon: "mingcute:target-line",
     title: "Can I reach my FFP goal?",
     description:
       "Check if your current plan is achievable or if you're saving too little or too much.",
@@ -13,7 +13,7 @@ export const FEATURES: FeatureItem[] = [
   },
   {
     id: "02",
-    icon: "solar:calendar-linear",
+    icon: "mingcute:calendar-2-line",
     title: "When will I reach FFP?",
     description: "Calculate the age you can achieve financial freedom.",
     placeholder: "Example: If I save 20% monthly",
@@ -22,7 +22,7 @@ export const FEATURES: FeatureItem[] = [
   },
   {
     id: "03",
-    icon: "solar:calculator-linear",
+    icon: "icon-park-outline:calculator",
     title: "How much can I spend at FFP?",
     description:
       "Find out your safe monthly spending once you reach financial freedom.",
@@ -32,7 +32,7 @@ export const FEATURES: FeatureItem[] = [
   },
   {
     id: "04",
-    icon: "iconoir:piggy-bank",
+    icon: "mingcute:pig-money-line",
     title: "How much should I save?",
     description: "Calculate the required monthly savings to reach your goal on time.",
     placeholder: "Example: Savings needed per month",

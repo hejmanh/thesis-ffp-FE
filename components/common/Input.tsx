@@ -17,7 +17,7 @@ export default function Input({
       <div className={cn("relative", containerClassName ?? "w-full")}>
         <input
           className={cn(
-            "h-9 w-full rounded-full border border-gray-300 bg-white px-3 pr-7 text-sm text-slate-700 placeholder:text-slate-500 outline-none transition focus-visible:ring-2 focus-visible:ring-ring",
+            "h-9 w-full rounded-full border border-gray-300 bg-white px-3 pr-7 text-sm text-slate-700 placeholder:text-slate-500 outline-none transition focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:bg-slate-50",
             className
           )}
           {...props}
@@ -32,7 +32,7 @@ export default function Input({
   return (
     <input
       className={cn(
-        "h-9 w-full rounded-full border border-gray-300 bg-white px-3 text-sm text-slate-700 placeholder:text-slate-500 outline-none transition focus-visible:ring-2 focus-visible:ring-ring",
+        "h-9 w-full rounded-full border border-gray-300 bg-white px-3 text-sm text-slate-700 placeholder:text-slate-500 outline-none transition focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:bg-slate-50",
         className
       )}
       {...props}
