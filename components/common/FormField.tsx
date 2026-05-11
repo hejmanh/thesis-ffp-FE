@@ -14,7 +14,7 @@ interface SelectOption {
 }
 
 interface FormFieldProps {
-  label: string;
+  label: ReactNode;
   variant?: FormFieldVariant;
 
   className?: string;
