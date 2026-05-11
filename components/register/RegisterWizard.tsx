@@ -17,6 +17,7 @@ const ONBOARDING_STEPS = ["Personal Information", "Stages Data", "Asset Data"];
 
 export default function RegisterWizard() {
   const router = useRouter();
+  const session = getSession();
   const [step, setStep] = useState(1);
   const [draft, setDraft] = useState<OnboardingDraft>(INITIAL_ONBOARDING_DRAFT);
   const [error, setError] = useState("");
@@ -88,6 +89,9 @@ export default function RegisterWizard() {
       ) : null}
       {!completed && step === 2 ? (
         <Step3StagesCards
+          birthYear={String(session?.user.birthYear ?? "")}
+          desiredLifeExpectancy={draft.step2.desiredLifeExpectancy}
+          preferredCurrency={draft.step2.preferredCurrency}
           stages={draft.stages}
           error={error}
           onBack={() => setStep(1)}

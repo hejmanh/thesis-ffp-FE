@@ -1,11 +1,16 @@
 "use client";
 
+import { useEffect } from "react";
 import Button from "@/components/common/Button";
 import StageCardEditor from "@/components/register/cards/StageCardEditor";
 import type { StageItem } from "@/types/onboarding";
 import { isStageComplete } from "@/utils/onboardingValidators";
+import { buildPreconfiguredStageItems, DEFAULT_STAGE_COUNT } from "@/utils/stageDefaults";
 
 interface Step3StagesCardsProps {
+  birthYear: string;
+  desiredLifeExpectancy: string;
+  preferredCurrency: string;
   stages: StageItem[];
   error: string;
   onBack: () => void;
@@ -13,34 +18,35 @@ interface Step3StagesCardsProps {
   onChange: (stages: StageItem[]) => void;
 }
 
-function makeEmptyStage(): StageItem {
-  return {
-    id: crypto.randomUUID(),
-    ageStart: "",
-    ageEnd: "",
-    annualSaving: "",
-    currency: "",
-    annualRate: "",
-  };
-}
-
 export default function Step3StagesCards({
+  birthYear,
+  desiredLifeExpectancy,
+  preferredCurrency,
   stages,
   error,
   onBack,
   onNext,
   onChange,
 }: Step3StagesCardsProps) {
+  useEffect(() => {
+    const generatedStages = buildPreconfiguredStageItems(
+      stages,
+      birthYear,
+      desiredLifeExpectancy,
+      preferredCurrency
+    );
+
+    const shouldUpdate =
+      generatedStages.length === DEFAULT_STAGE_COUNT &&
+      JSON.stringify(generatedStages) !== JSON.stringify(stages);
+
+    if (shouldUpdate) {
+      onChange(generatedStages);
+    }
+  }, [birthYear, desiredLifeExpectancy, preferredCurrency, stages, onChange]);
+
   function handleSave(updated: StageItem) {
     onChange(stages.map((stage) => (stage.id === updated.id ? updated : stage)));
-  }
-
-  function handleDelete(stageId: string) {
-    onChange(stages.filter((stage) => stage.id !== stageId));
-  }
-
-  function handleAddStage() {
-    onChange([...stages, makeEmptyStage()]);
   }
 
   const canContinue = stages.length > 0 && stages.every(isStageComplete);
@@ -51,15 +57,12 @@ export default function Step3StagesCards({
       <p className="mt-2 text-center text-sm text-muted-foreground">
         Define how your savings change over time
       </p>
-      <div className="mx-auto mt-8 flex max-w-5xl flex-col gap-5">
-        {stages.map((stage) => (
-          <StageCardEditor key={stage.id} stage={stage} onSave={handleSave} onDelete={handleDelete} />
-        ))}
-      </div>
-      <div className="mx-auto mt-5 max-w-5xl">
-        <button type="button" onClick={handleAddStage} className="text-sm font-semibold text-primary">
-          + Add another stage
-        </button>
+      <div className="mx-auto mt-8 max-w-5xl">
+        <div className="max-h-[34rem] space-y-5 overflow-y-auto pr-2">
+          {stages.map((stage) => (
+            <StageCardEditor key={stage.id} stage={stage} onSave={handleSave} />
+          ))}
+        </div>
       </div>
       {error ? <p className="mt-4 text-center text-sm font-semibold text-red-600">{error}</p> : null}
       <div className="mx-auto mt-8 flex max-w-5xl flex-col gap-3">

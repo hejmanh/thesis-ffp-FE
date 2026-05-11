@@ -1,21 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "@/components/common/Button";
 import FormField from "@/components/common/FormField";
 import type { StageItem } from "@/types/onboarding";
-import { CURRENCY_OPTIONS } from "@/utils/onboardingConstants";
 import { isStageComplete } from "@/utils/onboardingValidators";
 
 interface StageCardEditorProps {
   stage: StageItem;
   onSave: (stage: StageItem) => void;
-  onDelete: (stageId: string) => void;
 }
 
-export default function StageCardEditor({ stage, onSave, onDelete }: StageCardEditorProps) {
+export default function StageCardEditor({ stage, onSave }: StageCardEditorProps) {
   const [draft, setDraft] = useState(stage);
-  const [editing, setEditing] = useState(!isStageComplete(stage));
+  const [editing, setEditing] = useState(false);
+
+  useEffect(() => {
+    setDraft(stage);
+  }, [stage]);
 
   function updateField<K extends keyof StageItem>(key: K, value: StageItem[K]) {
     setDraft((prev) => ({ ...prev, [key]: value }));
@@ -26,13 +28,32 @@ export default function StageCardEditor({ stage, onSave, onDelete }: StageCardEd
     setEditing(false);
   }
 
-  if (!editing && isStageComplete(stage)) {
+  function handleCancel() {
+    setDraft(stage);
+    setEditing(false);
+  }
+
+  function handleDelete() {
+    const clearedStage: StageItem = {
+      ...stage,
+      annualSaving: "",
+      annualRate: "",
+    };
+
+    setDraft(clearedStage);
+    onSave(clearedStage);
+    setEditing(false);
+  }
+
+  if (!editing) {
     return (
       <div className="rounded-2xl border border-border bg-white p-5 shadow-sm">
         <div className="flex items-start justify-between">
-          <h3 className="text-3xl font-semibold text-slate-900">
-            Stage {stage.ageStart} - {stage.ageEnd}
-          </h3>
+          <div>
+            <h3 className="text-3xl font-semibold text-slate-900">
+              Stage {stage.ageStart} - {stage.ageEnd}
+            </h3>
+          </div>
           <button
             type="button"
             className="text-sm font-semibold text-primary"
@@ -45,9 +66,9 @@ export default function StageCardEditor({ stage, onSave, onDelete }: StageCardEd
           </button>
         </div>
         <div className="mt-4 grid grid-cols-1 gap-3 text-sm text-slate-700 sm:grid-cols-2">
-          <p>Annual Saving: {stage.annualSaving}</p>
+          <p>Annual Saving: {stage.annualSaving || "-"}</p>
           <p>Currency: {stage.currency}</p>
-          <p>Annual Rate: {stage.annualRate}%</p>
+          <p>Annual Rate: {stage.annualRate ? `${stage.annualRate}%` : "-"}</p>
         </div>
       </div>
     );
@@ -55,56 +76,41 @@ export default function StageCardEditor({ stage, onSave, onDelete }: StageCardEd
 
   return (
     <div className="rounded-2xl border border-border bg-white p-5 shadow-sm">
-      <h3 className="text-3xl font-semibold text-slate-900">Stage</h3>
-      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <FormField
-          id="ageStart"
-          name="ageStart"
-          label="Age Start"
-          placeholder="25"
-          inputProps={{
-            value: draft.ageStart,
-            onChange: (event) => updateField("ageStart", event.target.value),
-            autoComplete: "off",
-          }}
-        />
-        <FormField
-          id="ageEnd"
-          name="ageEnd"
-          label="Age End"
-          placeholder="35"
-          inputProps={{
-            value: draft.ageEnd,
-            onChange: (event) => updateField("ageEnd", event.target.value),
-            autoComplete: "off",
-          }}
-        />
-        <FormField
-          id="annualSaving"
-          name="annualSaving"
-          label="Annual Saving"
-          className="sm:col-span-2"
-          placeholder="Enter annual saving"
-          inputProps={{
-            value: draft.annualSaving,
-            onChange: (event) => updateField("annualSaving", event.target.value),
-            autoComplete: "off",
-          }}
-        />
-        <FormField
-          id="currency"
-          name="currency"
-          label="Currency"
-          variant="select"
-          placeholder="Select currency"
-          value={draft.currency}
-          onChange={(value) => updateField("currency", value)}
-          options={CURRENCY_OPTIONS.map((currency) => ({ label: currency, value: currency }))}
-        />
+      <h3 className="text-3xl font-semibold text-slate-900">
+        Stage {draft.ageStart} - {draft.ageEnd}
+      </h3>
+      <div className="mt-4 space-y-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <FormField
+            id="annualSaving"
+            name="annualSaving"
+            label="Annual Saving"
+            inputClassName="h-11"
+            placeholder="Enter annual saving"
+            inputProps={{
+              value: draft.annualSaving,
+              onChange: (event) => updateField("annualSaving", event.target.value),
+              autoComplete: "off",
+            }}
+          />
+          <FormField
+            id="currencyDisplay"
+            name="currencyDisplay"
+            label="Currency"
+            inputClassName="h-11"
+            inputProps={{
+              value: draft.currency,
+              readOnly: true,
+            }}
+          />
+        </div>
         <FormField
           id="annualRate"
           name="annualRate"
-          label="Annual Rate (%)"
+          label="Growth Rate"
+          inputContainerClassName="w-20"
+          inputClassName="h-11 px-2 pr-5"
+          suffix="%"
           placeholder="8"
           inputProps={{
             value: draft.annualRate,
@@ -114,12 +120,17 @@ export default function StageCardEditor({ stage, onSave, onDelete }: StageCardEd
         />
       </div>
       <div className="mt-5 flex items-center justify-between">
-        <button type="button" className="text-sm font-semibold text-red-500" onClick={() => onDelete(stage.id)}>
+        <Button variant="ghost" onClick={handleDelete} className="text-red-600 hover:bg-red-50">
           Delete
-        </button>
-        <Button onClick={handleSave} disabled={!isStageComplete(draft)}>
-          Save
         </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={handleCancel}>
+            Cancel
+          </Button>
+          <Button onClick={handleSave} disabled={!isStageComplete(draft)}>
+            Save
+          </Button>
+        </div>
       </div>
     </div>
   );
