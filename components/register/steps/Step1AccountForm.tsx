@@ -23,6 +23,11 @@ export default function Step1AccountForm({
   onNext,
 }: Step1AccountFormProps) {
   const router = useRouter();
+  const requiredLabel = (label: string) => (
+    <>
+      {label} <span className="text-red-600">*</span>
+    </>
+  );
   const currentYear = new Date().getFullYear();
   const birthYearOptions = Array.from({ length: currentYear - 1940 + 1 }, (_, index) => {
     const year = String(currentYear - index);
@@ -30,55 +35,53 @@ export default function Step1AccountForm({
   });
 
   return (
-    <div className="mt-8">
+    <div className="mt-3">
       <h2 className="text-center text-3xl font-bold text-primary">Registration</h2>
-      <div className="mx-auto mt-8 max-w-5xl space-y-6">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <FormField
-            id="email"
-            name="email"
-            label="Email"
-            inputClassName="h-10 border-primary/60"
-            placeholder="Enter your email"
-            inputProps={{
-              value: data.email,
-              type: "email",
-              onChange: (event) => onFieldChange("email", event.target.value),
-              autoComplete: "email",
-            }}
-          />
-          <FormField
-            id="password"
-            name="password"
-            label="Password"
-            variant="password"
-            inputClassName="h-10 border-primary/60"
-            placeholder="Enter your password"
-            inputProps={{
-              value: data.password,
-              onChange: (event) => onFieldChange("password", event.target.value),
-              autoComplete: "new-password",
-            }}
-          />
-          <FormField
-            id="confirmPassword"
-            name="confirmPassword"
-            label="Confirm Password"
-            variant="password"
-            inputClassName="h-10 border-primary/60"
-            placeholder="Confirm your password"
-            inputProps={{
-              value: data.confirmPassword,
-              onChange: (event) => onFieldChange("confirmPassword", event.target.value),
-              autoComplete: "new-password",
-            }}
-          />
-        </div>
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-4">
+      <div className="mx-auto mt-8 max-w-md space-y-6">
+        <FormField
+          id="email"
+          name="email"
+          label={requiredLabel("Email")}
+          inputClassName="h-10 border-primary/60"
+          placeholder="Enter your email"
+          inputProps={{
+            value: data.email,
+            type: "email",
+            onChange: (event) => onFieldChange("email", event.target.value),
+            autoComplete: "email",
+          }}
+        />
+        <FormField
+          id="password"
+          name="password"
+          label={requiredLabel("Password")}
+          variant="password"
+          inputClassName="h-10 border-primary/60"
+          placeholder="Enter your password"
+          inputProps={{
+            value: data.password,
+            onChange: (event) => onFieldChange("password", event.target.value),
+            autoComplete: "new-password",
+          }}
+        />
+        <FormField
+          id="confirmPassword"
+          name="confirmPassword"
+          label={requiredLabel("Confirm Password")}
+          variant="password"
+          inputClassName="h-10 border-primary/60"
+          placeholder="Confirm your password"
+          inputProps={{
+            value: data.confirmPassword,
+            onChange: (event) => onFieldChange("confirmPassword", event.target.value),
+            autoComplete: "new-password",
+          }}
+        />
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <FormField
             id="name"
             name="name"
-            label="Name"
+            label={requiredLabel("Name")}
             inputClassName="h-10 border-primary/60"
             placeholder="Enter your name"
             inputProps={{
@@ -90,7 +93,7 @@ export default function Step1AccountForm({
           <FormField
             id="sex"
             name="sex"
-            label="Gender"
+            label={requiredLabel("Gender")}
             variant="select"
             selectClassName="h-10 border-primary/60"
             placeholder="Select gender"
@@ -101,7 +104,7 @@ export default function Step1AccountForm({
           <FormField
             id="birthYear"
             name="birthYear"
-            label="Birth Year"
+            label={requiredLabel("Birth Year")}
             variant="select"
             selectClassName="h-10 border-primary/60"
             placeholder="Select year"
@@ -112,7 +115,7 @@ export default function Step1AccountForm({
           <FormField
             id="country"
             name="country"
-            label="Country"
+            label={requiredLabel("Country")}
             variant="select"
             selectClassName="h-10 border-primary/60"
             placeholder="Select country"
@@ -124,7 +127,7 @@ export default function Step1AccountForm({
         </div>
       </div>
       {error ? <p className="mt-4 text-center text-sm font-semibold text-red-600">{error}</p> : null}
-      <div className="mx-auto mt-8 max-w-5xl">
+      <div className="mx-auto mt-8 max-w-md">
         <Button className="h-11 w-full rounded-full text-base" onClick={onNext} disabled={isSubmitting}>
           {isSubmitting ? "Creating account..." : "Create account"}
         </Button>

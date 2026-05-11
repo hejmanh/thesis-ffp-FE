@@ -48,7 +48,7 @@ export default function RegisterAccountForm() {
   }
 
   return (
-    <div className="relative mx-auto max-w-4xl rounded-3xl bg-slate-50 p-6 shadow-[0_20px_50px_-25px_rgba(15,23,42,0.4)] sm:p-8">
+    <div className="relative mx-auto max-w-xl rounded-3xl bg-slate-50 p-6 shadow-[0_20px_50px_-25px_rgba(15,23,42,0.4)] sm:p-8">
       <Step1AccountForm
         data={data}
         error={error}
