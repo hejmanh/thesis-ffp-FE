@@ -59,6 +59,7 @@ export default function Step3StagesCards({
           {stages.map((stage, index) => (
             <StageEditorCard
               key={stage.id}
+              variant="register"
               index={index}
               stage={toStageEditorValue(stage)}
               onSave={(next) => handleSave(fromStageEditorValue(stage, next))}

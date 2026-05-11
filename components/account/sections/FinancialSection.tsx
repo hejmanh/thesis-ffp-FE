@@ -5,13 +5,16 @@ import Card from "@/components/common/Card";
 import AssetForm from "@/components/account/forms/AssetForm";
 import StageEditorCard, { type StageEditorValue } from "@/components/common/StageEditorCard";
 import FinancialForm from "@/components/account/forms/FinancialForm";
+import type { OnboardingDraft } from "@/types/onboarding";
+import { buildHardcodedStages } from "@/utils/stageDefaults";
 import type { Allocation, Asset, FinancialData, Habits, Stage } from "@/utils/types";
+
+const ONBOARDING_STORAGE_KEY = "coinfused_onboarding_payload";
 
 type FinancialAction =
   | { type: "update_root"; field: "estimatedLE" | "savings" | "currency" | "desiredLE"; value: string }
   | { type: "update_allocation"; period: "before" | "after"; key: keyof Allocation; value: string }
   | { type: "update_habit"; key: keyof Habits; value: string }
-  | { type: "set_stages"; stages: Stage[] }
   | { type: "update_stage"; index: number; stage: Stage }
   | { type: "add_asset" }
   | { type: "update_asset"; index: number; asset: Asset }
@@ -32,14 +35,7 @@ const INITIAL_FINANCIAL_DATA: FinancialData = {
     diet: "",
     alcohol: "",
   },
-  stages: [
-    { startAge: "25", endAge: "34", annualSaving: "", currency: "USD", growthRate: "" },
-    { startAge: "35", endAge: "44", annualSaving: "", currency: "USD", growthRate: "" },
-    { startAge: "45", endAge: "54", annualSaving: "", currency: "USD", growthRate: "" },
-    { startAge: "55", endAge: "64", annualSaving: "", currency: "USD", growthRate: "" },
-    { startAge: "65", endAge: "74", annualSaving: "", currency: "USD", growthRate: "" },
-    { startAge: "75", endAge: "85", annualSaving: "", currency: "USD", growthRate: "" },
-  ],
+  stages: [],
   assets: [],
 };
 
@@ -73,6 +69,74 @@ function fromStageEditorValue(stage: StageEditorValue): Stage {
   };
 }
 
+function mapOnboardingStageToFinancialStage(stage: OnboardingDraft["stages"][number]): Stage {
+  return {
+    startAge: stage.ageStart,
+    endAge: stage.ageEnd,
+    annualSaving: stage.annualSaving,
+    currency: stage.currency,
+    growthRate: stage.annualRate,
+  };
+}
+
+function mapOnboardingAssetToFinancialAsset(asset: OnboardingDraft["assets"][number]): Asset {
+  return {
+    name: asset.name,
+    amount: asset.amount,
+    currency: asset.currency,
+    type: asset.type,
+    growthRate: asset.growthRate,
+  };
+}
+
+function readOnboardingDraft(): OnboardingDraft | null {
+  if (typeof window === "undefined") return null;
+  const raw = window.localStorage.getItem(ONBOARDING_STORAGE_KEY);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as OnboardingDraft;
+  } catch {
+    return null;
+  }
+}
+
+function createFinancialDataFromOnboarding(draft: OnboardingDraft | null): FinancialData {
+  if (!draft) {
+    return {
+      ...INITIAL_FINANCIAL_DATA,
+      stages: buildHardcodedStages([], INITIAL_FINANCIAL_DATA.currency),
+    };
+  }
+
+  const data: FinancialData = {
+    estimatedLE: draft.step2.estimatedLifeExpectancy,
+    savings: draft.step2.currentSavings,
+    currency: draft.step2.preferredCurrency,
+    desiredLE: draft.step2.desiredLifeExpectancy,
+    allocation: {
+      before: { ...draft.step2.beforeFfp },
+      after: { ...draft.step2.afterFfp },
+    },
+    habits: {
+      smoking: draft.step2.habits.smoke,
+      physical: draft.step2.habits.physical,
+      diet: draft.step2.habits.diet,
+      alcohol: draft.step2.habits.alcohol,
+    },
+    stages: draft.stages.map(mapOnboardingStageToFinancialStage),
+    assets: draft.assets.map(mapOnboardingAssetToFinancialAsset),
+  };
+
+  if (data.stages.length > 0) {
+    return data;
+  }
+
+  return {
+    ...data,
+    stages: buildHardcodedStages(data.stages, data.currency),
+  };
+}
+
 function financialReducer(state: FinancialData, action: FinancialAction): FinancialData {
   switch (action.type) {
     case "update_root":
@@ -98,11 +162,6 @@ function financialReducer(state: FinancialData, action: FinancialAction): Financ
           ...state.habits,
           [action.key]: action.value,
         },
-      };
-    case "set_stages":
-      return {
-        ...state,
-        stages: action.stages,
       };
     case "update_stage":
       return {
@@ -130,7 +189,10 @@ function financialReducer(state: FinancialData, action: FinancialAction): Financ
 }
 
 export default function FinancialSection() {
-  const [financialData, dispatch] = useReducer(financialReducer, INITIAL_FINANCIAL_DATA);
+  const [financialData, dispatch] = useReducer(
+    financialReducer,
+    createFinancialDataFromOnboarding(readOnboardingDraft())
+  );
 
   return (
     <Card hoverable={false} className="w-full rounded-xl bg-white p-6 shadow-md">
@@ -150,16 +212,21 @@ export default function FinancialSection() {
         <div className="rounded-xl border border-border bg-slate-50 p-4">
           <h3 className="text-base font-semibold text-slate-900">Life Stages</h3>
           <p className="mt-1 text-xs italic text-slate-600">Includes all pre-FFP income sources (e.g. salary, rental income, etc.)</p>
-          <div className="mt-4 max-h-[24rem] space-y-4 overflow-y-auto pr-2">
-            {financialData.stages.map((stage, index) => (
-              <StageEditorCard
-                key={`stage_${index}`}
-                stage={toStageEditorValue(stage)}
-                index={index}
-                onSave={(next) => dispatch({ type: "update_stage", index, stage: fromStageEditorValue(next) })}
-              />
-            ))}
-          </div>
+          {financialData.stages.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Fill in desired life expectancy to generate your stage cards.</p>
+          ) : (
+            <div className="mt-4 max-h-[24rem] space-y-4 overflow-y-auto pr-2">
+              {financialData.stages.map((stage, index) => (
+                <StageEditorCard
+                  key={`stage_${index}`}
+                  variant="account"
+                  stage={toStageEditorValue(stage)}
+                  index={index}
+                  onSave={(next) => dispatch({ type: "update_stage", index, stage: fromStageEditorValue(next) })}
+                />
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="space-y-4 rounded-xl border border-border bg-slate-50 p-4">

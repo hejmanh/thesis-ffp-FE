@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Button from "@/components/common/Button";
 import FormField from "@/components/common/FormField";
+import { CURRENCY_OPTIONS } from "@/utils/onboardingConstants";
 
 export interface StageEditorValue {
   ageStart: string;
@@ -15,6 +16,7 @@ export interface StageEditorValue {
 interface StageEditorCardProps {
   stage: StageEditorValue;
   onSave: (stage: StageEditorValue) => void;
+  variant: "account" | "register";
   index?: number;
 }
 
@@ -23,23 +25,38 @@ function isStageComplete(stage: StageEditorValue): boolean {
 }
 
 function formatStageTitle(stage: StageEditorValue, index?: number): string {
-  return `Stage ${(index ?? 0) + 1}: ${stage.ageStart} - ${stage.ageEnd}`;
+  return `Stage ${(index ?? 0) + 1} [${stage.ageStart} - ${stage.ageEnd}]`;
 }
 
-const config = {
-  containerClassName: "rounded-2xl border border-border bg-white p-4",
-  headerClassName: "text-lg font-semibold text-slate-900",
-  actionRowClassName: "mt-4 flex items-center justify-between",
-  deleteButtonClassName: "text-red-600 hover:bg-red-50",
-  title: formatStageTitle,
-  displayRateLabel: "Growth Rate",
-  inputRateLabel: "Growth Rate",
-  buttonSize: "sm" as const,
+const variantConfig = {
+  account: {
+    containerClassName: "rounded-xl border border-border bg-white p-4",
+    headerClassName: "text-sm font-semibold text-slate-900",
+    actionRowClassName: "mt-4 flex items-center justify-between",
+    deleteButtonClassName: "text-red-600 hover:bg-red-50",
+    title: formatStageTitle,
+    displayRateLabel: "Growth Rate",
+    inputRateLabel: "Growth Rate",
+    currencyField: "select" as const,
+    buttonSize: "sm" as const,
+  },
+  register: {
+    containerClassName: "rounded-2xl border border-border bg-white p-5 shadow-sm",
+    headerClassName: "text-xl font-semibold text-slate-900",
+    actionRowClassName: "mt-5 flex items-center justify-between",
+    deleteButtonClassName: "text-red-600 hover:bg-red-50",
+    title: formatStageTitle,
+    displayRateLabel: "Annual Rate",
+    inputRateLabel: "Growth Rate",
+    currencyField: "readonly" as const,
+    buttonSize: "md" as const,
+  },
 };
 
-export default function StageEditorCard({ stage, onSave, index }: StageEditorCardProps) {
+export default function StageEditorCard({ stage, onSave, variant, index }: StageEditorCardProps) {
   const [draft, setDraft] = useState(stage);
   const [editing, setEditing] = useState(false);
+  const config = variantConfig[variant];
 
   useEffect(() => {
     setDraft(stage);
@@ -115,14 +132,25 @@ export default function StageEditorCard({ stage, onSave, index }: StageEditorCar
               autoComplete: "off",
             }}
           />
-          <FormField
+          {config.currencyField === "select" ? (
+            <FormField
+              label="Currency"
+              variant="select"
+              selectClassName="h-11"
+              value={draft.currency}
+              onChange={(value) => updateField("currency", value)}
+              options={CURRENCY_OPTIONS.map((currency) => ({ label: currency, value: currency }))}
+            />
+          ) : (
+            <FormField
               label="Currency"
               inputClassName="h-11"
               inputProps={{
                 value: draft.currency,
-                disabled: true,
+                readOnly: true,
               }}
             />
+          )}
         </div>
         <FormField
           label={config.inputRateLabel}

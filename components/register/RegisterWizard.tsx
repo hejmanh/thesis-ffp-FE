@@ -11,14 +11,13 @@ import type { OnboardingDraft } from "@/types/onboarding";
 import { INITIAL_ONBOARDING_DRAFT } from "@/utils/onboardingConstants";
 import { isAssetComplete, isStageComplete, validateStep2 } from "@/utils/onboardingValidators";
 import { canAccessOnboardingSteps } from "@/utils/onboardingGuard";
-import { buildPreconfiguredStageItems } from "@/utils/stageDefaults";
+import { buildHardcodedStageItems } from "@/utils/stageDefaults";
 
 const ONBOARDING_STORAGE_KEY = "coinfused_onboarding_payload";
 const ONBOARDING_STEPS = ["Personal Information", "Stages Data", "Asset Data"];
 
 export default function RegisterWizard() {
   const router = useRouter();
-  const session = getSession();
   const [step, setStep] = useState(1);
   const [draft, setDraft] = useState<OnboardingDraft>(INITIAL_ONBOARDING_DRAFT);
   const [error, setError] = useState("");
@@ -39,12 +38,7 @@ export default function RegisterWizard() {
       setError(validation);
       return;
     }
-    const generatedStages = buildPreconfiguredStageItems(
-      draft.stages,
-      String(session?.user.birthYear ?? ""),
-      draft.step2.desiredLifeExpectancy,
-      draft.step2.preferredCurrency
-    );
+    const generatedStages = buildHardcodedStageItems(draft.stages, draft.step2.preferredCurrency);
     setDraft((prev) => ({ ...prev, stages: generatedStages }));
     setStep(2);
   }
