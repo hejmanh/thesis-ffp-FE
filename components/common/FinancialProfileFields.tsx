@@ -40,8 +40,8 @@ interface FinancialProfileFieldsProps<HabitKey extends string> {
 }
 
 const ROOT_FIELD_LABELS: Record<RootFieldKey, string> = {
-  estimatedLifeExpectancy: "Estimated LE",
-  desiredLifeExpectancy: "Desired LE",
+  estimatedLifeExpectancy: "Estimated Life Expectancy",
+  desiredLifeExpectancy: "Desired Life Expectancy",
   currentSavings: "Current Savings",
   preferredCurrency: "Currency",
 };
