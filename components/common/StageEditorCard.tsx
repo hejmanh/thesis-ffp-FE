@@ -131,7 +131,7 @@ export default function StageEditorCard({ stage, onSave, variant, index }: Stage
           />
           <FormField
             label="Currency"
-            inputClassName="h-11 cursor-not-allowed border-slate-200 bg-slate-100 text-slate-500"
+            inputClassName="h-11"
             inputProps={{
               value: draft.currency,
               disabled: true,
