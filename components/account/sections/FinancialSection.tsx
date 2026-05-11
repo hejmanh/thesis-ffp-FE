@@ -3,8 +3,8 @@
 import { useEffect, useReducer } from "react";
 import Card from "@/components/common/Card";
 import AssetForm from "@/components/account/forms/AssetForm";
+import StageEditorCard, { type StageEditorValue } from "@/components/common/StageEditorCard";
 import FinancialForm from "@/components/account/forms/FinancialForm";
-import StageForm from "@/components/account/forms/StageForm";
 import { getSession } from "@/services/auth/mockAuth";
 import { buildPreconfiguredStages, DEFAULT_STAGE_COUNT } from "@/utils/stageDefaults";
 import type { Allocation, Asset, FinancialData, Habits, Stage } from "@/utils/types";
@@ -45,6 +45,26 @@ function createEmptyAsset(): Asset {
     currency: "USD",
     type: "",
     growthRate: "",
+  };
+}
+
+function toStageEditorValue(stage: Stage): StageEditorValue {
+  return {
+    ageStart: stage.startAge,
+    ageEnd: stage.endAge,
+    annualSaving: stage.annualSaving,
+    currency: stage.currency,
+    annualRate: stage.growthRate,
+  };
+}
+
+function fromStageEditorValue(stage: StageEditorValue): Stage {
+  return {
+    startAge: stage.ageStart,
+    endAge: stage.ageEnd,
+    annualSaving: stage.annualSaving,
+    currency: stage.currency,
+    growthRate: stage.annualRate,
   };
 }
 
@@ -148,11 +168,11 @@ export default function FinancialSection() {
           ) : (
             <div className="mt-4 max-h-[24rem] space-y-4 overflow-y-auto pr-2">
               {financialData.stages.map((stage, index) => (
-                <StageForm
+                <StageEditorCard
                   key={`stage_${index}`}
-                  stage={stage}
+                  stage={toStageEditorValue(stage)}
                   index={index}
-                  onChange={(next) => dispatch({ type: "update_stage", index, stage: next })}
+                  onSave={(next) => dispatch({ type: "update_stage", index, stage: fromStageEditorValue(next) })}
                 />
               ))}
             </div>

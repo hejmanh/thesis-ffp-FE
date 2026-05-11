@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Button from "@/components/common/Button";
-import StageCardEditor from "@/components/register/cards/StageCardEditor";
+import StageEditorCard, { type StageEditorValue } from "@/components/common/StageEditorCard";
 import type { StageItem } from "@/types/onboarding";
 import { isStageComplete } from "@/utils/onboardingValidators";
 import { buildPreconfiguredStageItems, DEFAULT_STAGE_COUNT } from "@/utils/stageDefaults";
@@ -16,6 +16,27 @@ interface Step3StagesCardsProps {
   onBack: () => void;
   onNext: () => void;
   onChange: (stages: StageItem[]) => void;
+}
+
+function toStageEditorValue(stage: StageItem): StageEditorValue {
+  return {
+    ageStart: stage.ageStart,
+    ageEnd: stage.ageEnd,
+    annualSaving: stage.annualSaving,
+    currency: stage.currency,
+    annualRate: stage.annualRate,
+  };
+}
+
+function fromStageEditorValue(stage: StageItem, next: StageEditorValue): StageItem {
+  return {
+    ...stage,
+    ageStart: next.ageStart,
+    ageEnd: next.ageEnd,
+    annualSaving: next.annualSaving,
+    currency: next.currency,
+    annualRate: next.annualRate,
+  };
 }
 
 export default function Step3StagesCards({
@@ -59,8 +80,13 @@ export default function Step3StagesCards({
       </p>
       <div className="mx-auto mt-8 max-w-5xl">
         <div className="max-h-[34rem] space-y-5 overflow-y-auto pr-2">
-          {stages.map((stage) => (
-            <StageCardEditor key={stage.id} stage={stage} onSave={handleSave} />
+          {stages.map((stage, index) => (
+            <StageEditorCard
+              key={stage.id}
+              index={index}
+              stage={toStageEditorValue(stage)}
+              onSave={(next) => handleSave(fromStageEditorValue(stage, next))}
+            />
           ))}
         </div>
       </div>
