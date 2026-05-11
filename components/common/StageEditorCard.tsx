@@ -33,8 +33,8 @@ const variantConfig = {
     headerClassName: "text-sm font-semibold text-slate-900",
     actionRowClassName: "mt-4 flex items-center justify-end",
     title: formatStageTitle,
-    displayRateLabel: "Growth Rate",
-    inputRateLabel: "Growth Rate",
+    displayRateLabel: "Annual Rate",
+    inputRateLabel: "Annual Rate",
     buttonSize: "sm" as const,
   },
   register: {
@@ -42,8 +42,8 @@ const variantConfig = {
     headerClassName: "text-xl font-semibold text-slate-900",
     actionRowClassName: "mt-5 flex items-center justify-end",
     title: formatStageTitle,
-    displayRateLabel: "Growth Rate",
-    inputRateLabel: "Growth Rate",
+    displayRateLabel: "Annual Rate",
+    inputRateLabel: "Annual Rate",
     buttonSize: "md" as const,
   },
 };
