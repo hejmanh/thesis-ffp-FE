@@ -32,6 +32,10 @@ export default function RegisterWizard() {
     }
   }, [router]);
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [step, completed]);
+
   function handlePersonalNext() {
     setError("");
     const validation = validateStep2(draft.step2);
