@@ -1,8 +1,8 @@
 export type FeatureIconKey =
-  | "solar:target-linear"
-  | "solar:calendar-linear"
-  | "solar:calculator-linear"
-  | "iconoir:piggy-bank";
+  | "mingcute:target-line"
+  | "mingcute:calendar-2-line"
+  | "icon-park-outline:calculator"
+  | "mingcute:pig-money-line";
 
 export interface FeatureItem {
   id: string;
