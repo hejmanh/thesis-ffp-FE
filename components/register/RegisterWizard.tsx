@@ -11,6 +11,7 @@ import type { OnboardingDraft } from "@/types/onboarding";
 import { INITIAL_ONBOARDING_DRAFT } from "@/utils/onboardingConstants";
 import { isAssetComplete, isStageComplete, validateStep2 } from "@/utils/onboardingValidators";
 import { canAccessOnboardingSteps } from "@/utils/onboardingGuard";
+import { buildPreconfiguredStageItems } from "@/utils/stageDefaults";
 
 const ONBOARDING_STORAGE_KEY = "coinfused_onboarding_payload";
 const ONBOARDING_STEPS = ["Personal Information", "Stages Data", "Asset Data"];
@@ -38,6 +39,13 @@ export default function RegisterWizard() {
       setError(validation);
       return;
     }
+    const generatedStages = buildPreconfiguredStageItems(
+      draft.stages,
+      String(session?.user.birthYear ?? ""),
+      draft.step2.desiredLifeExpectancy,
+      draft.step2.preferredCurrency
+    );
+    setDraft((prev) => ({ ...prev, stages: generatedStages }));
     setStep(2);
   }
 
@@ -89,9 +97,6 @@ export default function RegisterWizard() {
       ) : null}
       {!completed && step === 2 ? (
         <Step3StagesCards
-          birthYear={String(session?.user.birthYear ?? "")}
-          desiredLifeExpectancy={draft.step2.desiredLifeExpectancy}
-          preferredCurrency={draft.step2.preferredCurrency}
           stages={draft.stages}
           error={error}
           onBack={() => setStep(1)}

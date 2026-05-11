@@ -1,12 +1,10 @@
 "use client";
 
-import { useEffect, useReducer } from "react";
+import { useReducer } from "react";
 import Card from "@/components/common/Card";
 import AssetForm from "@/components/account/forms/AssetForm";
 import StageEditorCard, { type StageEditorValue } from "@/components/common/StageEditorCard";
 import FinancialForm from "@/components/account/forms/FinancialForm";
-import { getSession } from "@/services/auth/mockAuth";
-import { buildPreconfiguredStages, DEFAULT_STAGE_COUNT } from "@/utils/stageDefaults";
 import type { Allocation, Asset, FinancialData, Habits, Stage } from "@/utils/types";
 
 type FinancialAction =
@@ -34,7 +32,14 @@ const INITIAL_FINANCIAL_DATA: FinancialData = {
     diet: "",
     alcohol: "",
   },
-  stages: [],
+  stages: [
+    { startAge: "25", endAge: "34", annualSaving: "", currency: "USD", growthRate: "" },
+    { startAge: "35", endAge: "44", annualSaving: "", currency: "USD", growthRate: "" },
+    { startAge: "45", endAge: "54", annualSaving: "", currency: "USD", growthRate: "" },
+    { startAge: "55", endAge: "64", annualSaving: "", currency: "USD", growthRate: "" },
+    { startAge: "65", endAge: "74", annualSaving: "", currency: "USD", growthRate: "" },
+    { startAge: "75", endAge: "85", annualSaving: "", currency: "USD", growthRate: "" },
+  ],
   assets: [],
 };
 
@@ -125,25 +130,7 @@ function financialReducer(state: FinancialData, action: FinancialAction): Financ
 }
 
 export default function FinancialSection() {
-  const session = getSession();
   const [financialData, dispatch] = useReducer(financialReducer, INITIAL_FINANCIAL_DATA);
-
-  useEffect(() => {
-    const generatedStages = buildPreconfiguredStages(
-      financialData.stages,
-      String(session?.user.birthYear ?? ""),
-      financialData.desiredLE,
-      financialData.currency
-    );
-
-    const shouldUpdate =
-      generatedStages.length === DEFAULT_STAGE_COUNT &&
-      JSON.stringify(generatedStages) !== JSON.stringify(financialData.stages);
-
-    if (shouldUpdate) {
-      dispatch({ type: "set_stages", stages: generatedStages });
-    }
-  }, [financialData.currency, financialData.desiredLE, financialData.stages, session?.user.birthYear]);
 
   return (
     <Card hoverable={false} className="w-full rounded-xl bg-white p-6 shadow-md">
@@ -163,20 +150,16 @@ export default function FinancialSection() {
         <div className="rounded-xl border border-border bg-slate-50 p-4">
           <h3 className="text-base font-semibold text-slate-900">Life Stages</h3>
           <p className="mt-1 text-xs italic text-slate-600">Includes all pre-FFP income sources (e.g. salary, rental income, etc.)</p>
-          {financialData.stages.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Fill in desired life expectancy to generate your stage cards.</p>
-          ) : (
-            <div className="mt-4 max-h-[24rem] space-y-4 overflow-y-auto pr-2">
-              {financialData.stages.map((stage, index) => (
-                <StageEditorCard
-                  key={`stage_${index}`}
-                  stage={toStageEditorValue(stage)}
-                  index={index}
-                  onSave={(next) => dispatch({ type: "update_stage", index, stage: fromStageEditorValue(next) })}
-                />
-              ))}
-            </div>
-          )}
+          <div className="mt-4 max-h-[24rem] space-y-4 overflow-y-auto pr-2">
+            {financialData.stages.map((stage, index) => (
+              <StageEditorCard
+                key={`stage_${index}`}
+                stage={toStageEditorValue(stage)}
+                index={index}
+                onSave={(next) => dispatch({ type: "update_stage", index, stage: fromStageEditorValue(next) })}
+              />
+            ))}
+          </div>
         </div>
 
         <div className="space-y-4 rounded-xl border border-border bg-slate-50 p-4">

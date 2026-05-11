@@ -1,16 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
 import Button from "@/components/common/Button";
 import StageEditorCard, { type StageEditorValue } from "@/components/common/StageEditorCard";
 import type { StageItem } from "@/types/onboarding";
 import { isStageComplete } from "@/utils/onboardingValidators";
-import { buildPreconfiguredStageItems, DEFAULT_STAGE_COUNT } from "@/utils/stageDefaults";
 
 interface Step3StagesCardsProps {
-  birthYear: string;
-  desiredLifeExpectancy: string;
-  preferredCurrency: string;
   stages: StageItem[];
   error: string;
   onBack: () => void;
@@ -40,31 +35,12 @@ function fromStageEditorValue(stage: StageItem, next: StageEditorValue): StageIt
 }
 
 export default function Step3StagesCards({
-  birthYear,
-  desiredLifeExpectancy,
-  preferredCurrency,
   stages,
   error,
   onBack,
   onNext,
   onChange,
 }: Step3StagesCardsProps) {
-  useEffect(() => {
-    const generatedStages = buildPreconfiguredStageItems(
-      stages,
-      birthYear,
-      desiredLifeExpectancy,
-      preferredCurrency
-    );
-
-    const shouldUpdate =
-      generatedStages.length === DEFAULT_STAGE_COUNT &&
-      JSON.stringify(generatedStages) !== JSON.stringify(stages);
-
-    if (shouldUpdate) {
-      onChange(generatedStages);
-    }
-  }, [birthYear, desiredLifeExpectancy, preferredCurrency, stages, onChange]);
 
   function handleSave(updated: StageItem) {
     onChange(stages.map((stage) => (stage.id === updated.id ? updated : stage)));
