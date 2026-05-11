@@ -46,7 +46,7 @@ export default function RegisterWizard() {
   function handleStagesNext() {
     setError("");
     if (!draft.stages.length || !draft.stages.every(isStageComplete)) {
-      setError("Please add at least one complete stage card.");
+      setError("Please complete all stage cards.");
       return;
     }
     setStep(3);

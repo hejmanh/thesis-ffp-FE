@@ -212,21 +212,17 @@ export default function FinancialSection() {
         <div className="rounded-xl border border-border bg-slate-50 p-4">
           <h3 className="text-base font-semibold text-slate-900">Life Stages</h3>
           <p className="mt-1 text-xs italic text-slate-600">Includes all pre-FFP income sources (e.g. salary, rental income, etc.)</p>
-          {financialData.stages.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Fill in desired life expectancy to generate your stage cards.</p>
-          ) : (
-            <div className="mt-4 max-h-[24rem] space-y-4 overflow-y-auto pr-2">
-              {financialData.stages.map((stage, index) => (
-                <StageEditorCard
-                  key={`stage_${index}`}
-                  variant="account"
-                  stage={toStageEditorValue(stage)}
-                  index={index}
-                  onSave={(next) => dispatch({ type: "update_stage", index, stage: fromStageEditorValue(next) })}
-                />
-              ))}
-            </div>
-          )}
+          <div className="mt-4 max-h-[24rem] space-y-4 overflow-y-auto pr-2">
+            {financialData.stages.map((stage, index) => (
+              <StageEditorCard
+                key={`stage_${index}`}
+                variant="account"
+                stage={toStageEditorValue(stage)}
+                index={index}
+                onSave={(next) => dispatch({ type: "update_stage", index, stage: fromStageEditorValue(next) })}
+              />
+            ))}
+          </div>
         </div>
 
         <div className="space-y-4 rounded-xl border border-border bg-slate-50 p-4">

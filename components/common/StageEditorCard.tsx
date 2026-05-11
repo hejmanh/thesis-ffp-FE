@@ -31,8 +31,7 @@ const variantConfig = {
   account: {
     containerClassName: "rounded-xl border border-border bg-white p-4",
     headerClassName: "text-sm font-semibold text-slate-900",
-    actionRowClassName: "mt-4 flex items-center justify-between",
-    deleteButtonClassName: "text-red-600 hover:bg-red-50",
+    actionRowClassName: "mt-4 flex items-center justify-end",
     title: formatStageTitle,
     displayRateLabel: "Growth Rate",
     inputRateLabel: "Growth Rate",
@@ -41,10 +40,9 @@ const variantConfig = {
   register: {
     containerClassName: "rounded-2xl border border-border bg-white p-5 shadow-sm",
     headerClassName: "text-xl font-semibold text-slate-900",
-    actionRowClassName: "mt-5 flex items-center justify-between",
-    deleteButtonClassName: "text-red-600 hover:bg-red-50",
+    actionRowClassName: "mt-5 flex items-center justify-end",
     title: formatStageTitle,
-    displayRateLabel: "Annual Rate",
+    displayRateLabel: "Growth Rate",
     inputRateLabel: "Growth Rate",
     buttonSize: "md" as const,
   },
@@ -70,18 +68,6 @@ export default function StageEditorCard({ stage, onSave, variant, index }: Stage
 
   function handleCancel() {
     setDraft(stage);
-    setEditing(false);
-  }
-
-  function handleDelete() {
-    const clearedStage: StageEditorValue = {
-      ...stage,
-      annualSaving: "",
-      annualRate: "",
-    };
-
-    setDraft(clearedStage);
-    onSave(clearedStage);
     setEditing(false);
   }
 
@@ -152,14 +138,6 @@ export default function StageEditorCard({ stage, onSave, variant, index }: Stage
         />
       </div>
       <div className={config.actionRowClassName}>
-        <Button
-          variant="ghost"
-          size={config.buttonSize}
-          onClick={handleDelete}
-          className={config.deleteButtonClassName}
-        >
-          Delete
-        </Button>
         <div className="flex items-center gap-2">
           <Button variant="outline" size={config.buttonSize} onClick={handleCancel}>
             Cancel
