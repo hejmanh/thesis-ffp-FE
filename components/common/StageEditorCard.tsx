@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Button from "@/components/common/Button";
 import FormField from "@/components/common/FormField";
-import { CURRENCY_OPTIONS } from "@/utils/onboardingConstants";
 
 export interface StageEditorValue {
   ageStart: string;
@@ -25,7 +24,7 @@ function isStageComplete(stage: StageEditorValue): boolean {
 }
 
 function formatStageTitle(stage: StageEditorValue, index?: number): string {
-  return `Stage ${(index ?? 0) + 1} [${stage.ageStart} - ${stage.ageEnd}]`;
+  return `Stage ${(index ?? 0) + 1} - Age ${stage.ageStart} - ${stage.ageEnd}`;
 }
 
 const variantConfig = {
@@ -37,7 +36,6 @@ const variantConfig = {
     title: formatStageTitle,
     displayRateLabel: "Growth Rate",
     inputRateLabel: "Growth Rate",
-    currencyField: "select" as const,
     buttonSize: "sm" as const,
   },
   register: {
@@ -48,7 +46,6 @@ const variantConfig = {
     title: formatStageTitle,
     displayRateLabel: "Annual Rate",
     inputRateLabel: "Growth Rate",
-    currencyField: "readonly" as const,
     buttonSize: "md" as const,
   },
 };
@@ -132,25 +129,14 @@ export default function StageEditorCard({ stage, onSave, variant, index }: Stage
               autoComplete: "off",
             }}
           />
-          {config.currencyField === "select" ? (
-            <FormField
-              label="Currency"
-              variant="select"
-              selectClassName="h-11"
-              value={draft.currency}
-              onChange={(value) => updateField("currency", value)}
-              options={CURRENCY_OPTIONS.map((currency) => ({ label: currency, value: currency }))}
-            />
-          ) : (
-            <FormField
-              label="Currency"
-              inputClassName="h-11"
-              inputProps={{
-                value: draft.currency,
-                readOnly: true,
-              }}
-            />
-          )}
+          <FormField
+            label="Currency"
+            inputClassName="h-11 cursor-not-allowed border-slate-200 bg-slate-100 text-slate-500"
+            inputProps={{
+              value: draft.currency,
+              disabled: true,
+            }}
+          />
         </div>
         <FormField
           label={config.inputRateLabel}
