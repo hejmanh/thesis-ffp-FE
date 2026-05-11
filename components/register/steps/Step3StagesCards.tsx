@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Button from "@/components/common/Button";
 import StageEditorCard, { type StageEditorValue } from "@/components/common/StageEditorCard";
 import type { StageItem } from "@/types/onboarding";
@@ -41,12 +42,29 @@ export default function Step3StagesCards({
   onNext,
   onChange,
 }: Step3StagesCardsProps) {
+  const [draftStages, setDraftStages] = useState(stages);
 
-  function handleSave(updated: StageItem) {
-    onChange(stages.map((stage) => (stage.id === updated.id ? updated : stage)));
+  useEffect(() => {
+    setDraftStages(stages);
+  }, [stages]);
+
+  function handleStageChange(index: number, next: StageEditorValue) {
+    setDraftStages((prev) =>
+      prev.map((stage, currentIndex) => (currentIndex === index ? fromStageEditorValue(stage, next) : stage))
+    );
   }
 
-  const canContinue = stages.length > 0 && stages.every(isStageComplete);
+  function handleBackClick() {
+    onChange(draftStages);
+    onBack();
+  }
+
+  function handleNextClick() {
+    onChange(draftStages);
+    onNext();
+  }
+
+  const canContinue = draftStages.length > 0 && draftStages.every(isStageComplete);
 
   return (
     <div className="mt-8">
@@ -56,23 +74,23 @@ export default function Step3StagesCards({
       </p>
       <div className="mx-auto mt-8 max-w-5xl">
         <div className="max-h-[34rem] space-y-5 overflow-y-auto pr-2">
-          {stages.map((stage, index) => (
+          {draftStages.map((stage, index) => (
             <StageEditorCard
               key={stage.id}
               variant="register"
               index={index}
               stage={toStageEditorValue(stage)}
-              onSave={(next) => handleSave(fromStageEditorValue(stage, next))}
+              onChange={(next) => handleStageChange(index, next)}
             />
           ))}
         </div>
       </div>
       {error ? <p className="mt-4 text-center text-sm font-semibold text-red-600">{error}</p> : null}
       <div className="mx-auto mt-8 flex max-w-5xl flex-col gap-3">
-        <Button className="h-12 w-full rounded-full text-base" onClick={onNext} disabled={!canContinue}>
+        <Button className="h-12 w-full rounded-full text-base" onClick={handleNextClick} disabled={!canContinue}>
           Next
         </Button>
-        <Button variant="outline" className="h-12 w-full rounded-full text-base" onClick={onBack}>
+        <Button variant="outline" className="h-12 w-full rounded-full text-base" onClick={handleBackClick}>
           Back
         </Button>
       </div>

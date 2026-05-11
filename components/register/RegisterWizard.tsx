@@ -9,7 +9,7 @@ import Step4AssetsCards from "@/components/register/steps/Step4AssetsCards";
 import { getSession } from "@/services/auth/mockAuth";
 import type { OnboardingDraft } from "@/types/onboarding";
 import { INITIAL_ONBOARDING_DRAFT } from "@/utils/onboardingConstants";
-import { isAssetComplete, isStageComplete, validateStep2 } from "@/utils/onboardingValidators";
+import { isAssetComplete, validateStep2 } from "@/utils/onboardingValidators";
 import { canAccessOnboardingSteps } from "@/utils/onboardingGuard";
 import { buildHardcodedStageItems } from "@/utils/stageDefaults";
 
@@ -44,11 +44,6 @@ export default function RegisterWizard() {
   }
 
   function handleStagesNext() {
-    setError("");
-    if (!draft.stages.length || !draft.stages.every(isStageComplete)) {
-      setError("Please complete all stage cards.");
-      return;
-    }
     setStep(3);
   }
 

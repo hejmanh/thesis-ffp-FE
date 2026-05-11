@@ -1,6 +1,7 @@
 "use client";
 
-import { useReducer } from "react";
+import { useEffect, useReducer, useState } from "react";
+import Button from "@/components/common/Button";
 import Card from "@/components/common/Card";
 import AssetForm from "@/components/account/forms/AssetForm";
 import StageEditorCard, { type StageEditorValue } from "@/components/common/StageEditorCard";
@@ -67,6 +68,10 @@ function fromStageEditorValue(stage: StageEditorValue): Stage {
     currency: stage.currency,
     growthRate: stage.annualRate,
   };
+}
+
+function isStageComplete(stage: Stage): boolean {
+  return Boolean(stage.startAge && stage.endAge && stage.annualSaving && stage.currency && stage.growthRate);
 }
 
 function mapOnboardingStageToFinancialStage(stage: OnboardingDraft["stages"][number]): Stage {
@@ -193,6 +198,25 @@ export default function FinancialSection() {
     financialReducer,
     createFinancialDataFromOnboarding(readOnboardingDraft())
   );
+  const [draftStages, setDraftStages] = useState(financialData.stages);
+
+  useEffect(() => {
+    setDraftStages(financialData.stages);
+  }, [financialData.stages]);
+
+  function handleStageChange(index: number, next: StageEditorValue) {
+    setDraftStages((prev) =>
+      prev.map((stage, currentIndex) => (currentIndex === index ? fromStageEditorValue(next) : stage))
+    );
+  }
+
+  function handleSaveStages() {
+    draftStages.forEach((stage, index) => {
+      dispatch({ type: "update_stage", index, stage });
+    });
+  }
+
+  const canSaveStages = draftStages.length > 0 && draftStages.every(isStageComplete);
 
   return (
     <Card hoverable={false} className="w-full rounded-xl bg-white p-6 shadow-md">
@@ -213,15 +237,20 @@ export default function FinancialSection() {
           <h3 className="text-base font-semibold text-slate-900">Life Stages</h3>
           <p className="mt-1 text-xs italic text-slate-600">Includes all pre-FFP income sources (e.g. salary, rental income, etc.)</p>
           <div className="mt-4 max-h-[24rem] space-y-4 overflow-y-auto pr-2">
-            {financialData.stages.map((stage, index) => (
+            {draftStages.map((stage, index) => (
               <StageEditorCard
                 key={`stage_${index}`}
                 variant="account"
                 stage={toStageEditorValue(stage)}
                 index={index}
-                onSave={(next) => dispatch({ type: "update_stage", index, stage: fromStageEditorValue(next) })}
+                onChange={(next) => handleStageChange(index, next)}
               />
             ))}
+          </div>
+          <div className="mt-6 flex justify-end">
+            <Button size="sm" onClick={handleSaveStages} disabled={!canSaveStages}>
+              Save stages
+            </Button>
           </div>
         </div>
 
