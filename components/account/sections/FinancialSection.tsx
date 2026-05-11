@@ -248,7 +248,7 @@ export default function FinancialSection() {
             ))}
           </div>
           <div className="mt-6 flex justify-end">
-            <Button size="sm" onClick={handleSaveStages} disabled={!canSaveStages}>
+            <Button className="mr-6" size="sm" onClick={handleSaveStages} disabled={!canSaveStages}>
               Save stages
             </Button>
           </div>

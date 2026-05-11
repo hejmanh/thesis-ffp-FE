@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Button from "@/components/common/Button";
 import StageEditorCard, { type StageEditorValue } from "@/components/common/StageEditorCard";
 import type { StageItem } from "@/types/onboarding";
@@ -27,10 +26,7 @@ function toStageEditorValue(stage: StageItem): StageEditorValue {
 function fromStageEditorValue(stage: StageItem, next: StageEditorValue): StageItem {
   return {
     ...stage,
-    ageStart: next.ageStart,
-    ageEnd: next.ageEnd,
     annualSaving: next.annualSaving,
-    currency: next.currency,
     annualRate: next.annualRate,
   };
 }
@@ -42,29 +38,7 @@ export default function Step3StagesCards({
   onNext,
   onChange,
 }: Step3StagesCardsProps) {
-  const [draftStages, setDraftStages] = useState(stages);
-
-  useEffect(() => {
-    setDraftStages(stages);
-  }, [stages]);
-
-  function handleStageChange(index: number, next: StageEditorValue) {
-    setDraftStages((prev) =>
-      prev.map((stage, currentIndex) => (currentIndex === index ? fromStageEditorValue(stage, next) : stage))
-    );
-  }
-
-  function handleBackClick() {
-    onChange(draftStages);
-    onBack();
-  }
-
-  function handleNextClick() {
-    onChange(draftStages);
-    onNext();
-  }
-
-  const canContinue = draftStages.length > 0 && draftStages.every(isStageComplete);
+  const canContinue = stages.length > 0 && stages.every(isStageComplete);
 
   return (
     <div className="mt-8">
@@ -72,25 +46,26 @@ export default function Step3StagesCards({
       <p className="mt-2 text-center text-sm text-muted-foreground">
         Define how your savings change over time
       </p>
+      <p className="mt-1 text-xs text-center italic text-slate-600">Includes all pre-FFP income sources (e.g. salary, rental income, etc.)</p>
       <div className="mx-auto mt-8 max-w-5xl">
         <div className="max-h-[34rem] space-y-5 overflow-y-auto pr-2">
-          {draftStages.map((stage, index) => (
+          {stages.map((stage, index) => (
             <StageEditorCard
               key={stage.id}
               variant="register"
               index={index}
               stage={toStageEditorValue(stage)}
-              onChange={(next) => handleStageChange(index, next)}
+              onChange={(next) => onChange(stages.map((s) => (s.id === stage.id ? fromStageEditorValue(stage, next) : s)))}
             />
           ))}
         </div>
       </div>
       {error ? <p className="mt-4 text-center text-sm font-semibold text-red-600">{error}</p> : null}
       <div className="mx-auto mt-8 flex max-w-5xl flex-col gap-3">
-        <Button className="h-12 w-full rounded-full text-base" onClick={handleNextClick} disabled={!canContinue}>
+        <Button className="h-12 w-full rounded-full text-base" onClick={onNext} disabled={!canContinue}>
           Next
         </Button>
-        <Button variant="outline" className="h-12 w-full rounded-full text-base" onClick={handleBackClick}>
+        <Button variant="outline" className="h-12 w-full rounded-full text-base" onClick={onBack}>
           Back
         </Button>
       </div>

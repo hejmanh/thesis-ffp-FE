@@ -58,7 +58,7 @@ export default function StageEditorCard({ stage, onChange, variant, index }: Sta
         />
         <FormField
           label={config.inputRateLabel}
-          inputClassName="h-11 px-1 pr-8"
+          inputClassName="h-11 px-3 pr-8"
           suffix="%"
           placeholder="8"
           inputProps={{
