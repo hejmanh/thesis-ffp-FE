@@ -2,16 +2,24 @@
 
 import { useRouter } from "next/navigation";
 import Button from "@/components/common/Button";
-import Link from "next/link";
 import FormField from "@/components/common/FormField";
 import type { Step1AccountData } from "@/types/onboarding";
-import { SEX_OPTIONS, COUNTRY_OPTIONS } from "@/utils/onboardingConstants";
+
+type SelectOption = {
+  label: string;
+  value: string;
+};
 
 interface Step1AccountFormProps {
   data: Step1AccountData;
   error: string;
   isSubmitting: boolean;
-  onFieldChange: <K extends keyof Step1AccountData>(key: K, value: Step1AccountData[K]) => void;
+  countryOptions: SelectOption[];
+  sexOptions: SelectOption[];
+  onFieldChange: <K extends keyof Step1AccountData>(
+    key: K,
+    value: Step1AccountData[K],
+  ) => void;
   onNext: () => void;
 }
 
@@ -19,29 +27,33 @@ export default function Step1AccountForm({
   data,
   error,
   isSubmitting,
+  countryOptions,
+  sexOptions,
   onFieldChange,
   onNext,
 }: Step1AccountFormProps) {
+  const isReferenceReady = countryOptions.length > 0 && sexOptions.length > 0;
   const router = useRouter();
-  const requiredLabel = (label: string) => (
-    <>
-      {label} <span className="text-red-600">*</span>
-    </>
-  );
   const currentYear = new Date().getFullYear();
-  const birthYearOptions = Array.from({ length: currentYear - 1940 + 1 }, (_, index) => {
-    const year = String(currentYear - index);
-    return { label: year, value: year };
-  });
+  const birthYearOptions = Array.from(
+    { length: currentYear - 1940 + 1 },
+    (_, index) => {
+      const year = String(currentYear - index);
+      return { label: year, value: year };
+    },
+  );
 
   return (
     <div className="mt-3">
-      <h2 className="text-center text-3xl font-bold text-primary">Registration</h2>
+      <h2 className="text-center text-3xl font-bold text-primary">
+        Registration
+      </h2>
       <div className="mx-auto mt-8 max-w-md space-y-6">
         <FormField
           id="email"
           name="email"
-          label={requiredLabel("Email")}
+          label="Email"
+          isRequired
           inputClassName="h-10 border-primary/60"
           placeholder="Enter your email"
           inputProps={{
@@ -54,7 +66,8 @@ export default function Step1AccountForm({
         <FormField
           id="password"
           name="password"
-          label={requiredLabel("Password")}
+          label="Password"
+          isRequired
           variant="password"
           inputClassName="h-10 border-primary/60"
           placeholder="Enter your password"
@@ -67,13 +80,15 @@ export default function Step1AccountForm({
         <FormField
           id="confirmPassword"
           name="confirmPassword"
-          label={requiredLabel("Confirm Password")}
+          label="Confirm Password"
+          isRequired
           variant="password"
           inputClassName="h-10 border-primary/60"
           placeholder="Confirm your password"
           inputProps={{
             value: data.confirmPassword,
-            onChange: (event) => onFieldChange("confirmPassword", event.target.value),
+            onChange: (event) =>
+              onFieldChange("confirmPassword", event.target.value),
             autoComplete: "new-password",
           }}
         />
@@ -81,7 +96,8 @@ export default function Step1AccountForm({
           <FormField
             id="name"
             name="name"
-            label={requiredLabel("Name")}
+            label="Name"
+            isRequired
             inputClassName="h-10 border-primary/60"
             placeholder="Enter your name"
             inputProps={{
@@ -93,18 +109,20 @@ export default function Step1AccountForm({
           <FormField
             id="sex"
             name="sex"
-            label={requiredLabel("Gender")}
+            label="Gender"
+            isRequired
             variant="select"
             selectClassName="h-10 border-primary/60"
             placeholder="Select gender"
             value={data.sex}
             onChange={(value) => onFieldChange("sex", value)}
-            options={SEX_OPTIONS.map((item) => ({ label: item, value: item }))}
+            options={sexOptions}
           />
           <FormField
             id="birthYear"
             name="birthYear"
-            label={requiredLabel("Birth Year")}
+            label="Birth Year"
+            isRequired
             variant="select"
             selectClassName="h-10 border-primary/60"
             placeholder="Select year"
@@ -115,20 +133,34 @@ export default function Step1AccountForm({
           <FormField
             id="country"
             name="country"
-            label={requiredLabel("Country")}
+            label="Country"
+            isRequired
             variant="select"
             selectClassName="h-10 border-primary/60"
             placeholder="Select country"
             value={data.country}
             onChange={(value) => onFieldChange("country", value)}
-            options={COUNTRY_OPTIONS.map((country) => ({ label: country, value: country }))}
+            options={countryOptions}
             searchable={true}
           />
         </div>
       </div>
-      {error ? <p className="mt-4 text-center text-sm font-semibold text-red-600">{error}</p> : null}
+      {error ? (
+        <p className="mt-4 text-center text-sm font-semibold text-red-600">
+          {error}
+        </p>
+      ) : null}
+      {!isReferenceReady ? (
+        <p className="mt-4 text-center text-sm text-muted-foreground">
+          Loading registration options...
+        </p>
+      ) : null}
       <div className="mx-auto mt-8 max-w-md">
-        <Button className="h-11 w-full rounded-full text-base" onClick={onNext} disabled={isSubmitting}>
+        <Button
+          className="h-11 w-full rounded-full text-base"
+          onClick={onNext}
+          disabled={isSubmitting || !isReferenceReady}
+        >
           {isSubmitting ? "Creating account..." : "Create account"}
         </Button>
       </div>

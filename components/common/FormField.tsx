@@ -16,6 +16,7 @@ interface SelectOption {
 interface FormFieldProps {
   label: ReactNode;
   variant?: FormFieldVariant;
+  isRequired?: boolean;
 
   className?: string;
   labelClassName?: string;
@@ -44,6 +45,7 @@ interface FormFieldProps {
 export default function FormField({
   label,
   variant = "input",
+  isRequired = false,
   className,
   labelClassName,
   inputClassName,
@@ -66,13 +68,18 @@ export default function FormField({
       className={cn(
         "block text-sm font-medium text-slate-700",
         labelClassName,
-        className
+        className,
       )}
     >
-      {label && <span className="mb-1.5 inline-block">{label}</span>}
+      {label ? (
+        <span className="mb-1.5 inline-block">
+          {label}
+          {isRequired ? <span className="ml-1 text-red-600">*</span> : null}
+        </span>
+      ) : null}
 
       {variant === "select" ? (
-        children ?? (
+        (children ?? (
           <DropdownField
             id={id}
             name={name}
@@ -84,7 +91,7 @@ export default function FormField({
             onChange={onChange}
             searchable={searchable}
           />
-        )
+        ))
       ) : variant === "password" ? (
         <PasswordInput
           id={id}
@@ -104,7 +111,6 @@ export default function FormField({
           {...inputProps}
         />
       )}
-
     </label>
   );
 }
