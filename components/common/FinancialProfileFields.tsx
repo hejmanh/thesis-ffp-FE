@@ -151,7 +151,7 @@ export default function FinancialProfileFields<HabitKey extends string>({
         {onSaveProfile ? (
           <div className={SAVE_ACTIONS_CLASS_NAME}>
             <Button size="sm" onClick={onSaveProfile} disabled={!canSaveProfile}>
-              Save financial profile
+              Save changes
             </Button>
           </div>
         ) : null}
@@ -194,7 +194,7 @@ export default function FinancialProfileFields<HabitKey extends string>({
         {onSaveAllocations ? (
           <div className={SAVE_ACTIONS_CLASS_NAME}>
             <Button size="sm" onClick={onSaveAllocations} disabled={!canSaveAllocations}>
-              Save asset allocation
+              Save changes
             </Button>
           </div>
         ) : null}
@@ -221,7 +221,7 @@ export default function FinancialProfileFields<HabitKey extends string>({
         {onSaveHabits ? (
           <div className={SAVE_ACTIONS_CLASS_NAME}>
             <Button size="sm" onClick={onSaveHabits} disabled={!canSaveHabits}>
-              Save habits
+              Save changes
             </Button>
           </div>
         ) : null}

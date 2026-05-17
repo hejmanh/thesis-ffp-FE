@@ -345,7 +345,7 @@ export default function FinancialSection() {
           </div>
           <div className="mt-6 flex justify-end">
             <Button size="sm" onClick={handleSaveStages} disabled={!canSaveStages}>
-              Save stages
+              Save changes
             </Button>
           </div>
         </div>
@@ -372,7 +372,7 @@ export default function FinancialSection() {
           )}
           <div className="flex justify-end">
             <Button size="sm" onClick={handleSaveAssets} disabled={!canSaveAssets}>
-              Save assets
+              Save changes
             </Button>
           </div>
         </div>
