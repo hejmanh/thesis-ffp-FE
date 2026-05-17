@@ -22,10 +22,8 @@ export interface Stage {
 }
 
 export interface Asset {
-  name: string;
-  amount: string;
-  currency: string;
-  type: string;
+  assetTypeId: string;
+  initialAnnualIncome: string;
   growthRate: string;
 }
 

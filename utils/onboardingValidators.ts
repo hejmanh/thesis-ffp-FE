@@ -46,5 +46,5 @@ export function isStageComplete(stage: StageItem): boolean {
 }
 
 export function isAssetComplete(asset: AssetItem): boolean {
-  return Boolean(asset.name && asset.amount && asset.currency && asset.type && asset.growthRate);
+  return Boolean(asset.assetTypeId && asset.initialAnnualIncome && asset.growthRate);
 }

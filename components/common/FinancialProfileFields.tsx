@@ -1,5 +1,6 @@
 "use client";
 
+import Button from "@/components/common/Button";
 import FormField from "@/components/common/FormField";
 import { CURRENCY_OPTIONS, HABIT_LEVELS } from "@/utils/onboardingConstants";
 
@@ -37,7 +38,15 @@ interface FinancialProfileFieldsProps<HabitKey extends string> {
   hintClassName?: string;
   fieldLabels?: Partial<Record<RootFieldKey, string>>;
   currentSavingsPlaceholder?: string;
+  onSaveProfile?: () => void;
+  onSaveAllocations?: () => void;
+  onSaveHabits?: () => void;
+  canSaveProfile?: boolean;
+  canSaveAllocations?: boolean;
+  canSaveHabits?: boolean;
 }
+
+const SAVE_ACTIONS_CLASS_NAME = "mt-6 flex justify-end";
 
 const ROOT_FIELD_LABELS: Record<RootFieldKey, string> = {
   estimatedLifeExpectancy: "Estimated Life Expectancy",
@@ -78,6 +87,12 @@ export default function FinancialProfileFields<HabitKey extends string>({
   hintClassName = "mt-1 text-xs italic text-slate-600",
   fieldLabels,
   currentSavingsPlaceholder = "100000",
+  onSaveProfile,
+  onSaveAllocations,
+  onSaveHabits,
+  canSaveProfile = true,
+  canSaveAllocations = true,
+  canSaveHabits = true,
 }: FinancialProfileFieldsProps<HabitKey>) {
   const labels = { ...ROOT_FIELD_LABELS, ...fieldLabels };
 
@@ -133,6 +148,13 @@ export default function FinancialProfileFields<HabitKey extends string>({
             options={CURRENCY_OPTIONS.map((currency) => ({ label: currency, value: currency }))}
           />
         </div>
+        {onSaveProfile ? (
+          <div className={SAVE_ACTIONS_CLASS_NAME}>
+            <Button size="sm" onClick={onSaveProfile} disabled={!canSaveProfile}>
+              Save financial profile
+            </Button>
+          </div>
+        ) : null}
       </div>
 
       <div className={cardClassName}>
@@ -169,6 +191,13 @@ export default function FinancialProfileFields<HabitKey extends string>({
             </div>
           ))}
         </div>
+        {onSaveAllocations ? (
+          <div className={SAVE_ACTIONS_CLASS_NAME}>
+            <Button size="sm" onClick={onSaveAllocations} disabled={!canSaveAllocations}>
+              Save asset allocation
+            </Button>
+          </div>
+        ) : null}
       </div>
 
       <div className={cardClassName}>
@@ -189,6 +218,13 @@ export default function FinancialProfileFields<HabitKey extends string>({
             />
           ))}
         </div>
+        {onSaveHabits ? (
+          <div className={SAVE_ACTIONS_CLASS_NAME}>
+            <Button size="sm" onClick={onSaveHabits} disabled={!canSaveHabits}>
+              Save habits
+            </Button>
+          </div>
+        ) : null}
       </div>
     </div>
   );

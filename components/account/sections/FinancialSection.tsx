@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useReducer, useState } from "react";
+import { useReducer, useState } from "react";
 import Button from "@/components/common/Button";
 import Card from "@/components/common/Card";
 import AssetForm from "@/components/account/forms/AssetForm";
@@ -17,9 +17,7 @@ type FinancialAction =
   | { type: "update_allocation"; period: "before" | "after"; key: keyof Allocation; value: string }
   | { type: "update_habit"; key: keyof Habits; value: string }
   | { type: "update_stage"; index: number; stage: Stage }
-  | { type: "add_asset" }
-  | { type: "update_asset"; index: number; asset: Asset }
-  | { type: "remove_asset"; index: number };
+  | { type: "set_assets"; assets: Asset[] };
 
 const INITIAL_FINANCIAL_DATA: FinancialData = {
   estimatedLE: "",
@@ -42,10 +40,8 @@ const INITIAL_FINANCIAL_DATA: FinancialData = {
 
 function createEmptyAsset(): Asset {
   return {
-    name: "",
-    amount: "",
-    currency: "USD",
-    type: "",
+    assetTypeId: "",
+    initialAnnualIncome: "",
     growthRate: "",
   };
 }
@@ -74,6 +70,10 @@ function isStageComplete(stage: Stage): boolean {
   return Boolean(stage.startAge && stage.endAge && stage.annualSaving && stage.currency && stage.growthRate);
 }
 
+function isAssetComplete(asset: Asset): boolean {
+  return Boolean(asset.assetTypeId && asset.initialAnnualIncome && asset.growthRate);
+}
+
 function mapOnboardingStageToFinancialStage(stage: OnboardingDraft["stages"][number]): Stage {
   return {
     startAge: stage.ageStart,
@@ -86,12 +86,30 @@ function mapOnboardingStageToFinancialStage(stage: OnboardingDraft["stages"][num
 
 function mapOnboardingAssetToFinancialAsset(asset: OnboardingDraft["assets"][number]): Asset {
   return {
-    name: asset.name,
-    amount: asset.amount,
-    currency: asset.currency,
-    type: asset.type,
-    growthRate: asset.growthRate,
+    assetTypeId: "assetTypeId" in asset ? asset.assetTypeId : "",
+    initialAnnualIncome: "initialAnnualIncome" in asset ? asset.initialAnnualIncome : "",
+    growthRate: asset.growthRate ?? "",
   };
+}
+
+function writeAssetsToOnboardingDraft(assets: Asset[]) {
+  if (typeof window === "undefined") return;
+
+  const currentDraft = readOnboardingDraft();
+  if (!currentDraft) return;
+
+  window.localStorage.setItem(
+    ONBOARDING_STORAGE_KEY,
+    JSON.stringify({
+      ...currentDraft,
+      assets: assets.map((asset, index) => ({
+        id: currentDraft.assets[index]?.id ?? crypto.randomUUID(),
+        assetTypeId: asset.assetTypeId,
+        initialAnnualIncome: asset.initialAnnualIncome,
+        growthRate: asset.growthRate,
+      })),
+    } satisfies OnboardingDraft)
+  );
 }
 
 function readOnboardingDraft(): OnboardingDraft | null {
@@ -173,20 +191,10 @@ function financialReducer(state: FinancialData, action: FinancialAction): Financ
         ...state,
         stages: state.stages.map((stage, index) => (index === action.index ? action.stage : stage)),
       };
-    case "add_asset":
+    case "set_assets":
       return {
         ...state,
-        assets: [...state.assets, createEmptyAsset()],
-      };
-    case "update_asset":
-      return {
-        ...state,
-        assets: state.assets.map((asset, index) => (index === action.index ? action.asset : asset)),
-      };
-    case "remove_asset":
-      return {
-        ...state,
-        assets: state.assets.filter((_, index) => index !== action.index),
+        assets: action.assets,
       };
     default:
       return state;
@@ -198,11 +206,66 @@ export default function FinancialSection() {
     financialReducer,
     createFinancialDataFromOnboarding(readOnboardingDraft())
   );
+  const [draftProfile, setDraftProfile] = useState({
+    estimatedLE: financialData.estimatedLE,
+    savings: financialData.savings,
+    currency: financialData.currency,
+    desiredLE: financialData.desiredLE,
+  });
+  const [draftAllocation, setDraftAllocation] = useState(financialData.allocation);
+  const [draftHabits, setDraftHabits] = useState(financialData.habits);
   const [draftStages, setDraftStages] = useState(financialData.stages);
+  const [draftAssets, setDraftAssets] = useState(financialData.assets);
 
-  useEffect(() => {
-    setDraftStages(financialData.stages);
-  }, [financialData.stages]);
+  function handleProfileChange(field: keyof typeof draftProfile, value: string) {
+    setDraftProfile((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  }
+
+  function handleSaveProfile() {
+    dispatch({ type: "update_root", field: "estimatedLE", value: draftProfile.estimatedLE });
+    dispatch({ type: "update_root", field: "savings", value: draftProfile.savings });
+    dispatch({ type: "update_root", field: "currency", value: draftProfile.currency });
+    dispatch({ type: "update_root", field: "desiredLE", value: draftProfile.desiredLE });
+  }
+
+  function handleAllocationChange(period: "before" | "after", key: keyof Allocation, value: string) {
+    setDraftAllocation((prev) => ({
+      ...prev,
+      [period]: {
+        ...prev[period],
+        [key]: value,
+      },
+    }));
+  }
+
+  function handleSaveAllocations() {
+    (["before", "after"] as const).forEach((period) => {
+      (["u", "mu", "rf"] as const).forEach((key) => {
+        dispatch({
+          type: "update_allocation",
+          period,
+          key,
+          value: draftAllocation[period][key],
+        });
+      });
+    });
+  }
+
+  function handleHabitChange(key: keyof Habits, value: string) {
+    setDraftHabits((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  }
+
+  function handleSaveHabits() {
+    (Object.keys(draftHabits) as Array<keyof Habits>).forEach((key) => {
+      dispatch({ type: "update_habit", key, value: draftHabits[key] });
+    });
+  }
 
   function handleStageChange(index: number, next: StageEditorValue) {
     setDraftStages((prev) =>
@@ -216,7 +279,34 @@ export default function FinancialSection() {
     });
   }
 
+  function handleAssetChange(index: number, next: Asset) {
+    setDraftAssets((prev) => prev.map((asset, currentIndex) => (currentIndex === index ? next : asset)));
+  }
+
+  function handleAddAsset() {
+    setDraftAssets((prev) => [...prev, createEmptyAsset()]);
+  }
+
+  function handleRemoveAsset(index: number) {
+    setDraftAssets((prev) => prev.filter((_, currentIndex) => currentIndex !== index));
+  }
+
+  function handleSaveAssets() {
+    dispatch({ type: "set_assets", assets: draftAssets });
+    writeAssetsToOnboardingDraft(draftAssets);
+  }
+
+  const canSaveProfile = Boolean(
+    draftProfile.estimatedLE && draftProfile.savings && draftProfile.currency && draftProfile.desiredLE
+  );
+  const canSaveAllocations = (["before", "after"] as const).every((period) =>
+    (["u", "mu", "rf"] as const).every((key) => Boolean(draftAllocation[period][key]))
+  );
+  const canSaveHabits = (Object.keys(draftHabits) as Array<keyof Habits>).every((key) =>
+    Boolean(draftHabits[key])
+  );
   const canSaveStages = draftStages.length > 0 && draftStages.every(isStageComplete);
+  const canSaveAssets = draftAssets.length > 0 && draftAssets.every(isAssetComplete);
 
   return (
     <Card hoverable={false} className="w-full rounded-xl bg-white p-6 shadow-md">
@@ -225,12 +315,18 @@ export default function FinancialSection() {
 
       <div className="mt-6 space-y-6">
         <FinancialForm
-          data={financialData}
-          onRootChange={(field, value) => dispatch({ type: "update_root", field, value })}
-          onAllocationChange={(period, key, value) =>
-            dispatch({ type: "update_allocation", period, key, value })
-          }
-          onHabitChange={(key, value) => dispatch({ type: "update_habit", key, value })}
+          profile={draftProfile}
+          allocation={draftAllocation}
+          habits={draftHabits}
+          onProfileChange={handleProfileChange}
+          onAllocationChange={handleAllocationChange}
+          onHabitChange={handleHabitChange}
+          onSaveProfile={handleSaveProfile}
+          onSaveAllocations={handleSaveAllocations}
+          onSaveHabits={handleSaveHabits}
+          canSaveProfile={canSaveProfile}
+          canSaveAllocations={canSaveAllocations}
+          canSaveHabits={canSaveHabits}
         />
 
         <div className="rounded-xl border border-border bg-slate-50 p-4">
@@ -248,7 +344,7 @@ export default function FinancialSection() {
             ))}
           </div>
           <div className="mt-6 flex justify-end">
-            <Button className="mr-6" size="sm" onClick={handleSaveStages} disabled={!canSaveStages}>
+            <Button size="sm" onClick={handleSaveStages} disabled={!canSaveStages}>
               Save stages
             </Button>
           </div>
@@ -257,23 +353,28 @@ export default function FinancialSection() {
         <div className="space-y-4 rounded-xl border border-border bg-slate-50 p-4">
           <div className="flex items-center justify-between">
             <h3 className="text-base font-semibold text-slate-900">Assets</h3>
-            <button type="button" onClick={() => dispatch({ type: "add_asset" })} className="text-sm font-semibold text-primary">
+            <button type="button" onClick={handleAddAsset} className="text-sm font-semibold text-primary">
               + Add asset
             </button>
           </div>
-          {financialData.assets.length === 0 ? (
+          {draftAssets.length === 0 ? (
             <p className="text-sm text-muted-foreground">No assets yet.</p>
           ) : (
-            financialData.assets.map((asset, index) => (
+            draftAssets.map((asset, index) => (
               <AssetForm
                 key={`asset_${index}`}
                 asset={asset}
                 index={index}
-                onChange={(next) => dispatch({ type: "update_asset", index, asset: next })}
-                onRemove={() => dispatch({ type: "remove_asset", index })}
+                onChange={(next) => handleAssetChange(index, next)}
+                onRemove={() => handleRemoveAsset(index)}
               />
             ))
           )}
+          <div className="flex justify-end">
+            <Button size="sm" onClick={handleSaveAssets} disabled={!canSaveAssets}>
+              Save assets
+            </Button>
+          </div>
         </div>
       </div>
     </Card>

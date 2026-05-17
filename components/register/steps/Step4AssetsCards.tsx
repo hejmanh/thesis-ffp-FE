@@ -17,10 +17,8 @@ interface Step4AssetsCardsProps {
 function makeEmptyAsset(): AssetItem {
   return {
     id: crypto.randomUUID(),
-    name: "",
-    amount: "",
-    currency: "",
-    type: "",
+    assetTypeId: "",
+    initialAnnualIncome: "",
     growthRate: "",
   };
 }
@@ -33,7 +31,7 @@ export default function Step4AssetsCards({
   onSubmit,
   onChange,
 }: Step4AssetsCardsProps) {
-  function handleSave(updated: AssetItem) {
+  function handleAssetChange(updated: AssetItem) {
     onChange(assets.map((asset) => (asset.id === updated.id ? updated : asset)));
   }
 
@@ -54,8 +52,14 @@ export default function Step4AssetsCards({
         Add and organize your assets with growth assumptions
       </p>
       <div className="mx-auto mt-8 flex max-w-5xl flex-col gap-5">
-        {assets.map((asset) => (
-          <AssetCardEditor key={asset.id} asset={asset} onSave={handleSave} onDelete={handleDelete} />
+        {assets.map((asset, index) => (
+          <AssetCardEditor
+            key={asset.id}
+            asset={asset}
+            index={index}
+            onChange={handleAssetChange}
+            onDelete={handleDelete}
+          />
         ))}
       </div>
       <div className="mx-auto mt-5 max-w-5xl">
