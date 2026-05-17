@@ -220,8 +220,8 @@ export default function FinancialSection() {
 
   return (
     <Card hoverable={false} className="w-full rounded-xl bg-white p-6 shadow-md">
-      <h2 className="text-2xl font-bold text-primary">Financial Assumption</h2>
-      <p className="mt-1 text-sm text-muted-foreground">Define your financial assumptions and long-term model inputs.</p>
+      <h2 className="text-2xl font-bold text-primary">Financial Profile and Planning</h2>
+      <p className="mt-1 text-sm text-muted-foreground">Manage your financial background, investment assumptions, lifestyle habits, life stages, and asset information.</p>
 
       <div className="mt-6 space-y-6">
         <FinancialForm

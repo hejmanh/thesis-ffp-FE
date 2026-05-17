@@ -52,16 +52,15 @@ const ALLOCATION_LABELS: Record<AllocationKey, { description: string; symbol: st
   rf: { description: "Risk-free annual return rate", symbol: "r_f" },
 };
 
-const ALLOCATION_SECTIONS: Array<{ key: AllocationPeriod; title: string; hint: string }> = [
+const ALLOCATION_PERIODS: Array<{ key: AllocationPeriod; label: string; hint: string }> = [
   {
     key: "before",
-    title: "Asset Allocation Before FFP",
-    hint:
-      "Used for savings and investments only. Rental income and other income sources are already included in life-stage savings.",
+    label: "Before FFP",
+    hint: "Used for savings and investments only. Rental income and other income sources are already included in life-stage savings.",
   },
   {
     key: "after",
-    title: "Asset Allocation After FFP",
+    label: "After FFP",
     hint: "Used for remaining savings after retirement. Rental income and pension are handled separately.",
   },
 ];
@@ -136,36 +135,41 @@ export default function FinancialProfileFields<HabitKey extends string>({
         </div>
       </div>
 
-      {ALLOCATION_SECTIONS.map((section) => (
-        <div key={section.key} className={cardClassName}>
-          <h3 className={titleClassName}>{section.title}</h3>
-          <p className={hintClassName}>{section.hint}</p>
-          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {(["u", "mu", "rf"] as const).map((key) => (
-              <div key={`${section.key}_${key}`} className="grid h-full grid-rows-[1fr_auto] gap-2">
-                <div>
-                  <p className="text-sm text-slate-700">{ALLOCATION_LABELS[key].description}</p>
-                  <p className="text-xs italic text-slate-500">{ALLOCATION_LABELS[key].symbol}</p>
-                </div>
-                <FormField
-                  label=""
-                  id={`${idPrefix}${section.key}_${key}`}
-                  name={`${idPrefix}${section.key}_${key}`}
-                  inputContainerClassName="w-20"
-                  inputClassName="h-11 px-2 pr-5"
-                  suffix="%"
-                  inputProps={{
-                    "aria-label": `${section.title} ${ALLOCATION_LABELS[key].description} (${ALLOCATION_LABELS[key].symbol})`,
-                    value: allocations[section.key][key],
-                    onChange: (event) => onAllocationChange(section.key, key, event.target.value),
-                    autoComplete: "off",
-                  }}
-                />
+      <div className={cardClassName}>
+        <h3 className={titleClassName}>Asset Allocation</h3>
+        <div className="mt-4 space-y-6">
+          {ALLOCATION_PERIODS.map((period) => (
+            <div key={period.key}>
+              <p className="text-sm font-semibold text-slate-700">{period.label}</p>
+              <p className={hintClassName}>{period.hint}</p>
+              <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-3">
+                {(["u", "mu", "rf"] as const).map((key) => (
+                  <div key={`${period.key}_${key}`} className="grid h-full grid-rows-[1fr_auto] gap-2">
+                    <div>
+                      <p className="text-sm text-slate-700">{ALLOCATION_LABELS[key].description}</p>
+                      <p className="text-xs italic text-slate-500">{ALLOCATION_LABELS[key].symbol}</p>
+                    </div>
+                    <FormField
+                      label=""
+                      id={`${idPrefix}${period.key}_${key}`}
+                      name={`${idPrefix}${period.key}_${key}`}
+                      inputContainerClassName="w-20"
+                      inputClassName="h-11 px-2 pr-5"
+                      suffix="%"
+                      inputProps={{
+                        "aria-label": `${period.label} ${ALLOCATION_LABELS[key].description} (${ALLOCATION_LABELS[key].symbol})`,
+                        value: allocations[period.key][key],
+                        onChange: (event) => onAllocationChange(period.key, key, event.target.value),
+                        autoComplete: "off",
+                      }}
+                    />
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
-      ))}
+      </div>
 
       <div className={cardClassName}>
         <h3 className={titleClassName}>Habits</h3>
