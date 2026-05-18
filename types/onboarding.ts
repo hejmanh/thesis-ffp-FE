@@ -42,10 +42,8 @@ export interface StageItem {
 
 export interface AssetItem {
   id: string;
-  name: string;
-  amount: string;
-  currency: string;
-  type: string;
+  assetTypeId: string;
+  initialAnnualIncome: string;
   growthRate: string;
 }
 

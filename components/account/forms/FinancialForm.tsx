@@ -4,10 +4,23 @@ import FinancialProfileFields from "@/components/common/FinancialProfileFields";
 import type { Allocation, FinancialData, Habits } from "@/utils/types";
 
 interface FinancialFormProps {
-  data: FinancialData;
-  onRootChange: (field: "estimatedLE" | "savings" | "currency" | "desiredLE", value: string) => void;
+  profile: {
+    estimatedLE: string;
+    desiredLE: string;
+    savings: string;
+    currency: string;
+  };
+  allocation: FinancialData["allocation"];
+  habits: Habits;
+  onProfileChange: (field: "estimatedLE" | "savings" | "currency" | "desiredLE", value: string) => void;
   onAllocationChange: (period: "before" | "after", key: keyof Allocation, value: string) => void;
   onHabitChange: (key: keyof Habits, value: string) => void;
+  onSaveProfile: () => void;
+  onSaveAllocations: () => void;
+  onSaveHabits: () => void;
+  canSaveProfile?: boolean;
+  canSaveAllocations?: boolean;
+  canSaveHabits?: boolean;
 }
 
 const HABIT_LABELS: Record<keyof Habits, string> = {
@@ -18,24 +31,32 @@ const HABIT_LABELS: Record<keyof Habits, string> = {
 };
 
 export default function FinancialForm({
-  data,
-  onRootChange,
+  profile,
+  allocation,
+  habits,
+  onProfileChange,
   onAllocationChange,
   onHabitChange,
+  onSaveProfile,
+  onSaveAllocations,
+  onSaveHabits,
+  canSaveProfile,
+  canSaveAllocations,
+  canSaveHabits,
 }: FinancialFormProps) {
   return (
     <FinancialProfileFields
       profile={{
-        estimatedLifeExpectancy: data.estimatedLE,
-        desiredLifeExpectancy: data.desiredLE,
-        currentSavings: data.savings,
-        preferredCurrency: data.currency,
+        estimatedLifeExpectancy: profile.estimatedLE,
+        desiredLifeExpectancy: profile.desiredLE,
+        currentSavings: profile.savings,
+        preferredCurrency: profile.currency,
       }}
-      allocations={data.allocation}
-      habits={(Object.keys(data.habits) as Array<keyof Habits>).map((habit) => ({
+      allocations={allocation}
+      habits={(Object.keys(habits) as Array<keyof Habits>).map((habit) => ({
         key: habit,
         label: HABIT_LABELS[habit],
-        value: data.habits[habit],
+        value: habits[habit],
       }))}
       onRootChange={(field, value) => {
         const fieldMap = {
@@ -44,10 +65,16 @@ export default function FinancialForm({
           currentSavings: "savings",
           preferredCurrency: "currency",
         } as const;
-        onRootChange(fieldMap[field], value);
+        onProfileChange(fieldMap[field], value);
       }}
       onAllocationChange={onAllocationChange}
       onHabitChange={onHabitChange}
+      onSaveProfile={onSaveProfile}
+      onSaveAllocations={onSaveAllocations}
+      onSaveHabits={onSaveHabits}
+      canSaveProfile={canSaveProfile}
+      canSaveAllocations={canSaveAllocations}
+      canSaveHabits={canSaveHabits}
     />
   );
 }

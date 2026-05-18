@@ -12,7 +12,7 @@ interface AccountSidebarProps {
 
 const TABS: Array<{ label: string; value: AccountTab }> = [
   { label: "Personal Information", value: "personal" },
-  { label: "Financial Assumption", value: "financial" },
+  { label: "Financial Profile and Planning", value: "financial" },
   { label: "Preferences", value: "preferences" },
 ];
 
