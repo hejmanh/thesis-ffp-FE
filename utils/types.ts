@@ -22,6 +22,7 @@ export interface Stage {
 }
 
 export interface Asset {
+  id: string;
   assetTypeId: string;
   initialAnnualIncome: string;
   growthRate: string;

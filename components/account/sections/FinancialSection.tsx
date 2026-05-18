@@ -8,6 +8,7 @@ import StageEditorCard, { type StageEditorValue } from "@/components/common/Stag
 import FinancialForm from "@/components/account/forms/FinancialForm";
 import type { OnboardingDraft } from "@/types/onboarding";
 import { buildHardcodedStages } from "@/utils/stageDefaults";
+import { ASSET_TYPE_OPTIONS } from "@/utils/onboardingConstants";
 import type { Allocation, Asset, FinancialData, Habits, Stage } from "@/utils/types";
 
 const ONBOARDING_STORAGE_KEY = "coinfused_onboarding_payload";
@@ -40,6 +41,7 @@ const INITIAL_FINANCIAL_DATA: FinancialData = {
 
 function createEmptyAsset(): Asset {
   return {
+    id: crypto.randomUUID(),
     assetTypeId: "",
     initialAnnualIncome: "",
     growthRate: "",
@@ -85,10 +87,23 @@ function mapOnboardingStageToFinancialStage(stage: OnboardingDraft["stages"][num
 }
 
 function mapOnboardingAssetToFinancialAsset(asset: OnboardingDraft["assets"][number]): Asset {
+  // Cast to a loose record so we can safely read legacy field names that
+  // pre-date the current AssetItem schema (type → assetTypeId, amount → initialAnnualIncome).
+  const raw = asset as unknown as Record<string, string | undefined>;
+
+  let assetTypeId = raw.assetTypeId ?? "";
+  if (!assetTypeId && raw.type) {
+    const match = ASSET_TYPE_OPTIONS.find(
+      (opt) => opt.label.toLowerCase() === raw.type!.toLowerCase()
+    );
+    assetTypeId = match ? String(match.id) : "";
+  }
+
   return {
-    assetTypeId: "assetTypeId" in asset ? asset.assetTypeId : "",
-    initialAnnualIncome: "initialAnnualIncome" in asset ? asset.initialAnnualIncome : "",
-    growthRate: asset.growthRate ?? "",
+    id: raw.id ?? crypto.randomUUID(),
+    assetTypeId,
+    initialAnnualIncome: raw.initialAnnualIncome ?? raw.amount ?? "",
+    growthRate: raw.growthRate ?? "",
   };
 }
 
@@ -102,8 +117,8 @@ function writeAssetsToOnboardingDraft(assets: Asset[]) {
     ONBOARDING_STORAGE_KEY,
     JSON.stringify({
       ...currentDraft,
-      assets: assets.map((asset, index) => ({
-        id: currentDraft.assets[index]?.id ?? crypto.randomUUID(),
+      assets: assets.map((asset) => ({
+        id: asset.id,
         assetTypeId: asset.assetTypeId,
         initialAnnualIncome: asset.initialAnnualIncome,
         growthRate: asset.growthRate,
@@ -306,7 +321,7 @@ export default function FinancialSection() {
     Boolean(draftHabits[key])
   );
   const canSaveStages = draftStages.length > 0 && draftStages.every(isStageComplete);
-  const canSaveAssets = draftAssets.length > 0 && draftAssets.every(isAssetComplete);
+  const canSaveAssets = draftAssets.every(isAssetComplete);
 
   return (
     <Card hoverable={false} className="w-full rounded-xl bg-white p-6 shadow-md">
