@@ -21,8 +21,6 @@ export default function Header({ onLoginClick, hideLoginButton = false, hideRegi
   const [isNavigating, startTransition] = useTransition();
   const user = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const hasToken = Boolean(tokenService.get());
-  const isLoggedIn = isAuthenticated || hasToken;
   const displayName = user?.email ?? "Account";
   const logoutPending = isLoggingOut || isNavigating;
 
@@ -53,7 +51,7 @@ export default function Header({ onLoginClick, hideLoginButton = false, hideRegi
           <span className="text-xl font-bold tracking-tight text-primary sm:text-2xl">Coinfused</span>
         </Link>
         <nav className="flex items-center gap-3">
-          {isLoggedIn ? (
+          {isAuthenticated ? (
             <>
               <Link
                 href="/account"

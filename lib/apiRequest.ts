@@ -11,7 +11,6 @@ const SKIP_REFRESH_URLS = [
   API_ENDPOINTS.auth.register,
   API_ENDPOINTS.auth.verifyEmail,
   API_ENDPOINTS.auth.forgotPassword,
-  "/auth/forget-password",
   API_ENDPOINTS.auth.resetPassword,
 ];
 
@@ -61,10 +60,10 @@ class ApiRequest {
 
     this.instance.interceptors.response.use(
       (res) => res, // pass through successful responses
-      async (error) => { // refresh access token on 401 respinse
+      async (error) => { // refresh access token on 401 response
         const original = error.config as RetryConfig | undefined;
 
-        // ignore non-401 errors or missining request config
+        // ignore non-401 errors or missing request config
         if (!original || error.response?.status !== 401) {
           return Promise.reject(error);
         }
@@ -73,8 +72,12 @@ class ApiRequest {
         const isAuthUrl = SKIP_REFRESH_URLS.some((url) =>
           original.url?.includes(url),
         );
+        // only clear token if refresh endpoint returns 401 (token definitively invalid)
+        const isRefreshUrl = original.url?.includes(API_ENDPOINTS.auth.refresh);
         if (isAuthUrl || original._retry) {
-          tokenService.clear();
+          if (isRefreshUrl) {
+            tokenService.clear();
+          }
           return Promise.reject(error);
         }
 
