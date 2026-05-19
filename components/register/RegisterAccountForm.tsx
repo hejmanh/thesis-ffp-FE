@@ -1,18 +1,21 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import AnimatedPanel from "@/components/common/AnimatedPanel";
 import Step1AccountForm from "@/components/register/steps/Step1AccountForm";
 import type { Step1AccountData } from "@/types/onboarding";
-import { INITIAL_ONBOARDING_DRAFT } from "@/utils/onboardingConstants";
-import { validateStep1 } from "@/utils/onboardingValidators";
-import { useAuth } from "@/hooks";
 import {
-  listCountries,
-  listSexTypes,
-} from "@/services/reference/referenceService";
-import type { Country, SexType } from "@/types/reference";
+  INITIAL_ONBOARDING_DRAFT,
+  ONBOARDING_REGISTRATION_GATE_KEY,
+  ONBOARDING_STORAGE_KEY,
+} from "@/utils/onboardingConstants";
+import { validateStep1 } from "@/utils/onboardingValidators";
+import { useAuth, usePersonalInfoReferences } from "@/hooks";
+import {
+  mapCountriesToOptions,
+  mapSexTypesToOptions,
+} from "@/utils/referenceOptions";
 
 export default function RegisterAccountForm() {
   const router = useRouter();
@@ -22,56 +25,17 @@ export default function RegisterAccountForm() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
-  const [referenceError, setReferenceError] = useState("");
-  const [countries, setCountries] = useState<Country[]>([]);
-  const [sexTypes, setSexTypes] = useState<SexType[]>([]);
   const { register } = useAuth();
+  const { countries, sexTypes } = usePersonalInfoReferences();
 
-  useEffect(() => {
-    let active = true;
+  const countryOptions = useMemo(
+    () => mapCountriesToOptions(countries),
+    [countries],
+  );
 
-    const loadReferences = async () => {
-      try {
-        const [countriesResult, sexTypesResult] = await Promise.all([
-          listCountries(),
-          listSexTypes(),
-        ]);
-        if (!active) return;
-        setCountries(countriesResult);
-        setSexTypes(sexTypesResult);
-        setReferenceError("");
-      } catch {
-        if (!active) return;
-        setReferenceError(
-          "Unable to load registration options. Please refresh and try again.",
-        );
-      }
-    };
+  const sexOptions = useMemo(() => mapSexTypesToOptions(sexTypes), [sexTypes]);
 
-    loadReferences();
-
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  const countryOptions = useMemo(() => {
-    if (!countries.length) return [];
-    return countries.map((country) => ({
-      label: country.name ?? country.code ?? `Country ${country.id}`,
-      value: String(country.id),
-    }));
-  }, [countries]);
-
-  const sexOptions = useMemo(() => {
-    if (!sexTypes.length) return [];
-    return sexTypes.map((sex) => ({
-      label: sex.title ?? sex.code ?? `Type ${sex.id}`,
-      value: String(sex.id),
-    }));
-  }, [sexTypes]);
-
-  const displayError = error || referenceError;
+  const displayError = error;
 
   function updateField<K extends keyof Step1AccountData>(
     key: K,
@@ -88,11 +52,6 @@ export default function RegisterAccountForm() {
       return;
     }
 
-    if (referenceError) {
-      setError(referenceError);
-      return;
-    }
-
     const countryId = Number(data.country);
     const sexTypeId = Number(data.sex);
     if (!Number.isInteger(countryId) || !Number.isInteger(sexTypeId)) {
@@ -102,7 +61,7 @@ export default function RegisterAccountForm() {
 
     setLoading(true);
     try {
-      await register({
+      const message = await register({
         name: data.name,
         email: data.email,
         password: data.password,
@@ -110,10 +69,20 @@ export default function RegisterAccountForm() {
         countryId,
         sexTypeId,
       });
-      setToastMessage(
-        "Account created. Check your email to verify your account.",
-      );
-      // router.push("/?login=1");
+
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem(
+          ONBOARDING_STORAGE_KEY,
+          JSON.stringify({
+            ...INITIAL_ONBOARDING_DRAFT,
+            step1: data,
+          }),
+        );
+        window.sessionStorage.setItem(ONBOARDING_REGISTRATION_GATE_KEY, "true");
+      }
+
+      setToastMessage(message ?? "Successfully created account");
+      router.push("/onboarding");
     } catch (submitError) {
       setError(
         submitError instanceof Error
@@ -121,7 +90,6 @@ export default function RegisterAccountForm() {
           : "Unable to register.",
       );
     } finally {
-      setToastMessage("");
       setLoading(false);
     }
   }

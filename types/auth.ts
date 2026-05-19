@@ -1,18 +1,3 @@
-export interface SessionUser {
-  id: string;
-  name?: string;
-  email: string;
-  birthYear?: number;
-  country?: string;
-  sex?: string;
-}
-
-export interface SessionData {
-  token: string;
-  user: SessionUser;
-  loggedInAt: string;
-}
-
 export interface AuthUser {
   id?: string;
   name?: string;
@@ -49,12 +34,3 @@ export interface ResetPasswordPayload {
 }
 
 export type EmptyResponseData = null;
-
-export interface RegisterStep1Payload {
-  name: string;
-  email: string;
-  password: string;
-  birthYear: number;
-  country: string;
-  sex: string;
-}

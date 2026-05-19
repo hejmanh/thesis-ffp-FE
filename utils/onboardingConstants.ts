@@ -1,7 +1,10 @@
 import type { OnboardingDraft } from "@/types/onboarding";
 
+export const ONBOARDING_STORAGE_KEY = "coinfused_onboarding_payload";
+export const ONBOARDING_REGISTRATION_GATE_KEY =
+  "coinfused_onboarding_registration_ready";
+
 export const CURRENCY_OPTIONS = ["USD", "EUR", "GBP", "VND", "JPY"];
-export const SEX_OPTIONS = ["Male", "Female", "Other"];
 export const HABIT_LEVELS = ["Low", "Moderate", "High"];
 export const ASSET_TYPE_OPTIONS = [
   { id: 1, label: "Stock" },
@@ -10,38 +13,6 @@ export const ASSET_TYPE_OPTIONS = [
   { id: 4, label: "Real Estate" },
   { id: 5, label: "Crypto" },
   { id: 6, label: "Other" },
-];
-export const COUNTRY_OPTIONS = [
-  "United States",
-  "Canada",
-  "United Kingdom",
-  "Australia",
-  "Germany",
-  "France",
-  "Japan",
-  "China",
-  "India",
-  "Brazil",
-  "Mexico",
-  "Singapore",
-  "South Korea",
-  "Vietnam",
-  "Thailand",
-  "Philippines",
-  "Indonesia",
-  "Malaysia",
-  "Argentina",
-  "New Zealand",
-  "South Africa",
-  "UAE",
-  "Saudi Arabia",
-  "Hong Kong",
-  "Taiwan",
-  "Switzerland",
-  "Netherlands",
-  "Sweden",
-  "Norway",
-  "Denmark",
 ];
 
 export const INITIAL_ONBOARDING_DRAFT: OnboardingDraft = {

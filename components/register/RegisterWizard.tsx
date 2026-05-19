@@ -7,30 +7,93 @@ import RegistrationProgressBar from "@/components/register/progress/Registration
 import Step2PersonalForm from "@/components/register/steps/Step2PersonalForm";
 import Step3StagesCards from "@/components/register/steps/Step3StagesCards";
 import Step4AssetsCards from "@/components/register/steps/Step4AssetsCards";
-import { getSession } from "@/services/auth/mockAuth";
+import { tokenService } from "@/services/token.service";
+import { useAuthStore } from "@/store/auth.store";
 import type { OnboardingDraft } from "@/types/onboarding";
-import { INITIAL_ONBOARDING_DRAFT } from "@/utils/onboardingConstants";
+import {
+  INITIAL_ONBOARDING_DRAFT,
+  ONBOARDING_REGISTRATION_GATE_KEY,
+  ONBOARDING_STORAGE_KEY,
+} from "@/utils/onboardingConstants";
 import { isAssetComplete, validateStep2 } from "@/utils/onboardingValidators";
 import { canAccessOnboardingSteps } from "@/utils/onboardingGuard";
 import { buildHardcodedStageItems } from "@/utils/stageDefaults";
 
-const ONBOARDING_STORAGE_KEY = "coinfused_onboarding_payload";
 const ONBOARDING_STEPS = ["Personal Information", "Stages Data", "Asset Data"];
+
+function readOnboardingDraft(): OnboardingDraft {
+  if (typeof window === "undefined") {
+    return INITIAL_ONBOARDING_DRAFT;
+  }
+
+  const rawDraft = window.localStorage.getItem(ONBOARDING_STORAGE_KEY);
+  if (!rawDraft) {
+    return INITIAL_ONBOARDING_DRAFT;
+  }
+
+  try {
+    const parsedDraft = JSON.parse(rawDraft) as Partial<OnboardingDraft>;
+
+    return {
+      step1: {
+        ...INITIAL_ONBOARDING_DRAFT.step1,
+        ...parsedDraft.step1,
+      },
+      step2: {
+        ...INITIAL_ONBOARDING_DRAFT.step2,
+        ...parsedDraft.step2,
+        beforeFfp: {
+          ...INITIAL_ONBOARDING_DRAFT.step2.beforeFfp,
+          ...parsedDraft.step2?.beforeFfp,
+        },
+        afterFfp: {
+          ...INITIAL_ONBOARDING_DRAFT.step2.afterFfp,
+          ...parsedDraft.step2?.afterFfp,
+        },
+        habits: {
+          ...INITIAL_ONBOARDING_DRAFT.step2.habits,
+          ...parsedDraft.step2?.habits,
+        },
+      },
+      stages: parsedDraft.stages ?? INITIAL_ONBOARDING_DRAFT.stages,
+      assets: parsedDraft.assets ?? INITIAL_ONBOARDING_DRAFT.assets,
+    };
+  } catch {
+    return INITIAL_ONBOARDING_DRAFT;
+  }
+}
+
+function hasRegistrationAccess(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return (
+    window.sessionStorage.getItem(ONBOARDING_REGISTRATION_GATE_KEY) === "true"
+  );
+}
 
 export default function RegisterWizard() {
   const router = useRouter();
   const [step, setStep] = useState(1);
-  const [draft, setDraft] = useState<OnboardingDraft>(INITIAL_ONBOARDING_DRAFT);
+  const [draft, setDraft] = useState<OnboardingDraft>(readOnboardingDraft);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [completed, setCompleted] = useState(false);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   useEffect(() => {
-    if (!canAccessOnboardingSteps(getSession())) {
+    if (
+      !canAccessOnboardingSteps({
+        isAuthenticated,
+        hasAccessToken: Boolean(tokenService.get()),
+        hasRegistrationAccess: hasRegistrationAccess(),
+      })
+    ) {
       router.replace("/?login=1");
     }
-  }, [router]);
+  }, [isAuthenticated, router]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -63,6 +126,7 @@ export default function RegisterWizard() {
     await new Promise((resolve) => setTimeout(resolve, 700));
     if (typeof window !== "undefined") {
       window.localStorage.setItem(ONBOARDING_STORAGE_KEY, JSON.stringify(draft));
+      window.sessionStorage.removeItem(ONBOARDING_REGISTRATION_GATE_KEY);
     }
     setToastMessage("");
     setSaving(false);

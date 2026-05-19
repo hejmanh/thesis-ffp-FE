@@ -1,11 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Button from "@/components/common/Button";
 import Card from "@/components/common/Card";
-import FormField from "@/components/common/FormField";
+import PersonalInfoFields from "@/components/common/PersonalInfoFields";
 import PersonalInfoForm from "@/components/account/forms/PersonalInfoForm";
 import type { PersonalInfoData, SecurityData } from "@/utils/types";
+import { usePersonalInfoReferences } from "@/hooks";
+import {
+  mapCountriesToOptions,
+  mapSexTypesToOptions,
+} from "@/utils/referenceOptions";
 
 const INITIAL_PERSONAL_INFO: PersonalInfoData = {
   email: "",
@@ -23,6 +28,9 @@ const INITIAL_SECURITY_DATA: SecurityData = {
 export default function PersonalInfoSection() {
   const [personalData, setPersonalData] = useState<PersonalInfoData>(INITIAL_PERSONAL_INFO);
   const [securityData, setSecurityData] = useState<SecurityData>(INITIAL_SECURITY_DATA);
+  const { countries, sexTypes } = usePersonalInfoReferences();
+  const countryOptions = useMemo(() => mapCountriesToOptions(countries), [countries]);
+  const sexOptions = useMemo(() => mapSexTypesToOptions(sexTypes), [sexTypes]);
 
   function updateSecurityField<K extends keyof SecurityData>(key: K, value: SecurityData[K]) {
     setSecurityData((prev) => ({ ...prev, [key]: value }));
@@ -33,44 +41,39 @@ export default function PersonalInfoSection() {
       <h2 className="text-2xl font-bold text-primary">Personal Information</h2>
       <p className="mt-1 text-sm text-muted-foreground">Manage your personal profile details.</p>
       <div className="mt-8 rounded-xl border border-border bg-slate-50 p-4">
-        <PersonalInfoForm data={personalData} onChange={setPersonalData} />
+        <PersonalInfoForm
+          data={personalData}
+          onChange={setPersonalData}
+          countryOptions={countryOptions}
+          sexOptions={sexOptions}
+        />
       </div>
 
       <div className="mt-8 rounded-xl border border-border bg-slate-50 p-4">
         <h3 className="text-lg font-semibold text-slate-900">Security</h3>
         <p className="mt-1 text-sm text-muted-foreground">Update your password.</p>
-        <div className="mt-6 space-y-4">
-           <FormField
-            label="Current password"
-            variant="password"
-            inputClassName="h-11"
-            inputProps={{
-              value: securityData.currentPassword,
-              placeholder: "Enter current password",
-              onChange: (event) => updateSecurityField("currentPassword", event.target.value),
-              autoComplete: "current-password",
-            }}
-          />
-          <FormField
-            label="New password"
-            variant="password"
-            inputClassName="h-11"
-            inputProps={{
-              value: securityData.newPassword,
-              placeholder: "Enter new password",
-              onChange: (event) => updateSecurityField("newPassword", event.target.value),
-              autoComplete: "new-password",
-            }}
-          />
-          <FormField
-            label="Confirm password"
-            variant="password"
-            inputClassName="h-11"
-            inputProps={{
-              value: securityData.confirmPassword,
-              placeholder: "Confirm new password",
-              onChange: (event) => updateSecurityField("confirmPassword", event.target.value),
-              autoComplete: "new-password",
+        <div className="mt-6">
+          <PersonalInfoFields
+            variant="account"
+            showPersonalFields={false}
+            onFieldChange={() => {}}
+            passwordFields={{
+              mode: "account",
+              data: {
+                currentPassword: securityData.currentPassword,
+                password: securityData.newPassword,
+                confirmPassword: securityData.confirmPassword,
+              },
+              onFieldChange: (key, value) => {
+                if (key === "password") {
+                  updateSecurityField("newPassword", value);
+                  return;
+                }
+
+                if (key === "confirmPassword" || key === "currentPassword") {
+                  updateSecurityField(key, value);
+                }
+              },
             }}
           />
         </div>

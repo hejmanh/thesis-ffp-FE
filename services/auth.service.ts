@@ -9,6 +9,7 @@ export const authService = {
   async register(payload: RegisterInput) {
     const res = await authApi.register(payload);
     if (!res.success) throw new Error(res.error ?? "Registration failed");
+    return res.message;
   },
 
   async login(payload: LoginPayload) {

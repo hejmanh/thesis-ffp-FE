@@ -1,5 +1,13 @@
-import type { SessionData } from "@/types/auth";
+interface OnboardingAccessInput {
+  isAuthenticated: boolean;
+  hasAccessToken: boolean;
+  hasRegistrationAccess?: boolean;
+}
 
-export function canAccessOnboardingSteps(session: SessionData | null): boolean {
-  return Boolean(session?.user?.id);
+export function canAccessOnboardingSteps(input: OnboardingAccessInput): boolean {
+  return (
+    input.isAuthenticated ||
+    input.hasAccessToken ||
+    input.hasRegistrationAccess === true
+  );
 }

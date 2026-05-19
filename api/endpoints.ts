@@ -9,7 +9,7 @@ export const API_ENDPOINTS = {
     resetPassword: "/auth/reset-password",
   },
   reference: {
-    listCountries: "/reference/countries",
-    listSexTypes: "/reference/sex-types",
+    countries: "/reference/countries",
+    sexTypes: "/reference/sex-types",
   },
 } as const;

@@ -10,11 +10,11 @@ export function useAuth() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const wrap = useCallback(async (fn: () => Promise<void>) => {
+  const wrap = useCallback(async <T,>(fn: () => Promise<T>): Promise<T> => {
     setLoading(true);
     setError(null);
     try {
-      await fn();
+      return await fn();
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Something went wrong";

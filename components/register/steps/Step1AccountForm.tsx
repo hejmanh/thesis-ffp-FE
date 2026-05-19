@@ -3,12 +3,9 @@
 import { useRouter } from "next/navigation";
 import Button from "@/components/common/Button";
 import FormField from "@/components/common/FormField";
+import PersonalInfoFields from "@/components/common/PersonalInfoFields";
 import type { Step1AccountData } from "@/types/onboarding";
-
-type SelectOption = {
-  label: string;
-  value: string;
-};
+import type { SelectOption } from "@/utils/referenceOptions";
 
 interface Step1AccountFormProps {
   data: Step1AccountData;
@@ -34,14 +31,6 @@ export default function Step1AccountForm({
 }: Step1AccountFormProps) {
   const isReferenceReady = countryOptions.length > 0 && sexOptions.length > 0;
   const router = useRouter();
-  const currentYear = new Date().getFullYear();
-  const birthYearOptions = Array.from(
-    { length: currentYear - 1940 + 1 },
-    (_, index) => {
-      const year = String(currentYear - index);
-      return { label: year, value: year };
-    },
-  );
 
   return (
     <div className="mt-3">
@@ -49,101 +38,45 @@ export default function Step1AccountForm({
         Registration
       </h2>
       <div className="mx-auto mt-8 max-w-md space-y-6">
-        <FormField
-          id="email"
-          name="email"
-          label="Email"
-          isRequired
-          inputClassName="h-10 border-primary/60"
-          placeholder="Enter your email"
-          inputProps={{
-            value: data.email,
-            type: "email",
-            onChange: (event) => onFieldChange("email", event.target.value),
-            autoComplete: "email",
+        <PersonalInfoFields
+          variant="register"
+          data={{
+            email: data.email,
+            birthYear: data.birthYear,
+            country: data.country,
+            sex: data.sex,
           }}
-        />
-        <FormField
-          id="password"
-          name="password"
-          label="Password"
-          isRequired
-          variant="password"
-          inputClassName="h-10 border-primary/60"
-          placeholder="Enter your password"
-          inputProps={{
-            value: data.password,
-            onChange: (event) => onFieldChange("password", event.target.value),
-            autoComplete: "new-password",
+          countryOptions={countryOptions}
+          sexOptions={sexOptions}
+          onFieldChange={(key, value) => onFieldChange(key, value)}
+          passwordFields={{
+            mode: "register",
+            data: {
+              password: data.password,
+              confirmPassword: data.confirmPassword,
+            },
+            onFieldChange: (key, value) => {
+              if (key === "password" || key === "confirmPassword") {
+                onFieldChange(key, value);
+              }
+            },
           }}
+          leadingField={
+            <FormField
+              id="name"
+              name="name"
+              label="Name"
+              isRequired
+              inputClassName="h-10 border-primary/60"
+              placeholder="Enter your name"
+              inputProps={{
+                value: data.name,
+                onChange: (event) => onFieldChange("name", event.target.value),
+                autoComplete: "name",
+              }}
+            />
+          }
         />
-        <FormField
-          id="confirmPassword"
-          name="confirmPassword"
-          label="Confirm Password"
-          isRequired
-          variant="password"
-          inputClassName="h-10 border-primary/60"
-          placeholder="Confirm your password"
-          inputProps={{
-            value: data.confirmPassword,
-            onChange: (event) =>
-              onFieldChange("confirmPassword", event.target.value),
-            autoComplete: "new-password",
-          }}
-        />
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <FormField
-            id="name"
-            name="name"
-            label="Name"
-            isRequired
-            inputClassName="h-10 border-primary/60"
-            placeholder="Enter your name"
-            inputProps={{
-              value: data.name,
-              onChange: (event) => onFieldChange("name", event.target.value),
-              autoComplete: "name",
-            }}
-          />
-          <FormField
-            id="sex"
-            name="sex"
-            label="Gender"
-            isRequired
-            variant="select"
-            selectClassName="h-10 border-primary/60"
-            placeholder="Select gender"
-            value={data.sex}
-            onChange={(value) => onFieldChange("sex", value)}
-            options={sexOptions}
-          />
-          <FormField
-            id="birthYear"
-            name="birthYear"
-            label="Birth Year"
-            isRequired
-            variant="select"
-            selectClassName="h-10 border-primary/60"
-            placeholder="Select year"
-            value={data.birthYear}
-            onChange={(value) => onFieldChange("birthYear", value)}
-            options={birthYearOptions}
-          />
-          <FormField
-            id="country"
-            name="country"
-            label="Country"
-            isRequired
-            variant="select"
-            selectClassName="h-10 border-primary/60"
-            placeholder="Select country"
-            value={data.country}
-            onChange={(value) => onFieldChange("country", value)}
-            options={countryOptions}
-            searchable={true}
-          />
-        </div>
       </div>
       {error ? (
         <p className="mt-4 text-center text-sm font-semibold text-red-600">

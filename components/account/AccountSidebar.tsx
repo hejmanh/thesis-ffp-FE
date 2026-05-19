@@ -1,5 +1,6 @@
 "use client";
 
+import { Icon } from "@iconify/react";
 import Card from "@/components/common/Card";
 import { cn } from "@/utils/cn";
 import type { AccountTab } from "@/utils/types";
@@ -8,6 +9,7 @@ interface AccountSidebarProps {
   activeTab: AccountTab;
   onTabChange: (tab: AccountTab) => void;
   onLogout: () => void;
+  isLoggingOut?: boolean;
 }
 
 const TABS: Array<{ label: string; value: AccountTab }> = [
@@ -16,7 +18,12 @@ const TABS: Array<{ label: string; value: AccountTab }> = [
   { label: "Preferences", value: "preferences" },
 ];
 
-export default function AccountSidebar({ activeTab, onTabChange, onLogout }: AccountSidebarProps) {
+export default function AccountSidebar({
+  activeTab,
+  onTabChange,
+  onLogout,
+  isLoggingOut = false,
+}: AccountSidebarProps) {
   return (
     <Card hoverable={false} className="h-fit w-full rounded-xl bg-white p-3 shadow-md lg:w-72">
       <nav className="space-y-1">
@@ -36,9 +43,19 @@ export default function AccountSidebar({ activeTab, onTabChange, onLogout }: Acc
         <button
           type="button"
           onClick={onLogout}
-          className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-red-600 transition"
+          disabled={isLoggingOut}
+          aria-busy={isLoggingOut}
+          className={cn(
+            "w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-red-600 transition-colors",
+            isLoggingOut ? "cursor-wait opacity-70" : "hover:bg-red-50",
+          )}
         >
-          Logout
+          <span className="inline-flex items-center gap-2 transition-opacity duration-200">
+            {isLoggingOut ? (
+              <Icon icon="mdi:loading" className="h-4 w-4 animate-spin" />
+            ) : null}
+            <span>{isLoggingOut ? "Logging out..." : "Logout"}</span>
+          </span>
         </button>
       </nav>
     </Card>
