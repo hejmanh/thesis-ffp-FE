@@ -1,9 +1,13 @@
 "use client";
 
+import { useState, useTransition } from "react";
+import { Icon } from "@iconify/react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Button from "@/components/common/Button";
-import { getSession, logout } from "@/services/auth/mockAuth";
+import { authService } from "@/services/auth.service";
+import { tokenService } from "@/services/token.service";
+import { useAuthStore } from "@/store/auth.store";
 
 interface HeaderProps {
   onLoginClick?: () => void;
@@ -12,21 +16,29 @@ interface HeaderProps {
 }
 
 export default function Header({ onLoginClick, hideLoginButton = false, hideRegisterButton = false }: HeaderProps) {
-  const [sessionEmail, setSessionEmail] = useState<string | null>(null);
+  const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isNavigating, startTransition] = useTransition();
+  const user = useAuthStore((state) => state.user);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const displayName = user?.email ?? "Account";
+  const logoutPending = isLoggingOut || isNavigating;
 
-  useEffect(() => {
-    function syncSession() {
-      const session = getSession();
-      setSessionEmail(session?.user.email ?? null);
+  async function handleLogout() {
+    if (logoutPending) return;
+
+    setIsLoggingOut(true);
+    try {
+      await authService.logout();
+    } catch {
+      tokenService.clear();
+      useAuthStore.getState().clearUser();
+    } finally {
+      setIsLoggingOut(false);
+      startTransition(() => {
+        router.push("/");
+      });
     }
-    syncSession();
-    window.addEventListener("coinfused-auth-changed", syncSession);
-    return () => window.removeEventListener("coinfused-auth-changed", syncSession);
-  }, []);
-
-  function handleLogout() {
-    logout();
-    setSessionEmail(null);
   }
 
   return (
@@ -39,19 +51,29 @@ export default function Header({ onLoginClick, hideLoginButton = false, hideRegi
           <span className="text-xl font-bold tracking-tight text-primary sm:text-2xl">Coinfused</span>
         </Link>
         <nav className="flex items-center gap-3">
-          {sessionEmail ? (
+          {isAuthenticated ? (
             <>
               <Link
                 href="/account"
                 className="hidden text-sm text-muted-foreground underline-offset-4 hover:text-primary hover:underline sm:inline"
               >
-                {sessionEmail}
+                {displayName}
               </Link>
-              <Link href="/">
-                <Button variant="outline" size="sm" onClick={handleLogout}>
-                  Logout
-                </Button>
-              </Link>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLogout}
+                disabled={logoutPending}
+                aria-busy={logoutPending}
+                className="min-w-28"
+              >
+                <span className="inline-flex items-center gap-2 transition-opacity duration-200">
+                  {logoutPending ? (
+                    <Icon icon="mdi:loading" className="h-4 w-4 animate-spin" />
+                  ) : null}
+                  <span>{logoutPending ? "Logging out..." : "Logout"}</span>
+                </span>
+              </Button>
             </>
           ) : (
             <>

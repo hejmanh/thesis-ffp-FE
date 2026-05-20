@@ -1,16 +1,7 @@
-export interface SessionUser {
-  id: string;
+export interface AuthUser {
+  id?: string;
   name?: string;
   email: string;
-  birthYear?: number;
-  country?: string;
-  sex?: string;
-}
-
-export interface SessionData {
-  token: string;
-  user: SessionUser;
-  loggedInAt: string;
 }
 
 export interface LoginPayload {
@@ -18,11 +9,28 @@ export interface LoginPayload {
   password: string;
 }
 
-export interface RegisterStep1Payload {
+export interface LoginResponseData {
+  accessToken: string;
+  user: AuthUser;
+  isFirstLogin: boolean;
+}
+
+export interface RefreshResponseData {
+  accessToken: string;
+}
+
+export interface RegisterInput {
   name: string;
   email: string;
   password: string;
   birthYear: number;
-  country: string;
-  sex: string;
+  countryId: number;
+  sexTypeId: number;
 }
+
+export interface ResetPasswordPayload {
+  token: string;
+  password: string;
+}
+
+export type EmptyResponseData = null;

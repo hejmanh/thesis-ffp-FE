@@ -1,49 +1,95 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import AnimatedPanel from "@/components/common/AnimatedPanel";
 import Step1AccountForm from "@/components/register/steps/Step1AccountForm";
-import { autoLoginByEmail, registerStep1 } from "@/services/auth/mockAuth";
 import type { Step1AccountData } from "@/types/onboarding";
-import { INITIAL_ONBOARDING_DRAFT } from "@/utils/onboardingConstants";
+import {
+  INITIAL_ONBOARDING_DRAFT,
+  ONBOARDING_REGISTRATION_GATE_KEY,
+  ONBOARDING_STORAGE_KEY,
+} from "@/utils/onboardingConstants";
 import { validateStep1 } from "@/utils/onboardingValidators";
+import { useAuth, usePersonalInfoReferences } from "@/hooks";
+import {
+  mapCountriesToOptions,
+  mapSexTypesToOptions,
+} from "@/utils/referenceOptions";
 
 export default function RegisterAccountForm() {
   const router = useRouter();
-  const [data, setData] = useState<Step1AccountData>(INITIAL_ONBOARDING_DRAFT.step1);
+  const [data, setData] = useState<Step1AccountData>(
+    INITIAL_ONBOARDING_DRAFT.step1,
+  );
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const { register } = useAuth();
+  const { countries, sexTypes } = usePersonalInfoReferences();
 
-  function updateField<K extends keyof Step1AccountData>(key: K, value: Step1AccountData[K]) {
+  const countryOptions = useMemo(
+    () => mapCountriesToOptions(countries),
+    [countries],
+  );
+
+  const sexOptions = useMemo(() => mapSexTypesToOptions(sexTypes), [sexTypes]);
+
+  const displayError = error;
+
+  function updateField<K extends keyof Step1AccountData>(
+    key: K,
+    value: Step1AccountData[K],
+  ) {
     setData((prev) => ({ ...prev, [key]: value }));
   }
 
-  async function handleNext() {
+  async function handleCreateAccount() {
     setError("");
     const validation = validateStep1(data);
     if (validation) {
       setError(validation);
       return;
     }
+
+    const countryId = Number(data.country);
+    const sexTypeId = Number(data.sex);
+    if (!Number.isInteger(countryId) || !Number.isInteger(sexTypeId)) {
+      setError("Please select valid registration options.");
+      return;
+    }
+
     setLoading(true);
     try {
-      await registerStep1({
+      const message = await register({
         name: data.name,
         email: data.email,
         password: data.password,
         birthYear: Number(data.birthYear),
-        country: data.country,
-        sex: data.sex,
+        countryId,
+        sexTypeId,
       });
-      setToastMessage("Account created. Signing in...");
-      await autoLoginByEmail(data.email);
+
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem(
+          ONBOARDING_STORAGE_KEY,
+          JSON.stringify({
+            ...INITIAL_ONBOARDING_DRAFT,
+            step1: data,
+          }),
+        );
+        window.sessionStorage.setItem(ONBOARDING_REGISTRATION_GATE_KEY, "true");
+      }
+
+      setToastMessage(message ?? "Successfully created account");
       router.push("/onboarding");
     } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : "Unable to register.");
+      setError(
+        submitError instanceof Error
+          ? submitError.message
+          : "Unable to register.",
+      );
     } finally {
-      setToastMessage("");
       setLoading(false);
     }
   }
@@ -53,10 +99,12 @@ export default function RegisterAccountForm() {
       <AnimatedPanel>
         <Step1AccountForm
           data={data}
-          error={error}
+          error={displayError}
           isSubmitting={loading}
+          countryOptions={countryOptions}
+          sexOptions={sexOptions}
           onFieldChange={updateField}
-          onNext={handleNext}
+          onNext={handleCreateAccount}
         />
       </AnimatedPanel>
       {toastMessage ? (
