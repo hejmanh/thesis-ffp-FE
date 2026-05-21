@@ -46,15 +46,15 @@ export interface UserInfoAssetResponse {
 }
 
 export interface UserInfoResponse {
-  financialProfile: UserInfoFinancialProfileResponse;
-  portfolioAllocations: UserInfoPortfolioAllocation[];
-  lifestyleProfile: UserInfoLifestyleProfile;
-  stageData: UserInfoStageData[];
-  assetData: UserInfoAssetResponse[];
+  financialProfile?: UserInfoFinancialProfileResponse | null;
+  portfolioAllocations?: UserInfoPortfolioAllocation[] | null;
+  lifestyleProfile?: UserInfoLifestyleProfile | null;
+  stageData?: UserInfoStageData[] | null;
+  assetData?: UserInfoAssetResponse[] | null;
 }
 
 export interface GetUserInfoResponse {
-  userInfo: UserInfoResponse;
+  userInfo?: UserInfoResponse | null;
 }
 
 export interface CreateUserInfoRequest {
@@ -72,8 +72,10 @@ export type CreateUserInfoResponse = null;
 export type PatchBasicRequest = UserInfoFinancialProfile;
 
 export type PatchPortfolioRequest = UserInfoPortfolioAllocation[];
+export type CreatePortfolioRequest = UserInfoPortfolioAllocation[];
 
 export type PatchLifestyleRequest = UserInfoLifestyleProfile;
+export type CreateLifestyleRequest = UserInfoLifestyleProfile;
 
 export interface PatchLifestyleResponse {
   lifestyleProfile: UserInfoLifestyleProfile;
@@ -81,6 +83,7 @@ export interface PatchLifestyleResponse {
 }
 
 export type PatchStagesRequest = UserInfoStageData[];
+export type CreateStagesRequest = UserInfoStageData[];
 
 export interface PatchAssetsRequestItem {
   uid: string;

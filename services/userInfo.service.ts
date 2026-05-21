@@ -2,6 +2,9 @@ import { userInfoApi } from "@/api/userInfo.api";
 import type {
   CreateAssetsRequest,
   CreateAssetsResponse,
+  CreateLifestyleRequest,
+  CreatePortfolioRequest,
+  CreateStagesRequest,
   CreateUserInfoRequest,
   GetUserInfoResponse,
   PatchAssetsRequest,
@@ -12,6 +15,8 @@ import type {
   PatchStagesRequest,
 } from "@/types/userInfo";
 
+const USER_INFO_NOT_FOUND_MESSAGE = "User info not found";
+
 export const userInfoService = {
   async createUserInfo(payload: CreateUserInfoRequest): Promise<void> {
     const res = await userInfoApi.createUserInfo(payload);
@@ -20,8 +25,11 @@ export const userInfoService = {
     }
   },
 
-  async getUserInfo(): Promise<GetUserInfoResponse> {
+  async getUserInfo(): Promise<GetUserInfoResponse | null> {
     const res = await userInfoApi.getUserInfo();
+    if (!res.success && res.message === USER_INFO_NOT_FOUND_MESSAGE) {
+      return null;
+    }
     if (!res.success || !res.data?.userInfo) {
       throw new Error(res.error ?? "Unable to load user profile");
     }
@@ -42,6 +50,13 @@ export const userInfoService = {
     }
   },
 
+  async createPortfolio(payload: CreatePortfolioRequest): Promise<void> {
+    const res = await userInfoApi.createPortfolio(payload);
+    if (!res.success) {
+      throw new Error(res.error ?? "Unable to create asset allocation");
+    }
+  },
+
   async patchLifestyle(
     payload: PatchLifestyleRequest,
   ): Promise<PatchLifestyleResponse> {
@@ -52,10 +67,27 @@ export const userInfoService = {
     return res.data;
   },
 
+  async createLifestyle(
+    payload: CreateLifestyleRequest,
+  ): Promise<PatchLifestyleResponse | null> {
+    const res = await userInfoApi.createLifestyle(payload);
+    if (!res.success) {
+      throw new Error(res.error ?? "Unable to create lifestyle profile");
+    }
+    return res.data ?? null;
+  },
+
   async patchStages(payload: PatchStagesRequest): Promise<void> {
     const res = await userInfoApi.patchStages(payload);
     if (!res.success) {
       throw new Error(res.error ?? "Unable to update stages");
+    }
+  },
+
+  async createStages(payload: CreateStagesRequest): Promise<void> {
+    const res = await userInfoApi.createStages(payload);
+    if (!res.success) {
+      throw new Error(res.error ?? "Unable to create stages");
     }
   },
 

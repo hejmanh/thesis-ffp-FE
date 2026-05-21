@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Icon } from "@iconify/react";
 import AnimatedPanel from "@/components/common/AnimatedPanel";
+import Button from "@/components/common/Button";
 import RegistrationProgressBar from "@/components/register/progress/RegistrationProgressBar";
 import Step2PersonalForm from "@/components/register/steps/Step2PersonalForm";
 import Step3StagesCards from "@/components/register/steps/Step3StagesCards";
@@ -201,6 +203,23 @@ export default function RegisterWizard() {
 
   return (
     <div className="relative mx-auto max-w-3xl rounded-3xl bg-slate-50 p-6 shadow-[0_20px_50px_-25px_rgba(15,23,42,0.4)] sm:p-8 lg:p-10">
+      {!completed ? (
+        <div className="mb-8">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-auto rounded-lg px-0 py-0 text-sm font-semibold"
+            onClick={() => router.push("/account")}
+          >
+            <Icon icon="ic:round-skip-previous" className="h-4 w-4" />
+            Skip
+          </Button>
+          <p className="mt-2 ml-4 text-xs text-muted-foreground">
+            * You can skip this setup for now and complete it later from the
+            account page.
+          </p>
+        </div>
+      ) : null}
       <RegistrationProgressBar steps={ONBOARDING_STEPS} currentStep={step} />
       <AnimatedPanel key={transitionKey}>
         {stepContent}

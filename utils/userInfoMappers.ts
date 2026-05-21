@@ -10,7 +10,6 @@ import type {
   PatchPortfolioRequest,
   PatchStagesRequest,
   UserInfoAssetResponse,
-  UserInfoPortfolioAllocation,
   UserInfoResponse,
 } from "@/types/userInfo";
 import type { Asset, FinancialData, Habits, Stage } from "@/utils/types";
@@ -29,6 +28,12 @@ function parseRequiredInteger(value: string, fieldName: string): number {
     throw new Error(`${fieldName} must be a valid integer`);
   }
   return parsedValue;
+}
+
+function isGetUserInfoResponse(
+  response: GetUserInfoResponse | UserInfoResponse,
+): response is GetUserInfoResponse {
+  return Object.prototype.hasOwnProperty.call(response, "userInfo");
 }
 
 export function buildCreateUserInfoRequest(
@@ -116,71 +121,93 @@ export function buildStageItemsFromRanges(
     });
 }
 
-function mapAllocationValue(
-  allocations: UserInfoPortfolioAllocation[],
-  type: "PRE_FFP" | "POST_FFP",
-  fallbackIndex: number,
-) {
-  return (
-    allocations.find((allocation) => allocation.allocationType === type) ??
-    allocations[fallbackIndex] ?? {
-      allocationType: type,
-      u: 0,
-      mu: 0,
-      rf: 0,
-    }
-  );
-}
-
 export function mapUserInfoToFinancialData(
   response: GetUserInfoResponse | UserInfoResponse,
 ): FinancialData {
-  const userInfo = "userInfo" in response ? response.userInfo : response;
-  const preFfpAllocation = mapAllocationValue(
-    userInfo.portfolioAllocations,
-    "PRE_FFP",
-    0,
+  const userInfo: UserInfoResponse | null | undefined =
+    isGetUserInfoResponse(response) ? response.userInfo : response;
+  const financialProfile = userInfo?.financialProfile;
+  const portfolioAllocations = userInfo?.portfolioAllocations ?? [];
+  const lifestyleProfile = userInfo?.lifestyleProfile;
+  const stageData = userInfo?.stageData ?? [];
+  const assetData = userInfo?.assetData ?? [];
+  const preFfpAllocation = portfolioAllocations.find(
+    (allocation) => allocation.allocationType === "PRE_FFP",
   );
-  const postFfpAllocation = mapAllocationValue(
-    userInfo.portfolioAllocations,
-    "POST_FFP",
-    1,
+  const postFfpAllocation = portfolioAllocations.find(
+    (allocation) => allocation.allocationType === "POST_FFP",
   );
 
   return {
-    estimatedLE: String(userInfo.financialProfile.estimatedLifeExpectancy),
-    savings: String(userInfo.financialProfile.currentSavings),
-    currency: userInfo.financialProfile.currencyCode,
-    desiredLE: String(userInfo.financialProfile.desiredLifeExpectancy),
+    estimatedLE:
+      financialProfile?.estimatedLifeExpectancy == null
+        ? ""
+        : String(financialProfile.estimatedLifeExpectancy),
+    savings:
+      financialProfile?.currentSavings == null
+        ? ""
+        : String(financialProfile.currentSavings),
+    currency: financialProfile?.currencyCode ?? "",
+    desiredLE:
+      financialProfile?.desiredLifeExpectancy == null
+        ? ""
+        : String(financialProfile.desiredLifeExpectancy),
     allocation: {
       before: {
-        u: String(preFfpAllocation.u),
-        mu: String(preFfpAllocation.mu),
-        rf: String(preFfpAllocation.rf),
+        u: preFfpAllocation ? String(preFfpAllocation.u) : "",
+        mu: preFfpAllocation ? String(preFfpAllocation.mu) : "",
+        rf: preFfpAllocation ? String(preFfpAllocation.rf) : "",
       },
       after: {
-        u: String(postFfpAllocation.u),
-        mu: String(postFfpAllocation.mu),
-        rf: String(postFfpAllocation.rf),
+        u: postFfpAllocation ? String(postFfpAllocation.u) : "",
+        mu: postFfpAllocation ? String(postFfpAllocation.mu) : "",
+        rf: postFfpAllocation ? String(postFfpAllocation.rf) : "",
       },
     },
     habits: {
-      smoking: userInfo.lifestyleProfile.smokingCode,
-      physical: userInfo.lifestyleProfile.physicalActivityCode,
-      diet: userInfo.lifestyleProfile.dietQualityCode,
-      alcohol: userInfo.lifestyleProfile.alcoholConsumptionCode,
+      smoking: lifestyleProfile?.smokingCode ?? "",
+      physical: lifestyleProfile?.physicalActivityCode ?? "",
+      diet: lifestyleProfile?.dietQualityCode ?? "",
+      alcohol: lifestyleProfile?.alcoholConsumptionCode ?? "",
     },
-    stages: userInfo.stageData.map((stage, index) => ({
+    stages: stageData.map((stage, index) => ({
       lifeStageRangeId: stage.lifeStageRangeId,
       title: `Stage ${index + 1}`,
       startAge: "",
       endAge: "",
       annualSaving: String(stage.initialAnnualSavings),
-      currency: userInfo.financialProfile.currencyCode,
+      currency: financialProfile?.currencyCode ?? "",
       growthRate: String(stage.growthRate),
     })),
-    assets: userInfo.assetData.map((asset) => mapUserInfoAssetToAsset(asset)),
+    assets: assetData.map((asset) => mapUserInfoAssetToAsset(asset)),
   };
+}
+
+export function buildAccountStagesFromRanges(
+  ranges: LifeStageRange[],
+  existingStages: Stage[],
+  currency: string,
+): Stage[] {
+  const existingByRangeId = new Map(
+    existingStages.map((stage) => [stage.lifeStageRangeId, stage]),
+  );
+
+  return [...ranges]
+    .sort((left, right) => left.stageNo - right.stageNo)
+    .map((range, index) => {
+      const existingStage =
+        existingByRangeId.get(range.id) ?? existingStages[index];
+
+      return {
+        lifeStageRangeId: range.id,
+        title: range.title ?? existingStage?.title ?? `Stage ${range.stageNo}`,
+        startAge: String(range.beginningAge),
+        endAge: String(range.endingAge),
+        annualSaving: existingStage?.annualSaving ?? "",
+        currency,
+        growthRate: existingStage?.growthRate ?? "",
+      };
+    });
 }
 
 export function mapUserInfoAssetToAsset(asset: UserInfoAssetResponse): Asset {

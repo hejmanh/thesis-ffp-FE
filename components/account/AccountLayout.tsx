@@ -11,7 +11,7 @@ import type { AccountTab } from "@/utils/types";
 
 export default function AccountLayout() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<AccountTab>("personal");
+  const [activeTab, setActiveTab] = useState<AccountTab>("financial");
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isNavigating, startTransition] = useTransition();
   const logoutPending = isLoggingOut || isNavigating;

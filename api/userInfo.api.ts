@@ -4,6 +4,9 @@ import { API_ENDPOINTS } from "@/api/endpoints";
 import type {
   CreateAssetsRequest,
   CreateAssetsResponse,
+  CreateLifestyleRequest,
+  CreatePortfolioRequest,
+  CreateStagesRequest,
   CreateUserInfoRequest,
   CreateUserInfoResponse,
   GetUserInfoResponse,
@@ -30,13 +33,25 @@ export const userInfoApi = {
   patchPortfolio: (payload: PatchPortfolioRequest): Promise<ApiResponse<null>> =>
     api.patch(API_ENDPOINTS.userInfo.portfolio, payload),
 
+  createPortfolio: (
+    payload: CreatePortfolioRequest,
+  ): Promise<ApiResponse<null>> => api.post(API_ENDPOINTS.userInfo.portfolio, payload),
+
   patchLifestyle: (
     payload: PatchLifestyleRequest,
   ): Promise<ApiResponse<PatchLifestyleResponse>> =>
     api.patch(API_ENDPOINTS.userInfo.lifestyle, payload),
 
+  createLifestyle: (
+    payload: CreateLifestyleRequest,
+  ): Promise<ApiResponse<PatchLifestyleResponse | null>> =>
+    api.post(API_ENDPOINTS.userInfo.lifestyle, payload),
+
   patchStages: (payload: PatchStagesRequest): Promise<ApiResponse<null>> =>
     api.patch(API_ENDPOINTS.userInfo.stages, payload),
+
+  createStages: (payload: CreateStagesRequest): Promise<ApiResponse<null>> =>
+    api.post(API_ENDPOINTS.userInfo.stages, payload),
 
   createAssets: (
     payload: CreateAssetsRequest,

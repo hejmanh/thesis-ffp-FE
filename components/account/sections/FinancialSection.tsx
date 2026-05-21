@@ -13,10 +13,11 @@ import StageEditorCard, {
   type StageEditorValue,
 } from "@/components/common/StageEditorCard";
 import FinancialForm from "@/components/account/forms/FinancialForm";
-import { useFinancialPlanningReferences } from "@/hooks";
+import { useFinancialPlanningReferences, useLifeStageRangesQuery } from "@/hooks";
 import { userInfoService } from "@/services/userInfo.service";
 import type { SelectOption } from "@/utils/referenceOptions";
 import {
+  buildAccountStagesFromRanges,
   buildCreateAssetsRequest,
   buildPatchAssetsRequest,
   buildPatchBasicRequest,
@@ -26,7 +27,7 @@ import {
   mapUserInfoToFinancialData,
 } from "@/utils/userInfoMappers";
 import type { Asset, FinancialData, Habits, Stage } from "@/utils/types";
-import type { GetUserInfoResponse } from "@/types/userInfo";
+import { loadOnboardingState } from "@/utils/onboardingStorage";
 
 const EMPTY_FINANCIAL_DATA: FinancialData = {
   estimatedLE: "",
@@ -97,6 +98,31 @@ function areValuesEqual<T>(left: T, right: T): boolean {
   return JSON.stringify(left) === JSON.stringify(right);
 }
 
+function hasLifestyleValues(habits: Habits | undefined): boolean {
+  if (!habits) {
+    return false;
+  }
+
+  return Object.values(habits).some(Boolean);
+}
+
+function areStagesMeaningfullyEqual(left: Stage[], right: Stage[]): boolean {
+  return JSON.stringify(
+    left.map((stage) => ({
+      lifeStageRangeId: stage.lifeStageRangeId ?? 0,
+      annualSaving: stage.annualSaving,
+      growthRate: stage.growthRate,
+    })),
+  ) ===
+    JSON.stringify(
+      right.map((stage) => ({
+        lifeStageRangeId: stage.lifeStageRangeId ?? 0,
+        annualSaving: stage.annualSaving,
+        growthRate: stage.growthRate,
+      })),
+    );
+}
+
 function getChangedPersistedAssets(
   currentAssets: Asset[],
   baseAssets: Asset[],
@@ -150,6 +176,10 @@ function getAssetOptionsForAsset(
 export default function FinancialSection() {
   const queryClient = useQueryClient();
   const references = useFinancialPlanningReferences();
+  const registrationBirthYear = useMemo(
+    () => loadOnboardingState().step1.birthYear,
+    [],
+  );
   const [profileDraft, setProfileDraft] = useState<{
     estimatedLE: string;
     savings: string;
@@ -168,15 +198,25 @@ export default function FinancialSection() {
     queryKey: ["user-info"],
     queryFn: () => userInfoService.getUserInfo(),
   });
+  const lifeStageRangesQuery = useLifeStageRangesQuery(registrationBirthYear);
 
   const patchBasicMutation = useMutation({
     mutationFn: userInfoService.patchBasic,
   });
+  const createPortfolioMutation = useMutation({
+    mutationFn: userInfoService.createPortfolio,
+  });
   const patchPortfolioMutation = useMutation({
     mutationFn: userInfoService.patchPortfolio,
   });
+  const createLifestyleMutation = useMutation({
+    mutationFn: userInfoService.createLifestyle,
+  });
   const patchLifestyleMutation = useMutation({
     mutationFn: userInfoService.patchLifestyle,
+  });
+  const createStagesMutation = useMutation({
+    mutationFn: userInfoService.createStages,
   });
   const patchStagesMutation = useMutation({
     mutationFn: userInfoService.patchStages,
@@ -207,14 +247,54 @@ export default function FinancialSection() {
   };
   const currentAllocation = allocationDraft ?? baseFinancialData.allocation;
   const currentHabits = habitsDraft ?? baseFinancialData.habits;
-  const currentStages = stagesDraft ?? baseFinancialData.stages;
+  const currentStages = useMemo(() => {
+    const sourceStages = stagesDraft ?? baseFinancialData.stages;
+    const stageCurrency = currentProfile.currency || baseFinancialData.currency;
+
+    if (!lifeStageRangesQuery.data?.length) {
+      return sourceStages.map((stage) => ({
+        ...stage,
+        currency: stageCurrency || stage.currency,
+      }));
+    }
+
+    return buildAccountStagesFromRanges(
+      lifeStageRangesQuery.data,
+      sourceStages,
+      stageCurrency,
+    );
+  }, [
+    baseFinancialData.currency,
+    baseFinancialData.stages,
+    currentProfile.currency,
+    lifeStageRangesQuery.data,
+    stagesDraft,
+  ]);
   const currentAssets = assetsDraft ?? baseFinancialData.assets;
+  const portfolioAllocations = userInfoQuery.data?.userInfo?.portfolioAllocations ?? [];
+  const hasPersistedPortfolio = portfolioAllocations.length > 0;
+  const hasPersistedHabits = hasLifestyleValues(
+    userInfoQuery.data?.userInfo?.lifestyleProfile
+      ? {
+          smoking: userInfoQuery.data.userInfo.lifestyleProfile.smokingCode,
+          physical: userInfoQuery.data.userInfo.lifestyleProfile.physicalActivityCode,
+          diet: userInfoQuery.data.userInfo.lifestyleProfile.dietQualityCode,
+          alcohol:
+            userInfoQuery.data.userInfo.lifestyleProfile.alcoholConsumptionCode,
+        }
+      : undefined,
+  );
+  const hasPersistedStages =
+    (userInfoQuery.data?.userInfo?.stageData?.length ?? 0) > 0;
 
   const isLoading = userInfoQuery.isLoading;
   const isSavingProfile = patchBasicMutation.isPending;
-  const isSavingAllocation = patchPortfolioMutation.isPending;
-  const isSavingHabits = patchLifestyleMutation.isPending;
-  const isSavingStages = patchStagesMutation.isPending;
+  const isSavingAllocation =
+    patchPortfolioMutation.isPending || createPortfolioMutation.isPending;
+  const isSavingHabits =
+    patchLifestyleMutation.isPending || createLifestyleMutation.isPending;
+  const isSavingStages =
+    patchStagesMutation.isPending || createStagesMutation.isPending;
   const isSavingAssets =
     createAssetsMutation.isPending ||
     patchAssetsMutation.isPending ||
@@ -222,7 +302,10 @@ export default function FinancialSection() {
   const pageError =
     sectionError ??
     (userInfoQuery.error instanceof Error ? userInfoQuery.error.message : null) ??
-    references.error;
+    references.error ??
+    (lifeStageRangesQuery.error instanceof Error
+      ? lifeStageRangesQuery.error.message
+      : null);
 
   const canSaveProfile =
     Boolean(
@@ -264,7 +347,7 @@ export default function FinancialSection() {
   const canSaveStages =
     currentStages.length > 0 &&
     currentStages.every(isStageComplete) &&
-    !areValuesEqual(currentStages, baseFinancialData.stages) &&
+    !areStagesMeaningfullyEqual(currentStages, baseFinancialData.stages) &&
     !isSavingStages;
   const canSaveAssets =
     currentAssets.every(isAssetComplete) &&
@@ -296,9 +379,12 @@ export default function FinancialSection() {
   async function handleSaveAllocations() {
     setSectionError(null);
     try {
-      await patchPortfolioMutation.mutateAsync(
-        buildPatchPortfolioRequest(currentAllocation),
-      );
+      const payload = buildPatchPortfolioRequest(currentAllocation);
+      if (hasPersistedPortfolio) {
+        await patchPortfolioMutation.mutateAsync(payload);
+      } else {
+        await createPortfolioMutation.mutateAsync(payload);
+      }
       setAllocationDraft(null);
       await refreshUserInfoData();
     } catch (error) {
@@ -313,39 +399,15 @@ export default function FinancialSection() {
   async function handleSaveHabits() {
     setSectionError(null);
     try {
-      const lifestyleResponse = await patchLifestyleMutation.mutateAsync(
-        buildPatchLifestyleRequest(currentHabits),
-      );
-      queryClient.setQueryData<GetUserInfoResponse | undefined>(
-        ["user-info"],
-        (currentData) => {
-          if (!currentData) {
-            return currentData;
-          }
-
-          return {
-            ...currentData,
-            userInfo: {
-              ...currentData.userInfo,
-              lifestyleProfile: lifestyleResponse.lifestyleProfile,
-              financialProfile: {
-                ...currentData.userInfo.financialProfile,
-                estimatedLifeExpectancy:
-                  lifestyleResponse.estimatedLifeExpectancy,
-              },
-            },
-          };
-        },
-      );
-      setProfileDraft((prev) =>
-        prev
-          ? {
-              ...prev,
-              estimatedLE: String(lifestyleResponse.estimatedLifeExpectancy),
-            }
-          : prev,
-      );
+      const payload = buildPatchLifestyleRequest(currentHabits);
+      if (hasPersistedHabits) {
+        await patchLifestyleMutation.mutateAsync(payload);
+      } else {
+        await createLifestyleMutation.mutateAsync(payload);
+      }
+      setProfileDraft(null);
       setHabitsDraft(null);
+      await refreshUserInfoData();
     } catch (error) {
       setSectionError(
         error instanceof Error
@@ -358,9 +420,12 @@ export default function FinancialSection() {
   async function handleSaveStages() {
     setSectionError(null);
     try {
-      await patchStagesMutation.mutateAsync(
-        buildPatchStagesRequest(currentStages),
-      );
+      const payload = buildPatchStagesRequest(currentStages);
+      if (hasPersistedStages) {
+        await patchStagesMutation.mutateAsync(payload);
+      } else {
+        await createStagesMutation.mutateAsync(payload);
+      }
       setStagesDraft(null);
       await refreshUserInfoData();
     } catch (error) {
@@ -435,24 +500,6 @@ export default function FinancialSection() {
     );
   }
 
-  if (!userInfoQuery.data) {
-    return (
-      <Card hoverable={false} className="w-full rounded-xl bg-white p-6 shadow-md">
-        <h2 className="text-2xl font-bold text-primary">
-          Financial Profile and Planning
-        </h2>
-        <p className="mt-4 text-sm font-semibold text-red-600">
-          {pageError ?? "Unable to load financial profile."}
-        </p>
-        <div className="mt-4">
-          <Button size="sm" onClick={() => userInfoQuery.refetch()}>
-            Retry
-          </Button>
-        </div>
-      </Card>
-    );
-  }
-
   return (
     <Card hoverable={false} className="w-full rounded-xl bg-white p-6 shadow-md">
       <h2 className="text-2xl font-bold text-primary">
@@ -519,6 +566,12 @@ export default function FinancialSection() {
             etc.)
           </p>
           <div className="mt-4 max-h-[24rem] space-y-4 overflow-y-auto pr-2">
+            {!lifeStageRangesQuery.isLoading && currentStages.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Life stages will appear here once your registration birth year is
+                available.
+              </p>
+            ) : null}
             {currentStages.map((stage, index) => (
               <StageEditorCard
                 key={`stage_${stage.lifeStageRangeId ?? index}`}
@@ -527,7 +580,7 @@ export default function FinancialSection() {
                 index={index}
                 onChange={(next) =>
                   setStagesDraft((prev) => {
-                    const sourceStages = prev ?? baseFinancialData.stages;
+                    const sourceStages = prev ?? currentStages;
                     return sourceStages.map((currentStage, currentIndex) =>
                       currentIndex === index
                         ? fromStageEditorValue(currentStage, next)
