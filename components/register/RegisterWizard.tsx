@@ -14,7 +14,11 @@ import { tokenService } from "@/services/token.service";
 import { userInfoService } from "@/services/userInfo.service";
 import { useAuthStore } from "@/store/auth.store";
 import type { OnboardingDraft } from "@/types/onboarding";
-import { isAssetComplete, validateStep2 } from "@/utils/onboardingValidators";
+import {
+  isAssetComplete,
+  isStageComplete,
+  validateStep2,
+} from "@/utils/onboardingValidators";
 import { canAccessOnboardingSteps } from "@/utils/onboardingGuard";
 import {
   clearOnboardingState,
@@ -22,8 +26,10 @@ import {
   saveOnboardingState,
 } from "@/utils/onboardingStorage";
 import {
-  buildCreateUserInfoRequest,
+  buildCreateAssetsRequest,
+  buildCreateFinancialRequestFromOnboarding,
   buildStageItemsFromRanges,
+  buildStagesRequest,
 } from "@/utils/userInfoMappers";
 
 const ONBOARDING_STEPS = ["Personal Information", "Stages Data", "Asset Data"];
@@ -36,14 +42,21 @@ export default function RegisterWizard() {
   const [saving, setSaving] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [completed, setCompleted] = useState(false);
+  const [createdSteps, setCreatedSteps] = useState({
+    financial: false,
+    stages: false,
+  });
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const onboardingReferences = useOnboardingReferences();
   const lifeStageRangesQuery = useLifeStageRangesQuery(draft.step1.birthYear);
 
-  function getDraftWithEstimatedLifeExpectancy(sourceDraft: OnboardingDraft): OnboardingDraft {
+  function getDraftWithEstimatedLifeExpectancy(
+    sourceDraft: OnboardingDraft,
+  ): OnboardingDraft {
     if (
       !onboardingReferences.estimatedLifeExpectancy ||
-      sourceDraft.step2.estimatedLifeExpectancy === onboardingReferences.estimatedLifeExpectancy
+      sourceDraft.step2.estimatedLifeExpectancy ===
+        onboardingReferences.estimatedLifeExpectancy
     ) {
       return sourceDraft;
     }
@@ -80,7 +93,7 @@ export default function RegisterWizard() {
     saveOnboardingState(draft);
   }, [completed, draft]);
 
-  function handlePersonalNext() {
+  async function handlePersonalNext() {
     setError("");
     const nextDraft = getDraftWithEstimatedLifeExpectancy(draft);
     if (onboardingReferences.error) {
@@ -104,17 +117,63 @@ export default function RegisterWizard() {
       setError(validation);
       return;
     }
+
     const generatedStages = buildStageItemsFromRanges(
       lifeStageRangesQuery.data,
       nextDraft.stages,
       nextDraft.step2.preferredCurrency,
     );
-    setDraft({ ...nextDraft, stages: generatedStages });
-    setStep(2);
+
+    setSaving(true);
+    setToastMessage("Saving your financial information...");
+    try {
+      const payload = buildCreateFinancialRequestFromOnboarding(nextDraft);
+      if (createdSteps.financial) {
+        await userInfoService.patchFinancial(payload);
+      } else {
+        await userInfoService.createFinancial(payload);
+      }
+      setCreatedSteps((prev) => ({ ...prev, financial: true }));
+      setDraft({ ...nextDraft, stages: generatedStages });
+      setStep(2);
+    } catch (submitError) {
+      setError(
+        submitError instanceof Error
+          ? submitError.message
+          : "Unable to save financial information.",
+      );
+    } finally {
+      setToastMessage("");
+      setSaving(false);
+    }
   }
 
-  function handleStagesNext() {
-    setStep(3);
+  async function handleStagesNext() {
+    setError("");
+    if (!draft.stages.length || !draft.stages.every(isStageComplete)) {
+      setError("Please complete your stage data before continuing.");
+      return;
+    }
+
+    setSaving(true);
+    setToastMessage("Saving your stage information...");
+    try {
+      const payload = buildStagesRequest(draft.stages);
+      if (createdSteps.stages) {
+        await userInfoService.patchStages(payload);
+      } else {
+        await userInfoService.createStages(payload);
+      }
+      setCreatedSteps((prev) => ({ ...prev, stages: true }));
+      setStep(3);
+    } catch (submitError) {
+      setError(
+        submitError instanceof Error ? submitError.message : "Unable to save stages.",
+      );
+    } finally {
+      setToastMessage("");
+      setSaving(false);
+    }
   }
 
   async function handleAssetsSubmit() {
@@ -125,7 +184,7 @@ export default function RegisterWizard() {
       setError(validation);
       return;
     }
-    if (!nextDraft.stages.length) {
+    if (!nextDraft.stages.length || !nextDraft.stages.every(isStageComplete)) {
       setError("Please complete your stage data before submitting.");
       return;
     }
@@ -134,10 +193,10 @@ export default function RegisterWizard() {
       return;
     }
     setSaving(true);
-    setToastMessage("Creating your profile...");
+    setToastMessage("Saving your assets...");
     try {
-      const payload = buildCreateUserInfoRequest(nextDraft);
-      await userInfoService.createUserInfo(payload);
+      const payload = buildCreateAssetsRequest(nextDraft.assets);
+      await userInfoService.createAssets(payload);
       clearOnboardingState();
       setCompleted(true);
     } catch (submitError) {
@@ -156,7 +215,8 @@ export default function RegisterWizard() {
     <div className="py-16 text-center">
       <h2 className="text-4xl font-bold text-primary">Onboarding Complete</h2>
       <p className="mt-4 text-lg text-muted-foreground">
-        Your profile has been saved. You can now proceed to scenarios and planning tools.
+        Your profile has been saved. You can now proceed to scenarios and planning
+        tools.
       </p>
     </div>
   ) : step === 1 ? (
@@ -174,6 +234,7 @@ export default function RegisterWizard() {
       error={error}
       referenceError={onboardingReferences.error}
       isReferenceLoading={onboardingReferences.isLoading}
+      isSubmitting={saving}
       onNext={handlePersonalNext}
       onChange={(next) => setDraft((prev) => ({ ...prev, step2: next }))}
     />
@@ -181,6 +242,7 @@ export default function RegisterWizard() {
     <Step3StagesCards
       stages={draft.stages}
       error={error}
+      isSubmitting={saving}
       onBack={() => setStep(1)}
       onNext={handleStagesNext}
       onChange={(stages) => setDraft((prev) => ({ ...prev, stages }))}
@@ -221,9 +283,7 @@ export default function RegisterWizard() {
         </div>
       ) : null}
       <RegistrationProgressBar steps={ONBOARDING_STEPS} currentStep={step} />
-      <AnimatedPanel key={transitionKey}>
-        {stepContent}
-      </AnimatedPanel>
+      <AnimatedPanel key={transitionKey}>{stepContent}</AnimatedPanel>
 
       {toastMessage ? (
         <div className="fixed right-6 top-6 z-50 rounded-xl bg-slate-900 px-4 py-3 text-sm font-medium text-white shadow-lg">

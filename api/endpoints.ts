@@ -21,12 +21,9 @@ export const API_ENDPOINTS = {
     alcoholConsumptionTypes: "/reference/alcohol-consumption-types",
   },
   userInfo: {
-    profile: "/user-info",
-    basic: "/user-info/basic",
-    portfolio: "/user-info/portfolio",
+    financial: "/user-info/financial",
     stages: "/user-info/stages",
     assets: "/user-info/assets",
-    assetByUid: (uid: string) => `/user-info/asset/${uid}`,
-    lifestyle: "/user-info/lifestyle",
+    assetByUid: (uid: string) => `/user-info/assets/${uid}`,
   },
 } as const;

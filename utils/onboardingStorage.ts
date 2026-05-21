@@ -1,7 +1,5 @@
 import type { OnboardingDraft } from "@/types/onboarding";
 
-const STORAGE_KEY = "coinfused_onboarding_payload";
-
 export function createEmptyOnboardingState(): OnboardingDraft {
   return {
     step1: {
@@ -31,6 +29,8 @@ export function createEmptyOnboardingState(): OnboardingDraft {
     assets: [],
   };
 }
+
+let onboardingDraftState: OnboardingDraft = createEmptyOnboardingState();
 
 export function mergeOnboardingState(
   parsedDraft: Partial<OnboardingDraft> | null | undefined,
@@ -68,34 +68,13 @@ export function mergeOnboardingState(
 }
 
 export function loadOnboardingState(): OnboardingDraft {
-  if (typeof window === "undefined") {
-    return createEmptyOnboardingState();
-  }
-
-  const rawDraft = window.localStorage.getItem(STORAGE_KEY);
-  if (!rawDraft) {
-    return createEmptyOnboardingState();
-  }
-
-  try {
-    return mergeOnboardingState(JSON.parse(rawDraft) as Partial<OnboardingDraft>);
-  } catch {
-    return createEmptyOnboardingState();
-  }
+  return onboardingDraftState;
 }
 
 export function saveOnboardingState(draft: OnboardingDraft) {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
+  onboardingDraftState = mergeOnboardingState(draft);
 }
 
 export function clearOnboardingState() {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  window.localStorage.removeItem(STORAGE_KEY);
+  onboardingDraftState = createEmptyOnboardingState();
 }

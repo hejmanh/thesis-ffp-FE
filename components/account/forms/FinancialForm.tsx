@@ -15,15 +15,16 @@ interface FinancialFormProps {
   habits: Habits;
   currencyOptions: SelectOption[];
   habitOptions: Record<keyof Habits, SelectOption[]>;
-  onProfileChange: (field: "estimatedLE" | "savings" | "currency" | "desiredLE", value: string) => void;
-  onAllocationChange: (period: "before" | "after", key: keyof Allocation, value: string) => void;
+  onProfileChange: (
+    field: "estimatedLE" | "savings" | "currency" | "desiredLE",
+    value: string,
+  ) => void;
+  onAllocationChange: (
+    period: "before" | "after",
+    key: keyof Allocation,
+    value: string,
+  ) => void;
   onHabitChange: (key: keyof Habits, value: string) => void;
-  onSaveProfile: () => void;
-  onSaveAllocations: () => void;
-  onSaveHabits: () => void;
-  canSaveProfile?: boolean;
-  canSaveAllocations?: boolean;
-  canSaveHabits?: boolean;
 }
 
 const HABIT_LABELS: Record<keyof Habits, string> = {
@@ -42,12 +43,6 @@ export default function FinancialForm({
   onProfileChange,
   onAllocationChange,
   onHabitChange,
-  onSaveProfile,
-  onSaveAllocations,
-  onSaveHabits,
-  canSaveProfile,
-  canSaveAllocations,
-  canSaveHabits,
 }: FinancialFormProps) {
   return (
     <FinancialProfileFields
@@ -77,12 +72,6 @@ export default function FinancialForm({
       }}
       onAllocationChange={onAllocationChange}
       onHabitChange={onHabitChange}
-      onSaveProfile={onSaveProfile}
-      onSaveAllocations={onSaveAllocations}
-      onSaveHabits={onSaveHabits}
-      canSaveProfile={canSaveProfile}
-      canSaveAllocations={canSaveAllocations}
-      canSaveHabits={canSaveHabits}
     />
   );
 }

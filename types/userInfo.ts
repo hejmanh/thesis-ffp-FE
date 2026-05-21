@@ -45,41 +45,32 @@ export interface UserInfoAssetResponse {
   growthRate: number;
 }
 
-export interface UserInfoResponse {
+export interface UserInfoFinancialResource {
   financialProfile?: UserInfoFinancialProfileResponse | null;
   portfolioAllocations?: UserInfoPortfolioAllocation[] | null;
   lifestyleProfile?: UserInfoLifestyleProfile | null;
-  stageData?: UserInfoStageData[] | null;
-  assetData?: UserInfoAssetResponse[] | null;
 }
 
-export interface GetUserInfoResponse {
-  userInfo?: UserInfoResponse | null;
+export interface GetFinancialResponse {
+  financial?: UserInfoFinancialResource | null;
 }
 
-export interface CreateUserInfoRequest {
-  userInfo: {
+export interface FinancialRequestPayload {
+  financial: {
     financialProfile: UserInfoFinancialProfile;
     portfolioAllocations: UserInfoPortfolioAllocation[];
     lifestyleProfile: UserInfoLifestyleProfile;
-    stageData: UserInfoStageData[];
-    assetData: UserInfoAssetData[];
   };
 }
 
-export type CreateUserInfoResponse = null;
+export type CreateFinancialRequest = FinancialRequestPayload;
+export type PatchFinancialRequest = FinancialRequestPayload;
+export type CreateFinancialResponse = null;
+export type PatchFinancialResponse = null;
 
-export type PatchBasicRequest = UserInfoFinancialProfile;
-
-export type PatchPortfolioRequest = UserInfoPortfolioAllocation[];
-export type CreatePortfolioRequest = UserInfoPortfolioAllocation[];
-
-export type PatchLifestyleRequest = UserInfoLifestyleProfile;
-export type CreateLifestyleRequest = UserInfoLifestyleProfile;
-
-export interface PatchLifestyleResponse {
-  lifestyleProfile: UserInfoLifestyleProfile;
-  estimatedLifeExpectancy: number;
+export interface GetStagesResponse {
+  stages?: UserInfoStageData[] | null;
+  stageData?: UserInfoStageData[] | null;
 }
 
 export type PatchStagesRequest = UserInfoStageData[];
@@ -96,6 +87,13 @@ export type PatchAssetsRequest = PatchAssetsRequestItem[];
 export interface CreateAssetsRequest {
   assetData: UserInfoAssetData[];
 }
+
+export type GetAssetsResponse =
+  | UserInfoAssetResponse[]
+  | {
+      assets?: UserInfoAssetResponse[] | null;
+      assetData?: UserInfoAssetResponse[] | null;
+    };
 
 export type CreateAssetsResponse = Array<{
   uid: string;

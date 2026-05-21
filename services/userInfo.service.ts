@@ -2,79 +2,110 @@ import { userInfoApi } from "@/api/userInfo.api";
 import type {
   CreateAssetsRequest,
   CreateAssetsResponse,
-  CreateLifestyleRequest,
-  CreatePortfolioRequest,
+  CreateFinancialRequest,
   CreateStagesRequest,
-  CreateUserInfoRequest,
-  GetUserInfoResponse,
+  GetAssetsResponse,
+  GetFinancialResponse,
+  GetStagesResponse,
   PatchAssetsRequest,
-  PatchBasicRequest,
-  PatchLifestyleRequest,
-  PatchLifestyleResponse,
-  PatchPortfolioRequest,
+  PatchFinancialRequest,
   PatchStagesRequest,
+  UserInfoAssetResponse,
+  UserInfoFinancialResource,
+  UserInfoStageData,
 } from "@/types/userInfo";
 
-const USER_INFO_NOT_FOUND_MESSAGE = "User info not found";
+const USER_INFO_NOT_FOUND_MESSAGE = "user info not found";
+
+function isNotFoundResponse(message?: string | null, error?: string | null): boolean {
+  return [message, error].some((value) =>
+    value?.toLowerCase().includes(USER_INFO_NOT_FOUND_MESSAGE),
+  );
+}
+
+function isGetFinancialResponse(
+  data: GetFinancialResponse | UserInfoFinancialResource,
+): data is GetFinancialResponse {
+  return Object.prototype.hasOwnProperty.call(data, "financial");
+}
+
+function normalizeFinancialResponse(
+  data: GetFinancialResponse | UserInfoFinancialResource | null | undefined,
+): UserInfoFinancialResource | null {
+  if (!data) {
+    return null;
+  }
+
+  if (isGetFinancialResponse(data)) {
+    return data.financial ?? null;
+  }
+
+  return data;
+}
+
+function normalizeStagesResponse(
+  data: GetStagesResponse | CreateStagesRequest | null | undefined,
+): UserInfoStageData[] {
+  if (!data) {
+    return [];
+  }
+
+  if (Array.isArray(data)) {
+    return data;
+  }
+
+  return data.stages ?? data.stageData ?? [];
+}
+
+function normalizeAssetsResponse(
+  data: GetAssetsResponse | null | undefined,
+): UserInfoAssetResponse[] {
+  if (!data) {
+    return [];
+  }
+
+  if (Array.isArray(data)) {
+    return data;
+  }
+
+  return data.assets ?? data.assetData ?? [];
+}
 
 export const userInfoService = {
-  async createUserInfo(payload: CreateUserInfoRequest): Promise<void> {
-    const res = await userInfoApi.createUserInfo(payload);
-    if (!res.success) {
-      throw new Error(res.error ?? "Unable to create user profile");
-    }
-  },
-
-  async getUserInfo(): Promise<GetUserInfoResponse | null> {
-    const res = await userInfoApi.getUserInfo();
-    if (!res.success && res.message === USER_INFO_NOT_FOUND_MESSAGE) {
+  async getFinancial(): Promise<UserInfoFinancialResource | null> {
+    const res = await userInfoApi.getFinancial();
+    if (isNotFoundResponse(res.message, res.error)) {
       return null;
     }
-    if (!res.success || !res.data?.userInfo) {
-      throw new Error(res.error ?? "Unable to load user profile");
-    }
-    return res.data;
-  },
-
-  async patchBasic(payload: PatchBasicRequest): Promise<void> {
-    const res = await userInfoApi.patchBasic(payload);
     if (!res.success) {
-      throw new Error(res.error ?? "Unable to update financial profile");
+      throw new Error(res.error ?? "Unable to load financial information");
     }
+    return normalizeFinancialResponse(res.data);
   },
 
-  async patchPortfolio(payload: PatchPortfolioRequest): Promise<void> {
-    const res = await userInfoApi.patchPortfolio(payload);
+  async createFinancial(payload: CreateFinancialRequest): Promise<void> {
+    const res = await userInfoApi.createFinancial(payload);
     if (!res.success) {
-      throw new Error(res.error ?? "Unable to update asset allocation");
+      throw new Error(res.error ?? "Unable to create financial information");
     }
   },
 
-  async createPortfolio(payload: CreatePortfolioRequest): Promise<void> {
-    const res = await userInfoApi.createPortfolio(payload);
+  async patchFinancial(payload: PatchFinancialRequest): Promise<void> {
+    const res = await userInfoApi.patchFinancial(payload);
     if (!res.success) {
-      throw new Error(res.error ?? "Unable to create asset allocation");
+      throw new Error(res.error ?? "Unable to update financial information");
     }
   },
 
-  async patchLifestyle(
-    payload: PatchLifestyleRequest,
-  ): Promise<PatchLifestyleResponse> {
-    const res = await userInfoApi.patchLifestyle(payload);
-    if (!res.success || !res.data) {
-      throw new Error(res.error ?? "Unable to update lifestyle profile");
+  async getStages(): Promise<UserInfoStageData[]> {
+    const res = await userInfoApi.getStages();
+    if (isNotFoundResponse(res.message, res.error)) {
+      return [];
     }
-    return res.data;
-  },
-
-  async createLifestyle(
-    payload: CreateLifestyleRequest,
-  ): Promise<PatchLifestyleResponse | null> {
-    const res = await userInfoApi.createLifestyle(payload);
     if (!res.success) {
-      throw new Error(res.error ?? "Unable to create lifestyle profile");
+      throw new Error(res.error ?? "Unable to load stages");
     }
-    return res.data ?? null;
+    return normalizeStagesResponse(res.data);
   },
 
   async patchStages(payload: PatchStagesRequest): Promise<void> {
@@ -91,12 +122,23 @@ export const userInfoService = {
     }
   },
 
+  async getAssets(): Promise<UserInfoAssetResponse[]> {
+    const res = await userInfoApi.getAssets();
+    if (isNotFoundResponse(res.message, res.error)) {
+      return [];
+    }
+    if (!res.success) {
+      throw new Error(res.error ?? "Unable to load assets");
+    }
+    return normalizeAssetsResponse(res.data);
+  },
+
   async createAssets(payload: CreateAssetsRequest): Promise<CreateAssetsResponse> {
     const res = await userInfoApi.createAssets(payload);
-    if (!res.success || !res.data) {
+    if (!res.success) {
       throw new Error(res.error ?? "Unable to create assets");
     }
-    return res.data;
+    return res.data ?? [];
   },
 
   async patchAssets(payload: PatchAssetsRequest): Promise<void> {

@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import {
   useMutation,
-  useQuery,
+  useQueries,
   useQueryClient,
 } from "@tanstack/react-query";
 import Button from "@/components/common/Button";
@@ -15,16 +15,15 @@ import StageEditorCard, {
 import FinancialForm from "@/components/account/forms/FinancialForm";
 import { useFinancialPlanningReferences, useLifeStageRangesQuery } from "@/hooks";
 import { userInfoService } from "@/services/userInfo.service";
+import type { UserInfoFinancialResource } from "@/types/userInfo";
 import type { SelectOption } from "@/utils/referenceOptions";
 import {
   buildAccountStagesFromRanges,
   buildCreateAssetsRequest,
+  buildFinancialRequestFromFinancialData,
   buildPatchAssetsRequest,
-  buildPatchBasicRequest,
-  buildPatchLifestyleRequest,
-  buildPatchPortfolioRequest,
-  buildPatchStagesRequest,
-  mapUserInfoToFinancialData,
+  buildStagesRequest,
+  mapUserInfoResourcesToFinancialData,
 } from "@/utils/userInfoMappers";
 import type { Asset, FinancialData, Habits, Stage } from "@/utils/types";
 import { loadOnboardingState } from "@/utils/onboardingStorage";
@@ -98,14 +97,6 @@ function areValuesEqual<T>(left: T, right: T): boolean {
   return JSON.stringify(left) === JSON.stringify(right);
 }
 
-function hasLifestyleValues(habits: Habits | undefined): boolean {
-  if (!habits) {
-    return false;
-  }
-
-  return Object.values(habits).some(Boolean);
-}
-
 function areStagesMeaningfullyEqual(left: Stage[], right: Stage[]): boolean {
   return JSON.stringify(
     left.map((stage) => ({
@@ -121,6 +112,28 @@ function areStagesMeaningfullyEqual(left: Stage[], right: Stage[]): boolean {
         growthRate: stage.growthRate,
       })),
     );
+}
+
+function hasFinancialResourceData(
+  financial: UserInfoFinancialResource | null | undefined,
+): boolean {
+  if (!financial) {
+    return false;
+  }
+
+  const hasFinancialProfile =
+    financial.financialProfile != null &&
+    (financial.financialProfile.currentSavings != null ||
+      financial.financialProfile.desiredLifeExpectancy != null ||
+      Boolean(financial.financialProfile.currencyCode));
+
+  const hasPortfolioAllocations = (financial.portfolioAllocations?.length ?? 0) > 0;
+
+  const hasLifestyleProfile =
+    financial.lifestyleProfile != null &&
+    Object.values(financial.lifestyleProfile).some(Boolean);
+
+  return hasFinancialProfile || hasPortfolioAllocations || hasLifestyleProfile;
 }
 
 function getChangedPersistedAssets(
@@ -194,26 +207,29 @@ export default function FinancialSection() {
   const [assetsDraft, setAssetsDraft] = useState<Asset[] | null>(null);
   const [sectionError, setSectionError] = useState<string | null>(null);
 
-  const userInfoQuery = useQuery({
-    queryKey: ["user-info"],
-    queryFn: () => userInfoService.getUserInfo(),
+  const [financialQuery, stagesQuery, assetsQuery] = useQueries({
+    queries: [
+      {
+        queryKey: ["user-info", "financial"],
+        queryFn: () => userInfoService.getFinancial(),
+      },
+      {
+        queryKey: ["user-info", "stages"],
+        queryFn: () => userInfoService.getStages(),
+      },
+      {
+        queryKey: ["user-info", "assets"],
+        queryFn: () => userInfoService.getAssets(),
+      },
+    ],
   });
   const lifeStageRangesQuery = useLifeStageRangesQuery(registrationBirthYear);
 
-  const patchBasicMutation = useMutation({
-    mutationFn: userInfoService.patchBasic,
+  const createFinancialMutation = useMutation({
+    mutationFn: userInfoService.createFinancial,
   });
-  const createPortfolioMutation = useMutation({
-    mutationFn: userInfoService.createPortfolio,
-  });
-  const patchPortfolioMutation = useMutation({
-    mutationFn: userInfoService.patchPortfolio,
-  });
-  const createLifestyleMutation = useMutation({
-    mutationFn: userInfoService.createLifestyle,
-  });
-  const patchLifestyleMutation = useMutation({
-    mutationFn: userInfoService.patchLifestyle,
+  const patchFinancialMutation = useMutation({
+    mutationFn: userInfoService.patchFinancial,
   });
   const createStagesMutation = useMutation({
     mutationFn: userInfoService.createStages,
@@ -231,25 +247,38 @@ export default function FinancialSection() {
     mutationFn: userInfoService.deleteAsset,
   });
 
-  const baseFinancialData = useMemo(() => {
-    if (!userInfoQuery.data) {
-      return EMPTY_FINANCIAL_DATA;
-    }
+  const baseFinancialData = useMemo(
+    () =>
+      mapUserInfoResourcesToFinancialData({
+        financial: financialQuery.data,
+        stages: stagesQuery.data,
+        assets: assetsQuery.data,
+      }),
+    [assetsQuery.data, financialQuery.data, stagesQuery.data],
+  );
 
-    return mapUserInfoToFinancialData(userInfoQuery.data);
-  }, [userInfoQuery.data]);
+  const safeBaseFinancialData =
+    baseFinancialData.stages.length === 0 &&
+    baseFinancialData.assets.length === 0 &&
+    !baseFinancialData.savings &&
+    !baseFinancialData.currency &&
+    !baseFinancialData.desiredLE &&
+    !baseFinancialData.estimatedLE
+      ? EMPTY_FINANCIAL_DATA
+      : baseFinancialData;
 
   const currentProfile = profileDraft ?? {
-    estimatedLE: baseFinancialData.estimatedLE,
-    savings: baseFinancialData.savings,
-    currency: baseFinancialData.currency,
-    desiredLE: baseFinancialData.desiredLE,
+    estimatedLE: safeBaseFinancialData.estimatedLE,
+    savings: safeBaseFinancialData.savings,
+    currency: safeBaseFinancialData.currency,
+    desiredLE: safeBaseFinancialData.desiredLE,
   };
-  const currentAllocation = allocationDraft ?? baseFinancialData.allocation;
-  const currentHabits = habitsDraft ?? baseFinancialData.habits;
+  const currentAllocation =
+    allocationDraft ?? safeBaseFinancialData.allocation;
+  const currentHabits = habitsDraft ?? safeBaseFinancialData.habits;
   const currentStages = useMemo(() => {
-    const sourceStages = stagesDraft ?? baseFinancialData.stages;
-    const stageCurrency = currentProfile.currency || baseFinancialData.currency;
+    const sourceStages = stagesDraft ?? safeBaseFinancialData.stages;
+    const stageCurrency = currentProfile.currency || safeBaseFinancialData.currency;
 
     if (!lifeStageRangesQuery.data?.length) {
       return sourceStages.map((stage) => ({
@@ -264,35 +293,21 @@ export default function FinancialSection() {
       stageCurrency,
     );
   }, [
-    baseFinancialData.currency,
-    baseFinancialData.stages,
     currentProfile.currency,
     lifeStageRangesQuery.data,
+    safeBaseFinancialData.currency,
+    safeBaseFinancialData.stages,
     stagesDraft,
   ]);
-  const currentAssets = assetsDraft ?? baseFinancialData.assets;
-  const portfolioAllocations = userInfoQuery.data?.userInfo?.portfolioAllocations ?? [];
-  const hasPersistedPortfolio = portfolioAllocations.length > 0;
-  const hasPersistedHabits = hasLifestyleValues(
-    userInfoQuery.data?.userInfo?.lifestyleProfile
-      ? {
-          smoking: userInfoQuery.data.userInfo.lifestyleProfile.smokingCode,
-          physical: userInfoQuery.data.userInfo.lifestyleProfile.physicalActivityCode,
-          diet: userInfoQuery.data.userInfo.lifestyleProfile.dietQualityCode,
-          alcohol:
-            userInfoQuery.data.userInfo.lifestyleProfile.alcoholConsumptionCode,
-        }
-      : undefined,
-  );
-  const hasPersistedStages =
-    (userInfoQuery.data?.userInfo?.stageData?.length ?? 0) > 0;
+  const currentAssets = assetsDraft ?? safeBaseFinancialData.assets;
 
-  const isLoading = userInfoQuery.isLoading;
-  const isSavingProfile = patchBasicMutation.isPending;
-  const isSavingAllocation =
-    patchPortfolioMutation.isPending || createPortfolioMutation.isPending;
-  const isSavingHabits =
-    patchLifestyleMutation.isPending || createLifestyleMutation.isPending;
+  const hasPersistedFinancial = hasFinancialResourceData(financialQuery.data);
+  const hasPersistedStages = (stagesQuery.data?.length ?? 0) > 0;
+
+  const isLoading =
+    financialQuery.isLoading || stagesQuery.isLoading || assetsQuery.isLoading;
+  const isSavingFinancial =
+    createFinancialMutation.isPending || patchFinancialMutation.isPending;
   const isSavingStages =
     patchStagesMutation.isPending || createStagesMutation.isPending;
   const isSavingAssets =
@@ -301,53 +316,51 @@ export default function FinancialSection() {
     deleteAssetMutation.isPending;
   const pageError =
     sectionError ??
-    (userInfoQuery.error instanceof Error ? userInfoQuery.error.message : null) ??
+    (financialQuery.error instanceof Error ? financialQuery.error.message : null) ??
+    (stagesQuery.error instanceof Error ? stagesQuery.error.message : null) ??
+    (assetsQuery.error instanceof Error ? assetsQuery.error.message : null) ??
     references.error ??
     (lifeStageRangesQuery.error instanceof Error
       ? lifeStageRangesQuery.error.message
       : null);
 
-  const canSaveProfile =
+  const hasFinancialChanges =
+    !areValuesEqual(currentProfile, {
+      estimatedLE: safeBaseFinancialData.estimatedLE,
+      savings: safeBaseFinancialData.savings,
+      currency: safeBaseFinancialData.currency,
+      desiredLE: safeBaseFinancialData.desiredLE,
+    }) ||
+    !areValuesEqual(currentAllocation, safeBaseFinancialData.allocation) ||
+    !areValuesEqual(currentHabits, safeBaseFinancialData.habits);
+
+  const canSaveFinancial =
     Boolean(
       currentProfile.savings &&
         currentProfile.currency &&
-        currentProfile.desiredLE,
+        currentProfile.desiredLE &&
+        (["before", "after"] as const).every((period) =>
+          (["u", "mu", "rf"] as const).every((key) =>
+            Boolean(currentAllocation[period][key]),
+          ),
+        ),
     ) &&
-    !areValuesEqual(currentProfile, {
-      estimatedLE: baseFinancialData.estimatedLE,
-      savings: baseFinancialData.savings,
-      currency: baseFinancialData.currency,
-      desiredLE: baseFinancialData.desiredLE,
-    }) &&
-    !isSavingProfile &&
-    !references.isLoading;
-
-  const canSaveAllocation =
-    (["before", "after"] as const).every((period) =>
-      (["u", "mu", "rf"] as const).every((key) =>
-        Boolean(currentAllocation[period][key]),
-      ),
-    ) &&
-    !areValuesEqual(currentAllocation, baseFinancialData.allocation) &&
-    !isSavingAllocation;
-
-  const canSaveHabits =
     (Object.keys(currentHabits) as Array<keyof Habits>).every((key) =>
       Boolean(currentHabits[key]),
     ) &&
-    !areValuesEqual(currentHabits, baseFinancialData.habits) &&
-    !isSavingHabits &&
+    hasFinancialChanges &&
+    !isSavingFinancial &&
     !references.isLoading;
 
   const newAssets = currentAssets.filter((asset) => !asset.uid);
   const changedPersistedAssets = getChangedPersistedAssets(
     currentAssets,
-    baseFinancialData.assets,
+    safeBaseFinancialData.assets,
   );
   const canSaveStages =
     currentStages.length > 0 &&
     currentStages.every(isStageComplete) &&
-    !areStagesMeaningfullyEqual(currentStages, baseFinancialData.stages) &&
+    !areStagesMeaningfullyEqual(currentStages, safeBaseFinancialData.stages) &&
     !isSavingStages;
   const canSaveAssets =
     currentAssets.every(isAssetComplete) &&
@@ -356,63 +369,35 @@ export default function FinancialSection() {
     !references.isLoading;
 
   async function refreshUserInfoData() {
-    await queryClient.invalidateQueries({ queryKey: ["user-info"] });
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["user-info", "financial"] }),
+      queryClient.invalidateQueries({ queryKey: ["user-info", "stages"] }),
+      queryClient.invalidateQueries({ queryKey: ["user-info", "assets"] }),
+    ]);
   }
 
-  async function handleSaveProfile() {
+  async function handleSaveFinancial() {
     setSectionError(null);
     try {
-      await patchBasicMutation.mutateAsync(
-        buildPatchBasicRequest(currentProfile),
+      const payload = buildFinancialRequestFromFinancialData(
+        currentProfile,
+        currentAllocation,
+        currentHabits,
       );
-      setProfileDraft(null);
-      await refreshUserInfoData();
-    } catch (error) {
-      setSectionError(
-        error instanceof Error
-          ? error.message
-          : "Unable to update financial profile.",
-      );
-    }
-  }
-
-  async function handleSaveAllocations() {
-    setSectionError(null);
-    try {
-      const payload = buildPatchPortfolioRequest(currentAllocation);
-      if (hasPersistedPortfolio) {
-        await patchPortfolioMutation.mutateAsync(payload);
+      if (hasPersistedFinancial) {
+        await patchFinancialMutation.mutateAsync(payload);
       } else {
-        await createPortfolioMutation.mutateAsync(payload);
+        await createFinancialMutation.mutateAsync(payload);
       }
+      setProfileDraft(null);
       setAllocationDraft(null);
-      await refreshUserInfoData();
-    } catch (error) {
-      setSectionError(
-        error instanceof Error
-          ? error.message
-          : "Unable to update asset allocation.",
-      );
-    }
-  }
-
-  async function handleSaveHabits() {
-    setSectionError(null);
-    try {
-      const payload = buildPatchLifestyleRequest(currentHabits);
-      if (hasPersistedHabits) {
-        await patchLifestyleMutation.mutateAsync(payload);
-      } else {
-        await createLifestyleMutation.mutateAsync(payload);
-      }
-      setProfileDraft(null);
       setHabitsDraft(null);
       await refreshUserInfoData();
     } catch (error) {
       setSectionError(
         error instanceof Error
           ? error.message
-          : "Unable to update lifestyle profile.",
+          : "Unable to update financial information.",
       );
     }
   }
@@ -420,7 +405,7 @@ export default function FinancialSection() {
   async function handleSaveStages() {
     setSectionError(null);
     try {
-      const payload = buildPatchStagesRequest(currentStages);
+      const payload = buildStagesRequest(currentStages);
       if (hasPersistedStages) {
         await patchStagesMutation.mutateAsync(payload);
       } else {
@@ -464,7 +449,7 @@ export default function FinancialSection() {
 
     if (!asset.uid) {
       setAssetsDraft((prev) => {
-        const sourceAssets = prev ?? baseFinancialData.assets;
+        const sourceAssets = prev ?? safeBaseFinancialData.assets;
         return sourceAssets.filter((_, currentIndex) => currentIndex !== index);
       });
       return;
@@ -514,50 +499,55 @@ export default function FinancialSection() {
       ) : null}
 
       <div className="mt-6 space-y-6">
-        <FinancialForm
-          profile={currentProfile}
-          allocation={currentAllocation}
-          habits={currentHabits}
-          currencyOptions={references.currencyOptions}
-          habitOptions={{
-            smoking: references.smokingOptions,
-            physical: references.physicalActivityOptions,
-            diet: references.dietQualityOptions,
-            alcohol: references.alcoholConsumptionOptions,
-          }}
-          onProfileChange={(field, value) => {
-            setProfileDraft((prev) => ({
-              ...(prev ?? {
-                estimatedLE: baseFinancialData.estimatedLE,
-                savings: baseFinancialData.savings,
-                currency: baseFinancialData.currency,
-                desiredLE: baseFinancialData.desiredLE,
-              }),
-              [field]: value,
-            }));
-          }}
-          onAllocationChange={(period, key, value) => {
-            setAllocationDraft((prev) => ({
-              ...(prev ?? baseFinancialData.allocation),
-              [period]: {
-                ...(prev ?? baseFinancialData.allocation)[period],
+        <div className="space-y-4">
+          <FinancialForm
+            profile={currentProfile}
+            allocation={currentAllocation}
+            habits={currentHabits}
+            currencyOptions={references.currencyOptions}
+            habitOptions={{
+              smoking: references.smokingOptions,
+              physical: references.physicalActivityOptions,
+              diet: references.dietQualityOptions,
+              alcohol: references.alcoholConsumptionOptions,
+            }}
+            onProfileChange={(field, value) => {
+              setProfileDraft((prev) => ({
+                ...(prev ?? {
+                  estimatedLE: safeBaseFinancialData.estimatedLE,
+                  savings: safeBaseFinancialData.savings,
+                  currency: safeBaseFinancialData.currency,
+                  desiredLE: safeBaseFinancialData.desiredLE,
+                }),
+                [field]: value,
+              }));
+            }}
+            onAllocationChange={(period, key, value) => {
+              setAllocationDraft((prev) => ({
+                ...(prev ?? safeBaseFinancialData.allocation),
+                [period]: {
+                  ...(prev ?? safeBaseFinancialData.allocation)[period],
+                  [key]: value,
+                },
+              }));
+            }}
+            onHabitChange={(key, value) => {
+              setHabitsDraft((prev) => ({
+                ...(prev ?? safeBaseFinancialData.habits),
                 [key]: value,
-              },
-            }));
-          }}
-          onHabitChange={(key, value) => {
-            setHabitsDraft((prev) => ({
-              ...(prev ?? baseFinancialData.habits),
-              [key]: value,
-            }));
-          }}
-          onSaveProfile={handleSaveProfile}
-          onSaveAllocations={handleSaveAllocations}
-          onSaveHabits={handleSaveHabits}
-          canSaveProfile={canSaveProfile}
-          canSaveAllocations={canSaveAllocation}
-          canSaveHabits={canSaveHabits}
-        />
+              }));
+            }}
+          />
+          <div className="flex justify-end">
+            <Button
+              size="sm"
+              onClick={handleSaveFinancial}
+              disabled={!canSaveFinancial}
+            >
+              {isSavingFinancial ? "Saving..." : "Save changes"}
+            </Button>
+          </div>
+        </div>
 
         <div className="rounded-xl border border-border bg-slate-50 p-4">
           <h3 className="text-base font-semibold text-slate-900">Life Stages</h3>
@@ -605,19 +595,22 @@ export default function FinancialSection() {
         <div className="rounded-xl border border-border bg-slate-50 p-4">
           <h3 className="text-base font-semibold text-slate-900">Assets</h3>
           <p className="mt-1 text-xs italic text-slate-600">
-            Add additional income-generating assets such as rental properties, pensions, or investments.
+            Add additional income-generating assets such as rental properties,
+            pensions, or investments.
           </p>
           <div className="mt-4 flex items-center justify-between">
             <button
               type="button"
               onClick={() =>
                 setAssetsDraft((prev) => [
-                  ...(prev ?? baseFinancialData.assets),
+                  ...(prev ?? safeBaseFinancialData.assets),
                   createEmptyAsset(),
                 ])
               }
               className="text-sm font-semibold text-primary disabled:cursor-not-allowed disabled:text-slate-400"
-              disabled={references.isLoading || references.assetTypeOptions.length === 0}
+              disabled={
+                references.isLoading || references.assetTypeOptions.length === 0
+              }
             >
               + Add asset
             </button>
@@ -637,7 +630,7 @@ export default function FinancialSection() {
                   )}
                   onChange={(next) =>
                     setAssetsDraft((prev) => {
-                      const sourceAssets = prev ?? baseFinancialData.assets;
+                      const sourceAssets = prev ?? safeBaseFinancialData.assets;
                       return sourceAssets.map((currentAsset, currentIndex) =>
                         currentIndex === index ? next : currentAsset,
                       );

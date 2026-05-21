@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation";
 import AccountContent from "@/components/account/AccountContent";
 import AccountSidebar from "@/components/account/AccountSidebar";
 import { authService } from "@/services/auth.service";
-import { tokenService } from "@/services/token.service";
-import { useAuthStore } from "@/store/auth.store";
 import type { AccountTab } from "@/utils/types";
 
 export default function AccountLayout() {
@@ -23,8 +21,6 @@ export default function AccountLayout() {
     try {
       await authService.logout();
     } catch {
-      tokenService.clear();
-      useAuthStore.getState().clearUser();
     } finally {
       setIsLoggingOut(false);
       startTransition(() => {

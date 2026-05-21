@@ -16,6 +16,7 @@ interface Step2PersonalFormProps {
   error: string;
   referenceError?: string | null;
   isReferenceLoading: boolean;
+  isSubmitting: boolean;
   onBack?: () => void;
   onNext: () => void;
   onChange: (next: Step2PersonalData) => void;
@@ -39,15 +40,23 @@ export default function Step2PersonalForm({
   error,
   referenceError,
   isReferenceLoading,
+  isSubmitting,
   onBack,
   onNext,
   onChange,
 }: Step2PersonalFormProps) {
-  function updateRoot<K extends keyof Step2PersonalData>(key: K, value: Step2PersonalData[K]) {
+  function updateRoot<K extends keyof Step2PersonalData>(
+    key: K,
+    value: Step2PersonalData[K],
+  ) {
     onChange({ ...data, [key]: value });
   }
 
-  function updateAllocation(section: "beforeFfp" | "afterFfp", key: "u" | "mu" | "rf", value: string) {
+  function updateAllocation(
+    section: "beforeFfp" | "afterFfp",
+    key: "u" | "mu" | "rf",
+    value: string,
+  ) {
     onChange({
       ...data,
       [section]: {
@@ -69,7 +78,9 @@ export default function Step2PersonalForm({
 
   return (
     <div className="mt-8">
-      <h2 className="text-center text-3xl font-bold text-primary">Financial Information</h2>
+      <h2 className="text-center text-3xl font-bold text-primary">
+        Financial Information
+      </h2>
       <div className="mx-auto mt-8 max-w-4xl space-y-7">
         <FinancialProfileFields
           profile={{
@@ -82,7 +93,9 @@ export default function Step2PersonalForm({
             before: data.beforeFfp,
             after: data.afterFfp,
           }}
-          habits={(Object.keys(data.habits) as Array<keyof Step2PersonalData["habits"]>).map((habit) => ({
+          habits={(
+            Object.keys(data.habits) as Array<keyof Step2PersonalData["habits"]>
+          ).map((habit) => ({
             key: habit,
             label: HABIT_LABELS[habit],
             value: data.habits[habit],
@@ -122,22 +135,37 @@ export default function Step2PersonalForm({
         />
       </div>
       {isReferenceLoading ? (
-        <p className="mt-4 text-center text-sm text-muted-foreground">Loading onboarding references...</p>
+        <p className="mt-4 text-center text-sm text-muted-foreground">
+          Loading onboarding references...
+        </p>
       ) : null}
-      {referenceError ? <p className="mt-4 text-center text-sm font-semibold text-red-600">{referenceError}</p> : null}
-      {error ? <p className="mt-4 text-center text-sm font-semibold text-red-600">{error}</p> : null}
+      {referenceError ? (
+        <p className="mt-4 text-center text-sm font-semibold text-red-600">
+          {referenceError}
+        </p>
+      ) : null}
+      {error ? (
+        <p className="mt-4 text-center text-sm font-semibold text-red-600">
+          {error}
+        </p>
+      ) : null}
       <div className="mx-auto mt-8 flex max-w-4xl gap-3">
         {onBack ? (
-          <Button variant="outline" className="h-12 flex-1 rounded-full text-base" onClick={onBack}>
+          <Button
+            variant="outline"
+            className="h-12 flex-1 rounded-full text-base"
+            onClick={onBack}
+            disabled={isSubmitting}
+          >
             Back
           </Button>
-          ) : null}
+        ) : null}
         <Button
           className="h-12 flex-1 rounded-full text-base"
           onClick={onNext}
-          disabled={isReferenceLoading || Boolean(referenceError)}
+          disabled={isSubmitting || isReferenceLoading || Boolean(referenceError)}
         >
-          Next
+          {isSubmitting ? "Saving..." : "Next"}
         </Button>
       </div>
     </div>

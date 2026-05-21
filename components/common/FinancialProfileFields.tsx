@@ -1,6 +1,5 @@
 "use client";
 
-import Button from "@/components/common/Button";
 import FormField from "@/components/common/FormField";
 import type { SelectOption } from "@/utils/referenceOptions";
 
@@ -31,7 +30,11 @@ interface FinancialProfileFieldsProps<HabitKey extends string> {
   allocations: Record<AllocationPeriod, AllocationValues>;
   habits: HabitField<HabitKey>[];
   onRootChange: (field: RootFieldKey, value: string) => void;
-  onAllocationChange: (period: AllocationPeriod, key: AllocationKey, value: string) => void;
+  onAllocationChange: (
+    period: AllocationPeriod,
+    key: AllocationKey,
+    value: string,
+  ) => void;
   onHabitChange: (key: HabitKey, value: string) => void;
   idPrefix?: string;
   cardClassName?: string;
@@ -41,15 +44,7 @@ interface FinancialProfileFieldsProps<HabitKey extends string> {
   currentSavingsPlaceholder?: string;
   currencyOptions?: SelectOption[];
   disabledRootFields?: Partial<Record<RootFieldKey, boolean>>;
-  onSaveProfile?: () => void;
-  onSaveAllocations?: () => void;
-  onSaveHabits?: () => void;
-  canSaveProfile?: boolean;
-  canSaveAllocations?: boolean;
-  canSaveHabits?: boolean;
 }
-
-const SAVE_ACTIONS_CLASS_NAME = "mt-6 flex justify-end";
 
 const ROOT_FIELD_LABELS: Record<RootFieldKey, string> = {
   estimatedLifeExpectancy: "Estimated Life Expectancy",
@@ -58,13 +53,20 @@ const ROOT_FIELD_LABELS: Record<RootFieldKey, string> = {
   preferredCurrency: "Currency",
 };
 
-const ALLOCATION_LABELS: Record<AllocationKey, { description: string; symbol: string }> = {
+const ALLOCATION_LABELS: Record<
+  AllocationKey,
+  { description: string; symbol: string }
+> = {
   u: { description: "Proportion of risky asset", symbol: "u" },
   mu: { description: "Expected annual return rate of risky asset", symbol: "μ" },
   rf: { description: "Risk-free annual return rate", symbol: "r_f" },
 };
 
-const ALLOCATION_PERIODS: Array<{ key: AllocationPeriod; label: string; hint: string }> = [
+const ALLOCATION_PERIODS: Array<{
+  key: AllocationPeriod;
+  label: string;
+  hint: string;
+}> = [
   {
     key: "before",
     label: "Before FFP",
@@ -92,12 +94,6 @@ export default function FinancialProfileFields<HabitKey extends string>({
   currentSavingsPlaceholder = "100000",
   currencyOptions = [],
   disabledRootFields,
-  onSaveProfile,
-  onSaveAllocations,
-  onSaveHabits,
-  canSaveProfile = true,
-  canSaveAllocations = true,
-  canSaveHabits = true,
 }: FinancialProfileFieldsProps<HabitKey>) {
   const labels = { ...ROOT_FIELD_LABELS, ...fieldLabels };
 
@@ -115,7 +111,8 @@ export default function FinancialProfileFields<HabitKey extends string>({
             placeholder="90"
             inputProps={{
               value: profile.estimatedLifeExpectancy,
-              onChange: (event) => onRootChange("estimatedLifeExpectancy", event.target.value),
+              onChange: (event) =>
+                onRootChange("estimatedLifeExpectancy", event.target.value),
               autoComplete: "off",
               disabled: disabledRootFields?.estimatedLifeExpectancy,
             }}
@@ -129,7 +126,8 @@ export default function FinancialProfileFields<HabitKey extends string>({
             placeholder="90"
             inputProps={{
               value: profile.desiredLifeExpectancy,
-              onChange: (event) => onRootChange("desiredLifeExpectancy", event.target.value),
+              onChange: (event) =>
+                onRootChange("desiredLifeExpectancy", event.target.value),
               autoComplete: "off",
               disabled: disabledRootFields?.desiredLifeExpectancy,
             }}
@@ -142,7 +140,8 @@ export default function FinancialProfileFields<HabitKey extends string>({
             placeholder={currentSavingsPlaceholder}
             inputProps={{
               value: profile.currentSavings,
-              onChange: (event) => onRootChange("currentSavings", event.target.value),
+              onChange: (event) =>
+                onRootChange("currentSavings", event.target.value),
               autoComplete: "off",
               disabled: disabledRootFields?.currentSavings,
             }}
@@ -158,13 +157,6 @@ export default function FinancialProfileFields<HabitKey extends string>({
             options={currencyOptions}
           />
         </div>
-        {onSaveProfile ? (
-          <div className={SAVE_ACTIONS_CLASS_NAME}>
-            <Button size="sm" onClick={onSaveProfile} disabled={!canSaveProfile}>
-              Save changes
-            </Button>
-          </div>
-        ) : null}
       </div>
 
       <div className={cardClassName}>
@@ -172,14 +164,23 @@ export default function FinancialProfileFields<HabitKey extends string>({
         <div className="mt-4 space-y-6">
           {ALLOCATION_PERIODS.map((period) => (
             <div key={period.key}>
-              <p className="text-sm font-semibold text-slate-700">{period.label}</p>
+              <p className="text-sm font-semibold text-slate-700">
+                {period.label}
+              </p>
               <p className={hintClassName}>{period.hint}</p>
               <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-3">
                 {(["u", "mu", "rf"] as const).map((key) => (
-                  <div key={`${period.key}_${key}`} className="grid h-full grid-rows-[1fr_auto] gap-2">
+                  <div
+                    key={`${period.key}_${key}`}
+                    className="grid h-full grid-rows-[1fr_auto] gap-2"
+                  >
                     <div>
-                      <p className="text-sm text-slate-700">{ALLOCATION_LABELS[key].description}</p>
-                      <p className="text-xs italic text-slate-500">{ALLOCATION_LABELS[key].symbol}</p>
+                      <p className="text-sm text-slate-700">
+                        {ALLOCATION_LABELS[key].description}
+                      </p>
+                      <p className="text-xs italic text-slate-500">
+                        {ALLOCATION_LABELS[key].symbol}
+                      </p>
                     </div>
                     <FormField
                       label=""
@@ -191,7 +192,8 @@ export default function FinancialProfileFields<HabitKey extends string>({
                       inputProps={{
                         "aria-label": `${period.label} ${ALLOCATION_LABELS[key].description} (${ALLOCATION_LABELS[key].symbol})`,
                         value: allocations[period.key][key],
-                        onChange: (event) => onAllocationChange(period.key, key, event.target.value),
+                        onChange: (event) =>
+                          onAllocationChange(period.key, key, event.target.value),
                         autoComplete: "off",
                       }}
                     />
@@ -201,13 +203,6 @@ export default function FinancialProfileFields<HabitKey extends string>({
             </div>
           ))}
         </div>
-        {onSaveAllocations ? (
-          <div className={SAVE_ACTIONS_CLASS_NAME}>
-            <Button size="sm" onClick={onSaveAllocations} disabled={!canSaveAllocations}>
-              Save changes
-            </Button>
-          </div>
-        ) : null}
       </div>
 
       <div className={cardClassName}>
@@ -228,13 +223,6 @@ export default function FinancialProfileFields<HabitKey extends string>({
             />
           ))}
         </div>
-        {onSaveHabits ? (
-          <div className={SAVE_ACTIONS_CLASS_NAME}>
-            <Button size="sm" onClick={onSaveHabits} disabled={!canSaveHabits}>
-              Save changes
-            </Button>
-          </div>
-        ) : null}
       </div>
     </div>
   );

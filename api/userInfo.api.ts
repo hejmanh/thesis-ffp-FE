@@ -4,54 +4,43 @@ import { API_ENDPOINTS } from "@/api/endpoints";
 import type {
   CreateAssetsRequest,
   CreateAssetsResponse,
-  CreateLifestyleRequest,
-  CreatePortfolioRequest,
+  CreateFinancialRequest,
+  CreateFinancialResponse,
   CreateStagesRequest,
-  CreateUserInfoRequest,
-  CreateUserInfoResponse,
-  GetUserInfoResponse,
+  GetAssetsResponse,
+  GetFinancialResponse,
+  GetStagesResponse,
   PatchAssetsRequest,
-  PatchBasicRequest,
-  PatchLifestyleRequest,
-  PatchLifestyleResponse,
-  PatchPortfolioRequest,
+  PatchFinancialRequest,
+  PatchFinancialResponse,
   PatchStagesRequest,
 } from "@/types/userInfo";
 
 export const userInfoApi = {
-  createUserInfo: (
-    payload: CreateUserInfoRequest,
-  ): Promise<ApiResponse<CreateUserInfoResponse>> =>
-    api.post(API_ENDPOINTS.userInfo.profile, payload),
+  getFinancial: (): Promise<ApiResponse<GetFinancialResponse>> =>
+    api.get(API_ENDPOINTS.userInfo.financial),
 
-  getUserInfo: (): Promise<ApiResponse<GetUserInfoResponse>> =>
-    api.get(API_ENDPOINTS.userInfo.profile),
+  createFinancial: (
+    payload: CreateFinancialRequest,
+  ): Promise<ApiResponse<CreateFinancialResponse>> =>
+    api.post(API_ENDPOINTS.userInfo.financial, payload),
 
-  patchBasic: (payload: PatchBasicRequest): Promise<ApiResponse<null>> =>
-    api.patch(API_ENDPOINTS.userInfo.basic, payload),
+  patchFinancial: (
+    payload: PatchFinancialRequest,
+  ): Promise<ApiResponse<PatchFinancialResponse>> =>
+    api.patch(API_ENDPOINTS.userInfo.financial, payload),
 
-  patchPortfolio: (payload: PatchPortfolioRequest): Promise<ApiResponse<null>> =>
-    api.patch(API_ENDPOINTS.userInfo.portfolio, payload),
-
-  createPortfolio: (
-    payload: CreatePortfolioRequest,
-  ): Promise<ApiResponse<null>> => api.post(API_ENDPOINTS.userInfo.portfolio, payload),
-
-  patchLifestyle: (
-    payload: PatchLifestyleRequest,
-  ): Promise<ApiResponse<PatchLifestyleResponse>> =>
-    api.patch(API_ENDPOINTS.userInfo.lifestyle, payload),
-
-  createLifestyle: (
-    payload: CreateLifestyleRequest,
-  ): Promise<ApiResponse<PatchLifestyleResponse | null>> =>
-    api.post(API_ENDPOINTS.userInfo.lifestyle, payload),
+  getStages: (): Promise<ApiResponse<GetStagesResponse | CreateStagesRequest>> =>
+    api.get(API_ENDPOINTS.userInfo.stages),
 
   patchStages: (payload: PatchStagesRequest): Promise<ApiResponse<null>> =>
     api.patch(API_ENDPOINTS.userInfo.stages, payload),
 
   createStages: (payload: CreateStagesRequest): Promise<ApiResponse<null>> =>
     api.post(API_ENDPOINTS.userInfo.stages, payload),
+
+  getAssets: (): Promise<ApiResponse<GetAssetsResponse>> =>
+    api.get(API_ENDPOINTS.userInfo.assets),
 
   createAssets: (
     payload: CreateAssetsRequest,

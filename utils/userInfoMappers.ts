@@ -2,15 +2,11 @@ import type { OnboardingDraft, StageItem } from "@/types/onboarding";
 import type { LifeStageRange } from "@/types/reference";
 import type {
   CreateAssetsRequest,
-  CreateUserInfoRequest,
-  GetUserInfoResponse,
+  CreateFinancialRequest,
   PatchAssetsRequest,
-  PatchBasicRequest,
-  PatchLifestyleRequest,
-  PatchPortfolioRequest,
-  PatchStagesRequest,
   UserInfoAssetResponse,
-  UserInfoResponse,
+  UserInfoFinancialResource,
+  UserInfoStageData,
 } from "@/types/userInfo";
 import type { Asset, FinancialData, Habits, Stage } from "@/utils/types";
 
@@ -30,17 +26,15 @@ function parseRequiredInteger(value: string, fieldName: string): number {
   return parsedValue;
 }
 
-function isGetUserInfoResponse(
-  response: GetUserInfoResponse | UserInfoResponse,
-): response is GetUserInfoResponse {
-  return Object.prototype.hasOwnProperty.call(response, "userInfo");
+function normalizeCode(value: string): string {
+  return value.trim().toUpperCase();
 }
 
-export function buildCreateUserInfoRequest(
+export function buildCreateFinancialRequestFromOnboarding(
   draft: OnboardingDraft,
-): CreateUserInfoRequest {
+): CreateFinancialRequest {
   return {
-    userInfo: {
+    financial: {
       financialProfile: {
         desiredLifeExpectancy: parseRequiredNumber(
           draft.step2.desiredLifeExpectancy,
@@ -50,7 +44,7 @@ export function buildCreateUserInfoRequest(
           draft.step2.currentSavings,
           "Current savings",
         ),
-        currencyCode: draft.step2.preferredCurrency,
+        currencyCode: normalizeCode(draft.step2.preferredCurrency),
       },
       portfolioAllocations: [
         {
@@ -67,27 +61,68 @@ export function buildCreateUserInfoRequest(
         },
       ],
       lifestyleProfile: {
-        smokingCode: draft.step2.habits.smoke,
-        physicalActivityCode: draft.step2.habits.physical,
-        dietQualityCode: draft.step2.habits.diet,
-        alcoholConsumptionCode: draft.step2.habits.alcohol,
+        smokingCode: normalizeCode(draft.step2.habits.smoke),
+        physicalActivityCode: normalizeCode(draft.step2.habits.physical),
+        dietQualityCode: normalizeCode(draft.step2.habits.diet),
+        alcoholConsumptionCode: normalizeCode(draft.step2.habits.alcohol),
       },
-      stageData: draft.stages.map((stage) => ({
-        lifeStageRangeId: stage.lifeStageRangeId,
-        initialAnnualSavings: parseRequiredNumber(
-          stage.annualSaving,
-          "Initial annual savings",
+    },
+  };
+}
+
+export function buildFinancialRequestFromFinancialData(
+  profile: Pick<FinancialData, "savings" | "desiredLE" | "currency">,
+  allocation: FinancialData["allocation"],
+  habits: Habits,
+): CreateFinancialRequest {
+  return {
+    financial: {
+      financialProfile: {
+        currentSavings: parseRequiredNumber(profile.savings, "Current savings"),
+        desiredLifeExpectancy: parseRequiredNumber(
+          profile.desiredLE,
+          "Desired life expectancy",
         ),
-        growthRate: parseRequiredNumber(stage.annualRate, "Stage growth rate"),
-      })),
-      assetData: draft.assets.map((asset) => ({
-        assetTypeId: parseRequiredInteger(asset.assetTypeId, "Asset type"),
-        initialAnnualIncome: parseRequiredNumber(
-          asset.initialAnnualIncome,
-          "Initial annual income",
-        ),
-        growthRate: parseRequiredNumber(asset.growthRate, "Asset growth rate"),
-      })),
+        currencyCode: normalizeCode(profile.currency),
+      },
+      portfolioAllocations: [
+        {
+          allocationType: "PRE_FFP",
+          u: parseRequiredNumber(
+            allocation.before.u,
+            "Pre-FFP risky allocation",
+          ),
+          mu: parseRequiredNumber(
+            allocation.before.mu,
+            "Pre-FFP expected return",
+          ),
+          rf: parseRequiredNumber(
+            allocation.before.rf,
+            "Pre-FFP risk-free rate",
+          ),
+        },
+        {
+          allocationType: "POST_FFP",
+          u: parseRequiredNumber(
+            allocation.after.u,
+            "Post-FFP risky allocation",
+          ),
+          mu: parseRequiredNumber(
+            allocation.after.mu,
+            "Post-FFP expected return",
+          ),
+          rf: parseRequiredNumber(
+            allocation.after.rf,
+            "Post-FFP risk-free rate",
+          ),
+        },
+      ],
+      lifestyleProfile: {
+        smokingCode: normalizeCode(habits.smoking),
+        physicalActivityCode: normalizeCode(habits.physical),
+        dietQualityCode: normalizeCode(habits.diet),
+        alcoholConsumptionCode: normalizeCode(habits.alcohol),
+      },
     },
   };
 }
@@ -121,16 +156,20 @@ export function buildStageItemsFromRanges(
     });
 }
 
-export function mapUserInfoToFinancialData(
-  response: GetUserInfoResponse | UserInfoResponse,
-): FinancialData {
-  const userInfo: UserInfoResponse | null | undefined =
-    isGetUserInfoResponse(response) ? response.userInfo : response;
-  const financialProfile = userInfo?.financialProfile;
-  const portfolioAllocations = userInfo?.portfolioAllocations ?? [];
-  const lifestyleProfile = userInfo?.lifestyleProfile;
-  const stageData = userInfo?.stageData ?? [];
-  const assetData = userInfo?.assetData ?? [];
+export function mapUserInfoResourcesToFinancialData({
+  financial,
+  stages,
+  assets,
+}: {
+  financial?: UserInfoFinancialResource | null;
+  stages?: UserInfoStageData[] | null;
+  assets?: UserInfoAssetResponse[] | null;
+}): FinancialData {
+  const financialProfile = financial?.financialProfile;
+  const portfolioAllocations = financial?.portfolioAllocations ?? [];
+  const lifestyleProfile = financial?.lifestyleProfile;
+  const stageData = stages ?? [];
+  const assetData = assets ?? [];
   const preFfpAllocation = portfolioAllocations.find(
     (allocation) => allocation.allocationType === "PRE_FFP",
   );
@@ -222,79 +261,38 @@ export function mapUserInfoAssetToAsset(asset: UserInfoAssetResponse): Asset {
   };
 }
 
-export function buildPatchBasicRequest(
-  profile: Pick<FinancialData, "savings" | "desiredLE" | "currency">,
-): PatchBasicRequest {
-  return {
-    currentSavings: parseRequiredNumber(profile.savings, "Current savings"),
-    desiredLifeExpectancy: parseRequiredNumber(
-      profile.desiredLE,
-      "Desired life expectancy",
-    ),
-    currencyCode: profile.currency,
-  };
-}
+type StageRequestStage = Pick<Stage, "annualSaving" | "growthRate"> &
+  Partial<Pick<Stage, "lifeStageRangeId">>;
 
-export function buildPatchPortfolioRequest(
-  allocation: FinancialData["allocation"],
-): PatchPortfolioRequest {
-  return [
-    {
-      allocationType: "PRE_FFP",
-      u: parseRequiredNumber(
-        allocation.before.u,
-        "Pre-FFP risky allocation",
-      ),
-      mu: parseRequiredNumber(
-        allocation.before.mu,
-        "Pre-FFP expected return",
-      ),
-      rf: parseRequiredNumber(
-        allocation.before.rf,
-        "Pre-FFP risk-free rate",
-      ),
-    },
-    {
-      allocationType: "POST_FFP",
-      u: parseRequiredNumber(
-        allocation.after.u,
-        "Post-FFP risky allocation",
-      ),
-      mu: parseRequiredNumber(
-        allocation.after.mu,
-        "Post-FFP expected return",
-      ),
-      rf: parseRequiredNumber(
-        allocation.after.rf,
-        "Post-FFP risk-free rate",
-      ),
-    },
-  ];
-}
+type StageRequestStageItem = Pick<
+  StageItem,
+  "lifeStageRangeId" | "annualSaving" | "annualRate"
+>;
 
-export function buildPatchLifestyleRequest(
-  habits: Habits,
-): PatchLifestyleRequest {
-  return {
-    smokingCode: habits.smoking,
-    physicalActivityCode: habits.physical,
-    dietQualityCode: habits.diet,
-    alcoholConsumptionCode: habits.alcohol,
-  };
-}
-
-export function buildPatchStagesRequest(stages: Stage[]): PatchStagesRequest {
+export function buildStagesRequest(
+  stages: Array<StageRequestStage | StageRequestStageItem>,
+): UserInfoStageData[] {
   return stages.map((stage) => ({
-      lifeStageRangeId: stage.lifeStageRangeId ?? 0,
-      initialAnnualSavings: parseRequiredNumber(
-        stage.annualSaving,
-        "Initial annual savings",
-      ),
-      growthRate: parseRequiredNumber(stage.growthRate, "Stage growth rate"),
-    }));
+    lifeStageRangeId: stage.lifeStageRangeId ?? 0,
+    initialAnnualSavings: parseRequiredNumber(
+      stage.annualSaving,
+      "Initial annual savings",
+    ),
+    growthRate: parseRequiredNumber(
+      "annualRate" in stage ? stage.annualRate : stage.growthRate,
+      "Stage growth rate",
+    ),
+  }));
 }
 
-export function buildCreateAssetsRequest(assets: Asset[]): CreateAssetsRequest {
+type AssetRequestAsset = Pick<
+  Asset,
+  "assetTypeId" | "initialAnnualIncome" | "growthRate"
+>;
+
+export function buildCreateAssetsRequest(
+  assets: AssetRequestAsset[],
+): CreateAssetsRequest {
   return {
     assetData: assets.map((asset) => ({
       assetTypeId: parseRequiredInteger(asset.assetTypeId, "Asset type"),
