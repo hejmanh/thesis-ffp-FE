@@ -15,6 +15,8 @@ interface Step3StagesCardsProps {
 
 function toStageEditorValue(stage: StageItem): StageEditorValue {
   return {
+    title:
+      stage.title || `Stage ${stage.stageNo}: Age ${stage.ageStart} - ${stage.ageEnd}`,
     ageStart: stage.ageStart,
     ageEnd: stage.ageEnd,
     annualSaving: stage.annualSaving,

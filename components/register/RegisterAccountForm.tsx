@@ -5,12 +5,11 @@ import { useRouter } from "next/navigation";
 import AnimatedPanel from "@/components/common/AnimatedPanel";
 import Step1AccountForm from "@/components/register/steps/Step1AccountForm";
 import type { Step1AccountData } from "@/types/onboarding";
-import {
-  INITIAL_ONBOARDING_DRAFT,
-  ONBOARDING_REGISTRATION_GATE_KEY,
-  ONBOARDING_STORAGE_KEY,
-} from "@/utils/onboardingConstants";
 import { validateStep1 } from "@/utils/onboardingValidators";
+import {
+  createEmptyOnboardingState,
+  saveOnboardingState,
+} from "@/utils/onboardingStorage";
 import { useAuth, usePersonalInfoReferences } from "@/hooks";
 import {
   mapCountriesToOptions,
@@ -20,13 +19,12 @@ import {
 export default function RegisterAccountForm() {
   const router = useRouter();
   const [data, setData] = useState<Step1AccountData>(
-    INITIAL_ONBOARDING_DRAFT.step1,
+    () => createEmptyOnboardingState().step1,
   );
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
   const { register } = useAuth();
-  const { countries, sexTypes } = usePersonalInfoReferences();
+  const { countries, sexTypes, error: referenceError } = usePersonalInfoReferences();
 
   const countryOptions = useMemo(
     () => mapCountriesToOptions(countries),
@@ -35,7 +33,7 @@ export default function RegisterAccountForm() {
 
   const sexOptions = useMemo(() => mapSexTypesToOptions(sexTypes), [sexTypes]);
 
-  const displayError = error;
+  const displayError = error || referenceError || "";
 
   function updateField<K extends keyof Step1AccountData>(
     key: K,
@@ -61,7 +59,7 @@ export default function RegisterAccountForm() {
 
     setLoading(true);
     try {
-      const message = await register({
+      await register({
         name: data.name,
         email: data.email,
         password: data.password,
@@ -70,19 +68,12 @@ export default function RegisterAccountForm() {
         sexTypeId,
       });
 
-      if (typeof window !== "undefined") {
-        window.localStorage.setItem(
-          ONBOARDING_STORAGE_KEY,
-          JSON.stringify({
-            ...INITIAL_ONBOARDING_DRAFT,
-            step1: data,
-          }),
-        );
-        window.sessionStorage.setItem(ONBOARDING_REGISTRATION_GATE_KEY, "true");
-      }
+      saveOnboardingState({
+        ...createEmptyOnboardingState(),
+        step1: data,
+      });
 
-      setToastMessage(message ?? "Successfully created account");
-      router.push("/onboarding");
+      router.push("/?login=1");
     } catch (submitError) {
       setError(
         submitError instanceof Error
@@ -107,11 +98,6 @@ export default function RegisterAccountForm() {
           onNext={handleCreateAccount}
         />
       </AnimatedPanel>
-      {toastMessage ? (
-        <div className="fixed right-6 top-6 z-50 rounded-xl bg-slate-900 px-4 py-3 text-sm font-medium text-white shadow-lg">
-          {toastMessage}
-        </div>
-      ) : null}
     </div>
   );
 }

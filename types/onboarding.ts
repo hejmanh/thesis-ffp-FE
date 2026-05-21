@@ -33,6 +33,9 @@ export interface Step2PersonalData {
 
 export interface StageItem {
   id: string;
+  lifeStageRangeId: number;
+  stageNo: number;
+  title: string;
   ageStart: string;
   ageEnd: string;
   annualSaving: string;

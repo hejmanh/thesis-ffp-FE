@@ -1,4 +1,8 @@
-import axios, { type AxiosRequestConfig } from "axios";
+import axios, {
+  type AxiosError,
+  type AxiosRequestConfig,
+  type AxiosResponse,
+} from "axios";
 import { API_CONFIG, TIMEOUT, type ApiResponse } from "@/shared/config/api";
 import { tokenService } from "@/services/token.service";
 import { csrfService } from "@/services/csrf.service";
@@ -15,6 +19,7 @@ const SKIP_REFRESH_URLS = [
 ];
 
 type RetryConfig = AxiosRequestConfig & { _retry?: boolean };
+type ApiEnvelope<T> = ApiResponse<T> & { data?: T };
 
 class ApiRequest {
   private readonly instance = axios.create({
@@ -184,7 +189,7 @@ class ApiRequest {
     }
   }
 
-  private normalise<T>(res: any): ApiResponse<T> {
+  private normalise<T>(res: AxiosResponse<ApiEnvelope<T>>): ApiResponse<T> {
     const data = res.data ?? {};
     const ok = data.success === true || (res.status >= 200 && res.status < 300);
 
@@ -194,18 +199,30 @@ class ApiRequest {
       message: data.message,
       error: ok ? undefined : data.message,
       errors: data.errors,
+      meta: data.meta,
     };
   }
 
-  private handleError<T>(err: any): ApiResponse<T> {
-    const data = err.response?.data ?? {};
-    const message = data.message ?? err.message ?? "Request failed";
+  private handleError<T>(err: unknown): ApiResponse<T> {
+    if (axios.isAxiosError(err)) {
+      const axiosError = err as AxiosError<ApiEnvelope<T>>;
+      const data: Partial<ApiEnvelope<T>> = axiosError.response?.data ?? {};
+      const message = data.message ?? axiosError.message ?? "Request failed";
+      return {
+        success: false,
+        data: data.data as T,
+        message,
+        error: message,
+        errors: data.errors,
+        meta: data.meta,
+      };
+    }
+
+    const message = err instanceof Error ? err.message : "Request failed";
     return {
       success: false,
-      data: data.data as T,
-      message: message,
+      message,
       error: message,
-      errors: data.errors,
     };
   }
 }

@@ -2,7 +2,7 @@
 
 import Button from "@/components/common/Button";
 import FormField from "@/components/common/FormField";
-import { CURRENCY_OPTIONS, HABIT_LEVELS } from "@/utils/onboardingConstants";
+import type { SelectOption } from "@/utils/referenceOptions";
 
 type RootFieldKey =
   | "estimatedLifeExpectancy"
@@ -23,6 +23,7 @@ interface HabitField<HabitKey extends string> {
   key: HabitKey;
   label: string;
   value: string;
+  options: SelectOption[];
 }
 
 interface FinancialProfileFieldsProps<HabitKey extends string> {
@@ -38,6 +39,8 @@ interface FinancialProfileFieldsProps<HabitKey extends string> {
   hintClassName?: string;
   fieldLabels?: Partial<Record<RootFieldKey, string>>;
   currentSavingsPlaceholder?: string;
+  currencyOptions?: SelectOption[];
+  disabledRootFields?: Partial<Record<RootFieldKey, boolean>>;
   onSaveProfile?: () => void;
   onSaveAllocations?: () => void;
   onSaveHabits?: () => void;
@@ -87,6 +90,8 @@ export default function FinancialProfileFields<HabitKey extends string>({
   hintClassName = "mt-1 text-xs italic text-slate-600",
   fieldLabels,
   currentSavingsPlaceholder = "100000",
+  currencyOptions = [],
+  disabledRootFields,
   onSaveProfile,
   onSaveAllocations,
   onSaveHabits,
@@ -105,24 +110,28 @@ export default function FinancialProfileFields<HabitKey extends string>({
             id={`${idPrefix}estimatedLifeExpectancy`}
             name={`${idPrefix}estimatedLifeExpectancy`}
             label={labels.estimatedLifeExpectancy}
+            hint="Estimated using your profile information and lifestyle habits."
             inputClassName="h-11"
             placeholder="90"
             inputProps={{
               value: profile.estimatedLifeExpectancy,
               onChange: (event) => onRootChange("estimatedLifeExpectancy", event.target.value),
               autoComplete: "off",
+              disabled: disabledRootFields?.estimatedLifeExpectancy,
             }}
           />
           <FormField
             id={`${idPrefix}desiredLifeExpectancy`}
             name={`${idPrefix}desiredLifeExpectancy`}
             label={labels.desiredLifeExpectancy}
+            hint="Your personal target lifespan"
             inputClassName="h-11"
             placeholder="90"
             inputProps={{
               value: profile.desiredLifeExpectancy,
               onChange: (event) => onRootChange("desiredLifeExpectancy", event.target.value),
               autoComplete: "off",
+              disabled: disabledRootFields?.desiredLifeExpectancy,
             }}
           />
           <FormField
@@ -135,6 +144,7 @@ export default function FinancialProfileFields<HabitKey extends string>({
               value: profile.currentSavings,
               onChange: (event) => onRootChange("currentSavings", event.target.value),
               autoComplete: "off",
+              disabled: disabledRootFields?.currentSavings,
             }}
           />
           <FormField
@@ -145,7 +155,7 @@ export default function FinancialProfileFields<HabitKey extends string>({
             selectClassName="h-11"
             value={profile.preferredCurrency}
             onChange={(value) => onRootChange("preferredCurrency", value)}
-            options={CURRENCY_OPTIONS.map((currency) => ({ label: currency, value: currency }))}
+            options={currencyOptions}
           />
         </div>
         {onSaveProfile ? (
@@ -214,7 +224,7 @@ export default function FinancialProfileFields<HabitKey extends string>({
               placeholder="Select level"
               value={habit.value}
               onChange={(value) => onHabitChange(habit.key, value)}
-              options={HABIT_LEVELS.map((level) => ({ label: level, value: level }))}
+              options={habit.options}
             />
           ))}
         </div>

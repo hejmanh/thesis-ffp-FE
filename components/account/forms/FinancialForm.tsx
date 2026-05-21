@@ -1,6 +1,7 @@
 "use client";
 
 import FinancialProfileFields from "@/components/common/FinancialProfileFields";
+import type { SelectOption } from "@/utils/referenceOptions";
 import type { Allocation, FinancialData, Habits } from "@/utils/types";
 
 interface FinancialFormProps {
@@ -12,6 +13,8 @@ interface FinancialFormProps {
   };
   allocation: FinancialData["allocation"];
   habits: Habits;
+  currencyOptions: SelectOption[];
+  habitOptions: Record<keyof Habits, SelectOption[]>;
   onProfileChange: (field: "estimatedLE" | "savings" | "currency" | "desiredLE", value: string) => void;
   onAllocationChange: (period: "before" | "after", key: keyof Allocation, value: string) => void;
   onHabitChange: (key: keyof Habits, value: string) => void;
@@ -34,6 +37,8 @@ export default function FinancialForm({
   profile,
   allocation,
   habits,
+  currencyOptions,
+  habitOptions,
   onProfileChange,
   onAllocationChange,
   onHabitChange,
@@ -57,7 +62,10 @@ export default function FinancialForm({
         key: habit,
         label: HABIT_LABELS[habit],
         value: habits[habit],
+        options: habitOptions[habit],
       }))}
+      currencyOptions={currencyOptions}
+      disabledRootFields={{ estimatedLifeExpectancy: true }}
       onRootChange={(field, value) => {
         const fieldMap = {
           estimatedLifeExpectancy: "estimatedLE",

@@ -3,6 +3,7 @@
 import FormField from "@/components/common/FormField";
 
 export interface StageEditorValue {
+  title?: string;
   ageStart: string;
   ageEnd: string;
   annualSaving: string;
@@ -18,6 +19,9 @@ interface StageEditorCardProps {
 }
 
 function formatStageTitle(stage: StageEditorValue, index?: number): string {
+  if (stage.title) {
+    return stage.title;
+  }
   return `Stage ${(index ?? 0) + 1}: Age ${stage.ageStart} - ${stage.ageEnd}`;
 }
 

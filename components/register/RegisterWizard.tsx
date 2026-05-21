@@ -7,88 +7,59 @@ import RegistrationProgressBar from "@/components/register/progress/Registration
 import Step2PersonalForm from "@/components/register/steps/Step2PersonalForm";
 import Step3StagesCards from "@/components/register/steps/Step3StagesCards";
 import Step4AssetsCards from "@/components/register/steps/Step4AssetsCards";
+import { useLifeStageRangesQuery, useOnboardingReferences } from "@/hooks";
 import { tokenService } from "@/services/token.service";
+import { userInfoService } from "@/services/userInfo.service";
 import { useAuthStore } from "@/store/auth.store";
 import type { OnboardingDraft } from "@/types/onboarding";
-import {
-  INITIAL_ONBOARDING_DRAFT,
-  ONBOARDING_REGISTRATION_GATE_KEY,
-  ONBOARDING_STORAGE_KEY,
-} from "@/utils/onboardingConstants";
 import { isAssetComplete, validateStep2 } from "@/utils/onboardingValidators";
 import { canAccessOnboardingSteps } from "@/utils/onboardingGuard";
-import { buildHardcodedStageItems } from "@/utils/stageDefaults";
+import {
+  clearOnboardingState,
+  loadOnboardingState,
+  saveOnboardingState,
+} from "@/utils/onboardingStorage";
+import {
+  buildCreateUserInfoRequest,
+  buildStageItemsFromRanges,
+} from "@/utils/userInfoMappers";
 
 const ONBOARDING_STEPS = ["Personal Information", "Stages Data", "Asset Data"];
-
-function readOnboardingDraft(): OnboardingDraft {
-  if (typeof window === "undefined") {
-    return INITIAL_ONBOARDING_DRAFT;
-  }
-
-  const rawDraft = window.localStorage.getItem(ONBOARDING_STORAGE_KEY);
-  if (!rawDraft) {
-    return INITIAL_ONBOARDING_DRAFT;
-  }
-
-  try {
-    const parsedDraft = JSON.parse(rawDraft) as Partial<OnboardingDraft>;
-
-    return {
-      step1: {
-        ...INITIAL_ONBOARDING_DRAFT.step1,
-        ...parsedDraft.step1,
-      },
-      step2: {
-        ...INITIAL_ONBOARDING_DRAFT.step2,
-        ...parsedDraft.step2,
-        beforeFfp: {
-          ...INITIAL_ONBOARDING_DRAFT.step2.beforeFfp,
-          ...parsedDraft.step2?.beforeFfp,
-        },
-        afterFfp: {
-          ...INITIAL_ONBOARDING_DRAFT.step2.afterFfp,
-          ...parsedDraft.step2?.afterFfp,
-        },
-        habits: {
-          ...INITIAL_ONBOARDING_DRAFT.step2.habits,
-          ...parsedDraft.step2?.habits,
-        },
-      },
-      stages: parsedDraft.stages ?? INITIAL_ONBOARDING_DRAFT.stages,
-      assets: parsedDraft.assets ?? INITIAL_ONBOARDING_DRAFT.assets,
-    };
-  } catch {
-    return INITIAL_ONBOARDING_DRAFT;
-  }
-}
-
-function hasRegistrationAccess(): boolean {
-  if (typeof window === "undefined") {
-    return false;
-  }
-
-  return (
-    window.sessionStorage.getItem(ONBOARDING_REGISTRATION_GATE_KEY) === "true"
-  );
-}
 
 export default function RegisterWizard() {
   const router = useRouter();
   const [step, setStep] = useState(1);
-  const [draft, setDraft] = useState<OnboardingDraft>(readOnboardingDraft);
+  const [draft, setDraft] = useState<OnboardingDraft>(loadOnboardingState);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [completed, setCompleted] = useState(false);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const onboardingReferences = useOnboardingReferences();
+  const lifeStageRangesQuery = useLifeStageRangesQuery(draft.step1.birthYear);
+
+  function getDraftWithEstimatedLifeExpectancy(sourceDraft: OnboardingDraft): OnboardingDraft {
+    if (
+      !onboardingReferences.estimatedLifeExpectancy ||
+      sourceDraft.step2.estimatedLifeExpectancy === onboardingReferences.estimatedLifeExpectancy
+    ) {
+      return sourceDraft;
+    }
+
+    return {
+      ...sourceDraft,
+      step2: {
+        ...sourceDraft.step2,
+        estimatedLifeExpectancy: onboardingReferences.estimatedLifeExpectancy,
+      },
+    };
+  }
 
   useEffect(() => {
     if (
       !canAccessOnboardingSteps({
         isAuthenticated,
         hasAccessToken: Boolean(tokenService.get()),
-        hasRegistrationAccess: hasRegistrationAccess(),
       })
     ) {
       router.replace("/?login=1");
@@ -99,15 +70,44 @@ export default function RegisterWizard() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [step, completed]);
 
+  useEffect(() => {
+    if (completed) {
+      return;
+    }
+
+    saveOnboardingState(draft);
+  }, [completed, draft]);
+
   function handlePersonalNext() {
     setError("");
-    const validation = validateStep2(draft.step2);
+    const nextDraft = getDraftWithEstimatedLifeExpectancy(draft);
+    if (onboardingReferences.error) {
+      setError(onboardingReferences.error);
+      return;
+    }
+    if (lifeStageRangesQuery.isLoading) {
+      setError("Loading life stage ranges...");
+      return;
+    }
+    if (lifeStageRangesQuery.error instanceof Error) {
+      setError(lifeStageRangesQuery.error.message);
+      return;
+    }
+    if (!lifeStageRangesQuery.data?.length) {
+      setError("No life stage ranges are available for the selected birth year.");
+      return;
+    }
+    const validation = validateStep2(nextDraft.step2);
     if (validation) {
       setError(validation);
       return;
     }
-    const generatedStages = buildHardcodedStageItems(draft.stages, draft.step2.preferredCurrency);
-    setDraft((prev) => ({ ...prev, stages: generatedStages }));
+    const generatedStages = buildStageItemsFromRanges(
+      lifeStageRangesQuery.data,
+      nextDraft.stages,
+      nextDraft.step2.preferredCurrency,
+    );
+    setDraft({ ...nextDraft, stages: generatedStages });
     setStep(2);
   }
 
@@ -117,20 +117,37 @@ export default function RegisterWizard() {
 
   async function handleAssetsSubmit() {
     setError("");
-    if (!draft.assets.length || !draft.assets.every(isAssetComplete)) {
+    const nextDraft = getDraftWithEstimatedLifeExpectancy(draft);
+    const validation = validateStep2(nextDraft.step2);
+    if (validation) {
+      setError(validation);
+      return;
+    }
+    if (!nextDraft.stages.length) {
+      setError("Please complete your stage data before submitting.");
+      return;
+    }
+    if (!nextDraft.assets.length || !nextDraft.assets.every(isAssetComplete)) {
       setError("Please add at least one complete asset card.");
       return;
     }
     setSaving(true);
-    setToastMessage("Saving onboarding data...");
-    await new Promise((resolve) => setTimeout(resolve, 700));
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(ONBOARDING_STORAGE_KEY, JSON.stringify(draft));
-      window.sessionStorage.removeItem(ONBOARDING_REGISTRATION_GATE_KEY);
+    setToastMessage("Creating your profile...");
+    try {
+      const payload = buildCreateUserInfoRequest(nextDraft);
+      await userInfoService.createUserInfo(payload);
+      clearOnboardingState();
+      setCompleted(true);
+    } catch (submitError) {
+      setError(
+        submitError instanceof Error
+          ? submitError.message
+          : "Unable to complete onboarding.",
+      );
+    } finally {
+      setToastMessage("");
+      setSaving(false);
     }
-    setToastMessage("");
-    setSaving(false);
-    setCompleted(true);
   }
 
   const stepContent = completed ? (
@@ -143,7 +160,18 @@ export default function RegisterWizard() {
   ) : step === 1 ? (
     <Step2PersonalForm
       data={draft.step2}
+      estimatedLifeExpectancy={
+        draft.step2.estimatedLifeExpectancy ||
+        onboardingReferences.estimatedLifeExpectancy
+      }
+      currencyOptions={onboardingReferences.currencyOptions}
+      smokingOptions={onboardingReferences.smokingOptions}
+      physicalActivityOptions={onboardingReferences.physicalActivityOptions}
+      dietQualityOptions={onboardingReferences.dietQualityOptions}
+      alcoholConsumptionOptions={onboardingReferences.alcoholConsumptionOptions}
       error={error}
+      referenceError={onboardingReferences.error}
+      isReferenceLoading={onboardingReferences.isLoading}
       onNext={handlePersonalNext}
       onChange={(next) => setDraft((prev) => ({ ...prev, step2: next }))}
     />
@@ -158,7 +186,10 @@ export default function RegisterWizard() {
   ) : (
     <Step4AssetsCards
       assets={draft.assets}
+      assetTypeOptions={onboardingReferences.assetTypeOptions}
       error={error}
+      referenceError={onboardingReferences.error}
+      isReferenceLoading={onboardingReferences.isLoading}
       isSubmitting={saving}
       onBack={() => setStep(2)}
       onSubmit={handleAssetsSubmit}

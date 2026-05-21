@@ -5,3 +5,6 @@ export { useResetPassword } from "@/hooks/auth/useResetPassword";
 export { useCountriesQuery } from "@/hooks/reference/useCountriesQuery";
 export { useSexTypesQuery } from "@/hooks/reference/useSexTypesQuery";
 export { usePersonalInfoReferences } from "@/hooks/reference/usePersonalInfoReferences";
+export { useOnboardingReferences } from "@/hooks/reference/useOnboardingReferences";
+export { useLifeStageRangesQuery } from "@/hooks/reference/useLifeStageRangesQuery";
+export { useFinancialPlanningReferences } from "@/hooks/reference/useFinancialPlanningReferences";

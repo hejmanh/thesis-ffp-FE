@@ -3,11 +3,19 @@
 import Button from "@/components/common/Button";
 import FinancialProfileFields from "@/components/common/FinancialProfileFields";
 import type { Step2PersonalData } from "@/types/onboarding";
- 
+import type { SelectOption } from "@/utils/referenceOptions";
 
 interface Step2PersonalFormProps {
   data: Step2PersonalData;
+  estimatedLifeExpectancy: string;
+  currencyOptions: SelectOption[];
+  smokingOptions: SelectOption[];
+  physicalActivityOptions: SelectOption[];
+  dietQualityOptions: SelectOption[];
+  alcoholConsumptionOptions: SelectOption[];
   error: string;
+  referenceError?: string | null;
+  isReferenceLoading: boolean;
   onBack?: () => void;
   onNext: () => void;
   onChange: (next: Step2PersonalData) => void;
@@ -22,7 +30,15 @@ const HABIT_LABELS: Record<keyof Step2PersonalData["habits"], string> = {
 
 export default function Step2PersonalForm({
   data,
+  estimatedLifeExpectancy,
+  currencyOptions,
+  smokingOptions,
+  physicalActivityOptions,
+  dietQualityOptions,
+  alcoholConsumptionOptions,
   error,
+  referenceError,
+  isReferenceLoading,
   onBack,
   onNext,
   onChange,
@@ -53,11 +69,11 @@ export default function Step2PersonalForm({
 
   return (
     <div className="mt-8">
-      <h2 className="text-center text-3xl font-bold text-primary">Personal Information</h2>
+      <h2 className="text-center text-3xl font-bold text-primary">Financial Information</h2>
       <div className="mx-auto mt-8 max-w-4xl space-y-7">
         <FinancialProfileFields
           profile={{
-            estimatedLifeExpectancy: data.estimatedLifeExpectancy,
+            estimatedLifeExpectancy,
             desiredLifeExpectancy: data.desiredLifeExpectancy,
             currentSavings: data.currentSavings,
             preferredCurrency: data.preferredCurrency,
@@ -70,7 +86,17 @@ export default function Step2PersonalForm({
             key: habit,
             label: HABIT_LABELS[habit],
             value: data.habits[habit],
+            options:
+              habit === "smoke"
+                ? smokingOptions
+                : habit === "physical"
+                  ? physicalActivityOptions
+                  : habit === "diet"
+                    ? dietQualityOptions
+                    : alcoholConsumptionOptions,
           }))}
+          currencyOptions={currencyOptions}
+          disabledRootFields={{ estimatedLifeExpectancy: true }}
           onRootChange={(field, value) => {
             const fieldMap = {
               estimatedLifeExpectancy: "estimatedLifeExpectancy",
@@ -95,14 +121,22 @@ export default function Step2PersonalForm({
           currentSavingsPlaceholder="Current savings amount"
         />
       </div>
+      {isReferenceLoading ? (
+        <p className="mt-4 text-center text-sm text-muted-foreground">Loading onboarding references...</p>
+      ) : null}
+      {referenceError ? <p className="mt-4 text-center text-sm font-semibold text-red-600">{referenceError}</p> : null}
       {error ? <p className="mt-4 text-center text-sm font-semibold text-red-600">{error}</p> : null}
       <div className="mx-auto mt-8 flex max-w-4xl gap-3">
         {onBack ? (
           <Button variant="outline" className="h-12 flex-1 rounded-full text-base" onClick={onBack}>
             Back
           </Button>
-        ) : null}
-        <Button className="h-12 flex-1 rounded-full text-base" onClick={onNext}>
+          ) : null}
+        <Button
+          className="h-12 flex-1 rounded-full text-base"
+          onClick={onNext}
+          disabled={isReferenceLoading || Boolean(referenceError)}
+        >
           Next
         </Button>
       </div>

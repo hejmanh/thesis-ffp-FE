@@ -41,6 +41,7 @@ export default function PersonalInfoSection() {
       <h2 className="text-2xl font-bold text-primary">Personal Information</h2>
       <p className="mt-1 text-sm text-muted-foreground">Manage your personal profile details.</p>
       <div className="mt-8 rounded-xl border border-border bg-slate-50 p-4">
+        <h3 className="text-lg font-semibold text-slate-900">Profile</h3>
         <PersonalInfoForm
           data={personalData}
           onChange={setPersonalData}

@@ -1,29 +1,37 @@
 "use client";
 
-import { useReducer, useState } from "react";
+import { useMemo, useState } from "react";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import Button from "@/components/common/Button";
 import Card from "@/components/common/Card";
 import AssetForm from "@/components/account/forms/AssetForm";
-import StageEditorCard, { type StageEditorValue } from "@/components/common/StageEditorCard";
+import StageEditorCard, {
+  type StageEditorValue,
+} from "@/components/common/StageEditorCard";
 import FinancialForm from "@/components/account/forms/FinancialForm";
-import type { OnboardingDraft } from "@/types/onboarding";
-import { buildHardcodedStages } from "@/utils/stageDefaults";
-import { ASSET_TYPE_OPTIONS } from "@/utils/onboardingConstants";
-import type { Allocation, Asset, FinancialData, Habits, Stage } from "@/utils/types";
+import { useFinancialPlanningReferences } from "@/hooks";
+import { userInfoService } from "@/services/userInfo.service";
+import type { SelectOption } from "@/utils/referenceOptions";
+import {
+  buildCreateAssetsRequest,
+  buildPatchAssetsRequest,
+  buildPatchBasicRequest,
+  buildPatchLifestyleRequest,
+  buildPatchPortfolioRequest,
+  buildPatchStagesRequest,
+  mapUserInfoToFinancialData,
+} from "@/utils/userInfoMappers";
+import type { Asset, FinancialData, Habits, Stage } from "@/utils/types";
+import type { GetUserInfoResponse } from "@/types/userInfo";
 
-const ONBOARDING_STORAGE_KEY = "coinfused_onboarding_payload";
-
-type FinancialAction =
-  | { type: "update_root"; field: "estimatedLE" | "savings" | "currency" | "desiredLE"; value: string }
-  | { type: "update_allocation"; period: "before" | "after"; key: keyof Allocation; value: string }
-  | { type: "update_habit"; key: keyof Habits; value: string }
-  | { type: "update_stage"; index: number; stage: Stage }
-  | { type: "set_assets"; assets: Asset[] };
-
-const INITIAL_FINANCIAL_DATA: FinancialData = {
+const EMPTY_FINANCIAL_DATA: FinancialData = {
   estimatedLE: "",
   savings: "",
-  currency: "USD",
+  currency: "",
   desiredLE: "",
   allocation: {
     before: { u: "", mu: "", rf: "" },
@@ -50,6 +58,7 @@ function createEmptyAsset(): Asset {
 
 function toStageEditorValue(stage: Stage): StageEditorValue {
   return {
+    title: stage.title,
     ageStart: stage.startAge,
     ageEnd: stage.endAge,
     annualSaving: stage.annualSaving,
@@ -58,336 +67,541 @@ function toStageEditorValue(stage: Stage): StageEditorValue {
   };
 }
 
-function fromStageEditorValue(stage: StageEditorValue): Stage {
+function fromStageEditorValue(stage: Stage, next: StageEditorValue): Stage {
   return {
-    startAge: stage.ageStart,
-    endAge: stage.ageEnd,
-    annualSaving: stage.annualSaving,
-    currency: stage.currency,
-    growthRate: stage.annualRate,
+    ...stage,
+    startAge: next.ageStart,
+    endAge: next.ageEnd,
+    annualSaving: next.annualSaving,
+    currency: next.currency,
+    growthRate: next.annualRate,
   };
 }
 
 function isStageComplete(stage: Stage): boolean {
-  return Boolean(stage.startAge && stage.endAge && stage.annualSaving && stage.currency && stage.growthRate);
+  return Boolean(
+    stage.lifeStageRangeId &&
+      stage.annualSaving &&
+      stage.currency &&
+      stage.growthRate,
+  );
 }
 
 function isAssetComplete(asset: Asset): boolean {
-  return Boolean(asset.assetTypeId && asset.initialAnnualIncome && asset.growthRate);
-}
-
-function mapOnboardingStageToFinancialStage(stage: OnboardingDraft["stages"][number]): Stage {
-  return {
-    startAge: stage.ageStart,
-    endAge: stage.ageEnd,
-    annualSaving: stage.annualSaving,
-    currency: stage.currency,
-    growthRate: stage.annualRate,
-  };
-}
-
-function mapOnboardingAssetToFinancialAsset(asset: OnboardingDraft["assets"][number]): Asset {
-  // Cast to a loose record so we can safely read legacy field names that
-  // pre-date the current AssetItem schema (type → assetTypeId, amount → initialAnnualIncome).
-  const raw = asset as unknown as Record<string, string | undefined>;
-
-  let assetTypeId = raw.assetTypeId ?? "";
-  if (!assetTypeId && raw.type) {
-    const match = ASSET_TYPE_OPTIONS.find(
-      (opt) => opt.label.toLowerCase() === raw.type!.toLowerCase()
-    );
-    assetTypeId = match ? String(match.id) : "";
-  }
-
-  return {
-    id: raw.id ?? crypto.randomUUID(),
-    assetTypeId,
-    initialAnnualIncome: raw.initialAnnualIncome ?? raw.amount ?? "",
-    growthRate: raw.growthRate ?? "",
-  };
-}
-
-function writeAssetsToOnboardingDraft(assets: Asset[]) {
-  if (typeof window === "undefined") return;
-
-  const currentDraft = readOnboardingDraft();
-  if (!currentDraft) return;
-
-  window.localStorage.setItem(
-    ONBOARDING_STORAGE_KEY,
-    JSON.stringify({
-      ...currentDraft,
-      assets: assets.map((asset) => ({
-        id: asset.id,
-        assetTypeId: asset.assetTypeId,
-        initialAnnualIncome: asset.initialAnnualIncome,
-        growthRate: asset.growthRate,
-      })),
-    } satisfies OnboardingDraft)
+  return Boolean(
+    asset.assetTypeId && asset.initialAnnualIncome && asset.growthRate,
   );
 }
 
-function readOnboardingDraft(): OnboardingDraft | null {
-  if (typeof window === "undefined") return null;
-  const raw = window.localStorage.getItem(ONBOARDING_STORAGE_KEY);
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw) as OnboardingDraft;
-  } catch {
-    return null;
-  }
+function areValuesEqual<T>(left: T, right: T): boolean {
+  return JSON.stringify(left) === JSON.stringify(right);
 }
 
-function createFinancialDataFromOnboarding(draft: OnboardingDraft | null): FinancialData {
-  if (!draft) {
-    return {
-      ...INITIAL_FINANCIAL_DATA,
-      stages: buildHardcodedStages([], INITIAL_FINANCIAL_DATA.currency),
-    };
-  }
+function getChangedPersistedAssets(
+  currentAssets: Asset[],
+  baseAssets: Asset[],
+): Asset[] {
+  const baseAssetsByUid = new Map(
+    baseAssets
+      .filter((asset) => asset.uid)
+      .map((asset) => [asset.uid as string, asset]),
+  );
 
-  const data: FinancialData = {
-    estimatedLE: draft.step2.estimatedLifeExpectancy,
-    savings: draft.step2.currentSavings,
-    currency: draft.step2.preferredCurrency,
-    desiredLE: draft.step2.desiredLifeExpectancy,
-    allocation: {
-      before: { ...draft.step2.beforeFfp },
-      after: { ...draft.step2.afterFfp },
-    },
-    habits: {
-      smoking: draft.step2.habits.smoke,
-      physical: draft.step2.habits.physical,
-      diet: draft.step2.habits.diet,
-      alcohol: draft.step2.habits.alcohol,
-    },
-    stages: draft.stages.map(mapOnboardingStageToFinancialStage),
-    assets: draft.assets.map(mapOnboardingAssetToFinancialAsset),
-  };
+  return currentAssets.filter((asset) => {
+    if (!asset.uid) {
+      return false;
+    }
 
-  if (data.stages.length > 0) {
-    return data;
-  }
+    const baseAsset = baseAssetsByUid.get(asset.uid);
+    if (!baseAsset) {
+      return false;
+    }
 
-  return {
-    ...data,
-    stages: buildHardcodedStages(data.stages, data.currency),
-  };
+    return (
+      baseAsset.initialAnnualIncome !== asset.initialAnnualIncome ||
+      baseAsset.growthRate !== asset.growthRate
+    );
+  });
 }
 
-function financialReducer(state: FinancialData, action: FinancialAction): FinancialData {
-  switch (action.type) {
-    case "update_root":
-      return {
-        ...state,
-        [action.field]: action.value,
-      };
-    case "update_allocation":
-      return {
-        ...state,
-        allocation: {
-          ...state.allocation,
-          [action.period]: {
-            ...state.allocation[action.period],
-            [action.key]: action.value,
-          },
-        },
-      };
-    case "update_habit":
-      return {
-        ...state,
-        habits: {
-          ...state.habits,
-          [action.key]: action.value,
-        },
-      };
-    case "update_stage":
-      return {
-        ...state,
-        stages: state.stages.map((stage, index) => (index === action.index ? action.stage : stage)),
-      };
-    case "set_assets":
-      return {
-        ...state,
-        assets: action.assets,
-      };
-    default:
-      return state;
+function getAssetOptionsForAsset(
+  asset: Asset,
+  assetTypeOptions: SelectOption[],
+): SelectOption[] {
+  if (
+    !asset.assetTypeId ||
+    assetTypeOptions.some((option) => option.value === asset.assetTypeId)
+  ) {
+    return assetTypeOptions;
   }
+
+  return [
+    {
+      label:
+        asset.assetTypeTitle ??
+        asset.assetTypeCode ??
+        `Asset ${asset.assetTypeId}`,
+      value: asset.assetTypeId,
+    },
+    ...assetTypeOptions,
+  ];
 }
 
 export default function FinancialSection() {
-  const [financialData, dispatch] = useReducer(
-    financialReducer,
-    createFinancialDataFromOnboarding(readOnboardingDraft())
-  );
-  const [draftProfile, setDraftProfile] = useState({
-    estimatedLE: financialData.estimatedLE,
-    savings: financialData.savings,
-    currency: financialData.currency,
-    desiredLE: financialData.desiredLE,
+  const queryClient = useQueryClient();
+  const references = useFinancialPlanningReferences();
+  const [profileDraft, setProfileDraft] = useState<{
+    estimatedLE: string;
+    savings: string;
+    currency: string;
+    desiredLE: string;
+  } | null>(null);
+  const [allocationDraft, setAllocationDraft] = useState<
+    FinancialData["allocation"] | null
+  >(null);
+  const [habitsDraft, setHabitsDraft] = useState<Habits | null>(null);
+  const [stagesDraft, setStagesDraft] = useState<Stage[] | null>(null);
+  const [assetsDraft, setAssetsDraft] = useState<Asset[] | null>(null);
+  const [sectionError, setSectionError] = useState<string | null>(null);
+
+  const userInfoQuery = useQuery({
+    queryKey: ["user-info"],
+    queryFn: () => userInfoService.getUserInfo(),
   });
-  const [draftAllocation, setDraftAllocation] = useState(financialData.allocation);
-  const [draftHabits, setDraftHabits] = useState(financialData.habits);
-  const [draftStages, setDraftStages] = useState(financialData.stages);
-  const [draftAssets, setDraftAssets] = useState(financialData.assets);
 
-  function handleProfileChange(field: keyof typeof draftProfile, value: string) {
-    setDraftProfile((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+  const patchBasicMutation = useMutation({
+    mutationFn: userInfoService.patchBasic,
+  });
+  const patchPortfolioMutation = useMutation({
+    mutationFn: userInfoService.patchPortfolio,
+  });
+  const patchLifestyleMutation = useMutation({
+    mutationFn: userInfoService.patchLifestyle,
+  });
+  const patchStagesMutation = useMutation({
+    mutationFn: userInfoService.patchStages,
+  });
+  const createAssetsMutation = useMutation({
+    mutationFn: userInfoService.createAssets,
+  });
+  const patchAssetsMutation = useMutation({
+    mutationFn: userInfoService.patchAssets,
+  });
+  const deleteAssetMutation = useMutation({
+    mutationFn: userInfoService.deleteAsset,
+  });
+
+  const baseFinancialData = useMemo(() => {
+    if (!userInfoQuery.data) {
+      return EMPTY_FINANCIAL_DATA;
+    }
+
+    return mapUserInfoToFinancialData(userInfoQuery.data);
+  }, [userInfoQuery.data]);
+
+  const currentProfile = profileDraft ?? {
+    estimatedLE: baseFinancialData.estimatedLE,
+    savings: baseFinancialData.savings,
+    currency: baseFinancialData.currency,
+    desiredLE: baseFinancialData.desiredLE,
+  };
+  const currentAllocation = allocationDraft ?? baseFinancialData.allocation;
+  const currentHabits = habitsDraft ?? baseFinancialData.habits;
+  const currentStages = stagesDraft ?? baseFinancialData.stages;
+  const currentAssets = assetsDraft ?? baseFinancialData.assets;
+
+  const isLoading = userInfoQuery.isLoading;
+  const isSavingProfile = patchBasicMutation.isPending;
+  const isSavingAllocation = patchPortfolioMutation.isPending;
+  const isSavingHabits = patchLifestyleMutation.isPending;
+  const isSavingStages = patchStagesMutation.isPending;
+  const isSavingAssets =
+    createAssetsMutation.isPending ||
+    patchAssetsMutation.isPending ||
+    deleteAssetMutation.isPending;
+  const pageError =
+    sectionError ??
+    (userInfoQuery.error instanceof Error ? userInfoQuery.error.message : null) ??
+    references.error;
+
+  const canSaveProfile =
+    Boolean(
+      currentProfile.savings &&
+        currentProfile.currency &&
+        currentProfile.desiredLE,
+    ) &&
+    !areValuesEqual(currentProfile, {
+      estimatedLE: baseFinancialData.estimatedLE,
+      savings: baseFinancialData.savings,
+      currency: baseFinancialData.currency,
+      desiredLE: baseFinancialData.desiredLE,
+    }) &&
+    !isSavingProfile &&
+    !references.isLoading;
+
+  const canSaveAllocation =
+    (["before", "after"] as const).every((period) =>
+      (["u", "mu", "rf"] as const).every((key) =>
+        Boolean(currentAllocation[period][key]),
+      ),
+    ) &&
+    !areValuesEqual(currentAllocation, baseFinancialData.allocation) &&
+    !isSavingAllocation;
+
+  const canSaveHabits =
+    (Object.keys(currentHabits) as Array<keyof Habits>).every((key) =>
+      Boolean(currentHabits[key]),
+    ) &&
+    !areValuesEqual(currentHabits, baseFinancialData.habits) &&
+    !isSavingHabits &&
+    !references.isLoading;
+
+  const newAssets = currentAssets.filter((asset) => !asset.uid);
+  const changedPersistedAssets = getChangedPersistedAssets(
+    currentAssets,
+    baseFinancialData.assets,
+  );
+  const canSaveStages =
+    currentStages.length > 0 &&
+    currentStages.every(isStageComplete) &&
+    !areValuesEqual(currentStages, baseFinancialData.stages) &&
+    !isSavingStages;
+  const canSaveAssets =
+    currentAssets.every(isAssetComplete) &&
+    (newAssets.length > 0 || changedPersistedAssets.length > 0) &&
+    !isSavingAssets &&
+    !references.isLoading;
+
+  async function refreshUserInfoData() {
+    await queryClient.invalidateQueries({ queryKey: ["user-info"] });
   }
 
-  function handleSaveProfile() {
-    dispatch({ type: "update_root", field: "estimatedLE", value: draftProfile.estimatedLE });
-    dispatch({ type: "update_root", field: "savings", value: draftProfile.savings });
-    dispatch({ type: "update_root", field: "currency", value: draftProfile.currency });
-    dispatch({ type: "update_root", field: "desiredLE", value: draftProfile.desiredLE });
+  async function handleSaveProfile() {
+    setSectionError(null);
+    try {
+      await patchBasicMutation.mutateAsync(
+        buildPatchBasicRequest(currentProfile),
+      );
+      setProfileDraft(null);
+      await refreshUserInfoData();
+    } catch (error) {
+      setSectionError(
+        error instanceof Error
+          ? error.message
+          : "Unable to update financial profile.",
+      );
+    }
   }
 
-  function handleAllocationChange(period: "before" | "after", key: keyof Allocation, value: string) {
-    setDraftAllocation((prev) => ({
-      ...prev,
-      [period]: {
-        ...prev[period],
-        [key]: value,
-      },
-    }));
+  async function handleSaveAllocations() {
+    setSectionError(null);
+    try {
+      await patchPortfolioMutation.mutateAsync(
+        buildPatchPortfolioRequest(currentAllocation),
+      );
+      setAllocationDraft(null);
+      await refreshUserInfoData();
+    } catch (error) {
+      setSectionError(
+        error instanceof Error
+          ? error.message
+          : "Unable to update asset allocation.",
+      );
+    }
   }
 
-  function handleSaveAllocations() {
-    (["before", "after"] as const).forEach((period) => {
-      (["u", "mu", "rf"] as const).forEach((key) => {
-        dispatch({
-          type: "update_allocation",
-          period,
-          key,
-          value: draftAllocation[period][key],
-        });
+  async function handleSaveHabits() {
+    setSectionError(null);
+    try {
+      const lifestyleResponse = await patchLifestyleMutation.mutateAsync(
+        buildPatchLifestyleRequest(currentHabits),
+      );
+      queryClient.setQueryData<GetUserInfoResponse | undefined>(
+        ["user-info"],
+        (currentData) => {
+          if (!currentData) {
+            return currentData;
+          }
+
+          return {
+            ...currentData,
+            userInfo: {
+              ...currentData.userInfo,
+              lifestyleProfile: lifestyleResponse.lifestyleProfile,
+              financialProfile: {
+                ...currentData.userInfo.financialProfile,
+                estimatedLifeExpectancy:
+                  lifestyleResponse.estimatedLifeExpectancy,
+              },
+            },
+          };
+        },
+      );
+      setProfileDraft((prev) =>
+        prev
+          ? {
+              ...prev,
+              estimatedLE: String(lifestyleResponse.estimatedLifeExpectancy),
+            }
+          : prev,
+      );
+      setHabitsDraft(null);
+    } catch (error) {
+      setSectionError(
+        error instanceof Error
+          ? error.message
+          : "Unable to update lifestyle profile.",
+      );
+    }
+  }
+
+  async function handleSaveStages() {
+    setSectionError(null);
+    try {
+      await patchStagesMutation.mutateAsync(
+        buildPatchStagesRequest(currentStages),
+      );
+      setStagesDraft(null);
+      await refreshUserInfoData();
+    } catch (error) {
+      setSectionError(
+        error instanceof Error ? error.message : "Unable to update stages.",
+      );
+    }
+  }
+
+  async function handleSaveAssets() {
+    setSectionError(null);
+    try {
+      if (newAssets.length > 0) {
+        await createAssetsMutation.mutateAsync(
+          buildCreateAssetsRequest(newAssets),
+        );
+      }
+
+      if (changedPersistedAssets.length > 0) {
+        await patchAssetsMutation.mutateAsync(
+          buildPatchAssetsRequest(changedPersistedAssets),
+        );
+      }
+
+      setAssetsDraft(null);
+      await refreshUserInfoData();
+    } catch (error) {
+      setSectionError(
+        error instanceof Error ? error.message : "Unable to update assets.",
+      );
+    }
+  }
+
+  async function handleRemoveAsset(asset: Asset, index: number) {
+    setSectionError(null);
+
+    if (!asset.uid) {
+      setAssetsDraft((prev) => {
+        const sourceAssets = prev ?? baseFinancialData.assets;
+        return sourceAssets.filter((_, currentIndex) => currentIndex !== index);
       });
-    });
+      return;
+    }
+
+    try {
+      await deleteAssetMutation.mutateAsync(asset.uid);
+      setAssetsDraft((prev) => {
+        if (!prev) {
+          return prev;
+        }
+
+        return prev.filter((_, currentIndex) => currentIndex !== index);
+      });
+      await refreshUserInfoData();
+    } catch (error) {
+      setSectionError(
+        error instanceof Error ? error.message : "Unable to delete asset.",
+      );
+    }
   }
 
-  function handleHabitChange(key: keyof Habits, value: string) {
-    setDraftHabits((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-  }
-
-  function handleSaveHabits() {
-    (Object.keys(draftHabits) as Array<keyof Habits>).forEach((key) => {
-      dispatch({ type: "update_habit", key, value: draftHabits[key] });
-    });
-  }
-
-  function handleStageChange(index: number, next: StageEditorValue) {
-    setDraftStages((prev) =>
-      prev.map((stage, currentIndex) => (currentIndex === index ? fromStageEditorValue(next) : stage))
+  if (isLoading) {
+    return (
+      <Card hoverable={false} className="w-full rounded-xl bg-white p-6 shadow-md">
+        <h2 className="text-2xl font-bold text-primary">
+          Financial Profile and Planning
+        </h2>
+        <p className="mt-4 text-sm text-muted-foreground">
+          Loading your financial profile...
+        </p>
+      </Card>
     );
   }
 
-  function handleSaveStages() {
-    draftStages.forEach((stage, index) => {
-      dispatch({ type: "update_stage", index, stage });
-    });
+  if (!userInfoQuery.data) {
+    return (
+      <Card hoverable={false} className="w-full rounded-xl bg-white p-6 shadow-md">
+        <h2 className="text-2xl font-bold text-primary">
+          Financial Profile and Planning
+        </h2>
+        <p className="mt-4 text-sm font-semibold text-red-600">
+          {pageError ?? "Unable to load financial profile."}
+        </p>
+        <div className="mt-4">
+          <Button size="sm" onClick={() => userInfoQuery.refetch()}>
+            Retry
+          </Button>
+        </div>
+      </Card>
+    );
   }
-
-  function handleAssetChange(index: number, next: Asset) {
-    setDraftAssets((prev) => prev.map((asset, currentIndex) => (currentIndex === index ? next : asset)));
-  }
-
-  function handleAddAsset() {
-    setDraftAssets((prev) => [...prev, createEmptyAsset()]);
-  }
-
-  function handleRemoveAsset(index: number) {
-    setDraftAssets((prev) => prev.filter((_, currentIndex) => currentIndex !== index));
-  }
-
-  function handleSaveAssets() {
-    dispatch({ type: "set_assets", assets: draftAssets });
-    writeAssetsToOnboardingDraft(draftAssets);
-  }
-
-  const canSaveProfile = Boolean(
-    draftProfile.estimatedLE && draftProfile.savings && draftProfile.currency && draftProfile.desiredLE
-  );
-  const canSaveAllocations = (["before", "after"] as const).every((period) =>
-    (["u", "mu", "rf"] as const).every((key) => Boolean(draftAllocation[period][key]))
-  );
-  const canSaveHabits = (Object.keys(draftHabits) as Array<keyof Habits>).every((key) =>
-    Boolean(draftHabits[key])
-  );
-  const canSaveStages = draftStages.length > 0 && draftStages.every(isStageComplete);
-  const canSaveAssets = draftAssets.every(isAssetComplete);
 
   return (
     <Card hoverable={false} className="w-full rounded-xl bg-white p-6 shadow-md">
-      <h2 className="text-2xl font-bold text-primary">Financial Profile and Planning</h2>
-      <p className="mt-1 text-sm text-muted-foreground">Manage your financial background, investment assumptions, lifestyle habits, life stages, and asset information.</p>
+      <h2 className="text-2xl font-bold text-primary">
+        Financial Profile and Planning
+      </h2>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Manage your financial background, investment assumptions, lifestyle
+        habits, life stages, and asset information.
+      </p>
+      {pageError ? (
+        <p className="mt-4 text-sm font-semibold text-red-600">{pageError}</p>
+      ) : null}
 
       <div className="mt-6 space-y-6">
         <FinancialForm
-          profile={draftProfile}
-          allocation={draftAllocation}
-          habits={draftHabits}
-          onProfileChange={handleProfileChange}
-          onAllocationChange={handleAllocationChange}
-          onHabitChange={handleHabitChange}
+          profile={currentProfile}
+          allocation={currentAllocation}
+          habits={currentHabits}
+          currencyOptions={references.currencyOptions}
+          habitOptions={{
+            smoking: references.smokingOptions,
+            physical: references.physicalActivityOptions,
+            diet: references.dietQualityOptions,
+            alcohol: references.alcoholConsumptionOptions,
+          }}
+          onProfileChange={(field, value) => {
+            setProfileDraft((prev) => ({
+              ...(prev ?? {
+                estimatedLE: baseFinancialData.estimatedLE,
+                savings: baseFinancialData.savings,
+                currency: baseFinancialData.currency,
+                desiredLE: baseFinancialData.desiredLE,
+              }),
+              [field]: value,
+            }));
+          }}
+          onAllocationChange={(period, key, value) => {
+            setAllocationDraft((prev) => ({
+              ...(prev ?? baseFinancialData.allocation),
+              [period]: {
+                ...(prev ?? baseFinancialData.allocation)[period],
+                [key]: value,
+              },
+            }));
+          }}
+          onHabitChange={(key, value) => {
+            setHabitsDraft((prev) => ({
+              ...(prev ?? baseFinancialData.habits),
+              [key]: value,
+            }));
+          }}
           onSaveProfile={handleSaveProfile}
           onSaveAllocations={handleSaveAllocations}
           onSaveHabits={handleSaveHabits}
           canSaveProfile={canSaveProfile}
-          canSaveAllocations={canSaveAllocations}
+          canSaveAllocations={canSaveAllocation}
           canSaveHabits={canSaveHabits}
         />
 
         <div className="rounded-xl border border-border bg-slate-50 p-4">
           <h3 className="text-base font-semibold text-slate-900">Life Stages</h3>
-          <p className="mt-1 text-xs italic text-slate-600">Includes all pre-FFP income sources (e.g. salary, rental income, etc.)</p>
+          <p className="mt-1 text-xs italic text-slate-600">
+            Includes all pre-FFP income sources (e.g. salary, rental income,
+            etc.)
+          </p>
           <div className="mt-4 max-h-[24rem] space-y-4 overflow-y-auto pr-2">
-            {draftStages.map((stage, index) => (
+            {currentStages.map((stage, index) => (
               <StageEditorCard
-                key={`stage_${index}`}
+                key={`stage_${stage.lifeStageRangeId ?? index}`}
                 variant="account"
                 stage={toStageEditorValue(stage)}
                 index={index}
-                onChange={(next) => handleStageChange(index, next)}
+                onChange={(next) =>
+                  setStagesDraft((prev) => {
+                    const sourceStages = prev ?? baseFinancialData.stages;
+                    return sourceStages.map((currentStage, currentIndex) =>
+                      currentIndex === index
+                        ? fromStageEditorValue(currentStage, next)
+                        : currentStage,
+                    );
+                  })
+                }
               />
             ))}
           </div>
           <div className="mt-6 flex justify-end">
-            <Button size="sm" onClick={handleSaveStages} disabled={!canSaveStages}>
-              Save changes
+            <Button
+              size="sm"
+              onClick={handleSaveStages}
+              disabled={!canSaveStages}
+            >
+              {isSavingStages ? "Saving..." : "Save changes"}
             </Button>
           </div>
         </div>
 
-        <div className="space-y-4 rounded-xl border border-border bg-slate-50 p-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-semibold text-slate-900">Assets</h3>
-            <button type="button" onClick={handleAddAsset} className="text-sm font-semibold text-primary">
+        <div className="rounded-xl border border-border bg-slate-50 p-4">
+          <h3 className="text-base font-semibold text-slate-900">Assets</h3>
+          <p className="mt-1 text-xs italic text-slate-600">
+            Add additional income-generating assets such as rental properties, pensions, or investments.
+          </p>
+          <div className="mt-4 flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() =>
+                setAssetsDraft((prev) => [
+                  ...(prev ?? baseFinancialData.assets),
+                  createEmptyAsset(),
+                ])
+              }
+              className="text-sm font-semibold text-primary disabled:cursor-not-allowed disabled:text-slate-400"
+              disabled={references.isLoading || references.assetTypeOptions.length === 0}
+            >
               + Add asset
             </button>
           </div>
-          {draftAssets.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No assets yet.</p>
-          ) : (
-            draftAssets.map((asset, index) => (
-              <AssetForm
-                key={`asset_${index}`}
-                asset={asset}
-                index={index}
-                onChange={(next) => handleAssetChange(index, next)}
-                onRemove={() => handleRemoveAsset(index)}
-              />
-            ))
-          )}
-          <div className="flex justify-end">
-            <Button size="sm" onClick={handleSaveAssets} disabled={!canSaveAssets}>
-              Save changes
+          <div className="mt-4 space-y-4">
+            {currentAssets.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No assets yet.</p>
+            ) : (
+              currentAssets.map((asset, index) => (
+                <AssetForm
+                  key={asset.uid ?? asset.id}
+                  asset={asset}
+                  index={index}
+                  assetTypeOptions={getAssetOptionsForAsset(
+                    asset,
+                    references.assetTypeOptions,
+                  )}
+                  onChange={(next) =>
+                    setAssetsDraft((prev) => {
+                      const sourceAssets = prev ?? baseFinancialData.assets;
+                      return sourceAssets.map((currentAsset, currentIndex) =>
+                        currentIndex === index ? next : currentAsset,
+                      );
+                    })
+                  }
+                  onRemove={() => void handleRemoveAsset(asset, index)}
+                />
+              ))
+            )}
+          </div>
+          <div className="mt-4 flex justify-end">
+            <Button
+              size="sm"
+              onClick={handleSaveAssets}
+              disabled={!canSaveAssets}
+            >
+              {isSavingAssets ? "Saving..." : "Save changes"}
             </Button>
           </div>
         </div>

@@ -2,15 +2,23 @@
 
 import AssetEditorCard from "@/components/common/AssetEditorCard";
 import type { AssetItem } from "@/types/onboarding";
+import type { SelectOption } from "@/utils/referenceOptions";
 
 interface AssetCardEditorProps {
   asset: AssetItem;
   index: number;
+  assetTypeOptions: SelectOption[];
   onChange: (asset: AssetItem) => void;
   onDelete: (assetId: string) => void;
 }
 
-export default function AssetCardEditor({ asset, index, onChange, onDelete }: AssetCardEditorProps) {
+export default function AssetCardEditor({
+  asset,
+  index,
+  assetTypeOptions,
+  onChange,
+  onDelete,
+}: AssetCardEditorProps) {
   return (
     <AssetEditorCard
       asset={asset}
@@ -19,6 +27,7 @@ export default function AssetCardEditor({ asset, index, onChange, onDelete }: As
       onDelete={() => onDelete(asset.id)}
       idPrefix={`register_asset_${asset.id}_`}
       getTitle={(_, assetIndex) => `Asset ${assetIndex + 1}`}
+      assetTypeOptions={assetTypeOptions}
     />
   );
 }
