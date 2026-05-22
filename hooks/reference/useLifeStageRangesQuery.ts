@@ -5,7 +5,7 @@ export const useLifeStageRangesQuery = (birthYear: string) => {
   const parsedBirthYear = Number(birthYear);
   const enabled = Number.isInteger(parsedBirthYear) && parsedBirthYear > 0;
 
-  return useQuery({
+  const query = useQuery({
     queryKey: ["reference", "life-stage-ranges", parsedBirthYear],
     queryFn: async () => {
       const res = await referenceApi.getLifeStageRanges(parsedBirthYear);
@@ -17,4 +17,6 @@ export const useLifeStageRangesQuery = (birthYear: string) => {
     staleTime: Infinity,
     enabled,
   });
+
+  return { ...query, enabled };
 };

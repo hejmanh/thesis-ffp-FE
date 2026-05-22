@@ -262,7 +262,7 @@ export function mapUserInfoAssetToAsset(asset: UserInfoAssetResponse): Asset {
 }
 
 type StageRequestStage = Pick<Stage, "annualSaving" | "growthRate"> &
-  Partial<Pick<Stage, "lifeStageRangeId">>;
+  Required<Pick<Stage, "lifeStageRangeId">>;
 
 type StageRequestStageItem = Pick<
   StageItem,
@@ -272,17 +272,24 @@ type StageRequestStageItem = Pick<
 export function buildStagesRequest(
   stages: Array<StageRequestStage | StageRequestStageItem>,
 ): UserInfoStageData[] {
-  return stages.map((stage) => ({
-    lifeStageRangeId: stage.lifeStageRangeId ?? 0,
-    initialAnnualSavings: parseRequiredNumber(
-      stage.annualSaving,
-      "Initial annual savings",
-    ),
-    growthRate: parseRequiredNumber(
-      "annualRate" in stage ? stage.annualRate : stage.growthRate,
-      "Stage growth rate",
-    ),
-  }));
+  return stages.map((stage, index) => {
+    if (stage.lifeStageRangeId == null || stage.lifeStageRangeId === 0) {
+      throw new Error(
+        `Stage at index ${index} is missing a valid lifeStageRangeId`,
+      );
+    }
+    return {
+      lifeStageRangeId: stage.lifeStageRangeId,
+      initialAnnualSavings: parseRequiredNumber(
+        stage.annualSaving,
+        "Initial annual savings",
+      ),
+      growthRate: parseRequiredNumber(
+        "annualRate" in stage ? stage.annualRate : stage.growthRate,
+        "Stage growth rate",
+      ),
+    };
+  });
 }
 
 type AssetRequestAsset = Pick<

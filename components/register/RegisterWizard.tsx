@@ -129,8 +129,12 @@ export default function RegisterWizard() {
       setError(onboardingReferences.error);
       return;
     }
+    if (!lifeStageRangesQuery.enabled) {
+      setError("A valid birth year is required to continue. Please go back and update your account details.");
+      return;
+    }
     if (lifeStageRangesQuery.isLoading) {
-      setError("Loading life stage ranges...");
+      setError("Loading life stage ranges, please wait...");
       return;
     }
     if (lifeStageRangesQuery.error instanceof Error) {

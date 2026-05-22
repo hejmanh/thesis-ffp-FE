@@ -79,11 +79,10 @@ function fromStageEditorValue(stage: Stage, next: StageEditorValue): Stage {
 }
 
 function isStageComplete(stage: Stage): boolean {
-  return Boolean(
-    stage.lifeStageRangeId &&
-      stage.annualSaving &&
-      stage.currency &&
-      stage.growthRate,
+  return (
+    stage.lifeStageRangeId != null &&
+    stage.lifeStageRangeId > 0 &&
+    Boolean(stage.annualSaving && stage.currency && stage.growthRate)
   );
 }
 
