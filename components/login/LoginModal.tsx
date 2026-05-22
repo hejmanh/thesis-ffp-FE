@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import Button from "@/components/common/Button";
 import FormField from "@/components/common/FormField";
@@ -14,26 +15,13 @@ interface LoginModalProps {
 }
 
 export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [shouldRender, setShouldRender] = useState(isOpen);
-  const [isVisible, setIsVisible] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const previouslyFocusedElement = useRef<HTMLElement | null>(null);
   const { login, loading, error } = useAuth();
-
-  useEffect(() => {
-    if (isOpen) {
-      setShouldRender(true);
-      const frame = requestAnimationFrame(() => setIsVisible(true));
-      return () => cancelAnimationFrame(frame);
-    }
-
-    setIsVisible(false);
-    const timeout = window.setTimeout(() => setShouldRender(false), 200);
-    return () => window.clearTimeout(timeout);
-  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -95,20 +83,25 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     try {
-      await login({ email, password });
+      const result = await login({ email, password });
+      if (result.isFirstLogin) {
+        onClose();
+        router.push("/onboarding");
+        return;
+      }
       onClose();
     } catch {
     }
   }
 
-  if (!shouldRender) return null;
+  if (!isOpen) return null;
 
   return (
     <div
-      className={cn(
-        "fixed inset-0 z-50 flex items-center justify-center bg-slate-950/35 p-4 transition-opacity duration-200 ease-out motion-reduce:transition-none",
-        isVisible ? "opacity-100" : "opacity-0",
-      )}
+        className={cn(
+          "fixed inset-0 z-50 flex items-center justify-center bg-slate-950/35 p-4 transition-opacity duration-200 ease-out motion-reduce:transition-none",
+          "opacity-100",
+        )}
       onClick={onClose}
       role="presentation"
       aria-hidden={!isOpen}
@@ -117,9 +110,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
         ref={modalRef}
         className={cn(
           "w-full max-w-xl rounded-3xl bg-white p-5 shadow-xl transition-all duration-200 ease-out motion-reduce:transform-none motion-reduce:transition-none sm:p-6",
-          isVisible
-            ? "translate-y-0 scale-100 opacity-100"
-            : "translate-y-2 scale-[0.98] opacity-0",
+          "translate-y-0 scale-100 opacity-100",
         )}
         onClick={(event) => event.stopPropagation()}
         role="dialog"

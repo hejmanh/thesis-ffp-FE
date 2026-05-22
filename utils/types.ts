@@ -14,6 +14,8 @@ export interface Habits {
 }
 
 export interface Stage {
+  lifeStageRangeId?: number;
+  title?: string;
   startAge: string;
   endAge: string;
   annualSaving: string;
@@ -23,7 +25,10 @@ export interface Stage {
 
 export interface Asset {
   id: string;
+  uid?: string;
   assetTypeId: string;
+  assetTypeCode?: string;
+  assetTypeTitle?: string;
   initialAnnualIncome: string;
   growthRate: string;
 }

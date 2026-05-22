@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Button from "@/components/common/Button";
 import { authService } from "@/services/auth.service";
-import { tokenService } from "@/services/token.service";
 import { useAuthStore } from "@/store/auth.store";
 
 interface HeaderProps {
@@ -31,8 +30,6 @@ export default function Header({ onLoginClick, hideLoginButton = false, hideRegi
     try {
       await authService.logout();
     } catch {
-      tokenService.clear();
-      useAuthStore.getState().clearUser();
     } finally {
       setIsLoggingOut(false);
       startTransition(() => {

@@ -1,4 +1,9 @@
-import type { Country, SexType } from "@/types/reference";
+import type {
+  Country,
+  Currency,
+  ReferenceOption,
+  SexType,
+} from "@/types/reference";
 
 export type SelectOption = {
   label: string;
@@ -18,5 +23,40 @@ export function mapSexTypesToOptions(sexTypes: SexType[]): SelectOption[] {
   return sexTypes.map((sex) => ({
     label: sex.title ?? sex.code ?? `Type ${sex.id}`,
     value: String(sex.id),
+  }));
+}
+
+export function mapCurrenciesToOptions(currencies: Currency[]): SelectOption[] {
+  if (!currencies.length) return [];
+  return currencies.map((currency) => ({
+    label:
+      currency.code && currency.name
+        ? `${currency.code} - ${currency.name}`
+        : currency.code ?? currency.name ?? `Currency ${currency.id}`,
+    value: currency.code ?? String(currency.id),
+  }));
+}
+
+function getReferenceOptionLabel(option: ReferenceOption, fallbackPrefix: string): string {
+  return option.title ?? option.name ?? option.code ?? `${fallbackPrefix} ${option.id}`;
+}
+
+export function mapCodeReferencesToOptions<T extends ReferenceOption>(
+  options: T[],
+): SelectOption[] {
+  if (!options.length) return [];
+  return options.map((option) => ({
+    label: getReferenceOptionLabel(option, "Reference"),
+    value: option.code ?? String(option.id),
+  }));
+}
+
+export function mapIdReferencesToOptions<T extends ReferenceOption>(
+  options: T[],
+): SelectOption[] {
+  if (!options.length) return [];
+  return options.map((option) => ({
+    label: getReferenceOptionLabel(option, "Reference"),
+    value: String(option.id),
   }));
 }

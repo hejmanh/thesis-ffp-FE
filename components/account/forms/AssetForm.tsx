@@ -1,16 +1,24 @@
 "use client";
 
 import AssetEditorCard from "@/components/common/AssetEditorCard";
+import type { SelectOption } from "@/utils/referenceOptions";
 import type { Asset } from "@/utils/types";
 
 interface AssetFormProps {
   asset: Asset;
   index: number;
+  assetTypeOptions: SelectOption[];
   onChange: (next: Asset) => void;
   onRemove: () => void;
 }
 
-export default function AssetForm({ asset, index, onChange, onRemove }: AssetFormProps) {
+export default function AssetForm({
+  asset,
+  index,
+  assetTypeOptions,
+  onChange,
+  onRemove,
+}: AssetFormProps) {
   return (
     <AssetEditorCard
       asset={asset}
@@ -23,6 +31,7 @@ export default function AssetForm({ asset, index, onChange, onRemove }: AssetFor
       deleteActionClassName="text-sm font-semibold text-red-600"
       deleteLabel="Remove"
       getTitle={(_, assetIndex) => `Asset ${assetIndex + 1}`}
+      assetTypeOptions={assetTypeOptions}
     />
   );
 }

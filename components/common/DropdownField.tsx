@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/utils/cn";
 
 interface DropdownOption {
@@ -13,6 +13,7 @@ interface DropdownFieldProps {
   placeholder?: string;
   value?: string;
   onChange?: (value: string) => void;
+  disabled?: boolean;
   className?: string;
   buttonClassName?: string;
   id?: string;
@@ -25,6 +26,7 @@ export default function DropdownField({
   placeholder = "Select...",
   value,
   onChange,
+  disabled = false,
   className,
   buttonClassName,
   id,
@@ -44,12 +46,16 @@ export default function DropdownField({
     ? options.filter((o) => o.label.toLowerCase().includes(search.toLowerCase()))
     : options;
 
+  const handleSelect = useCallback((selectedValue: string) => {
+    onChange?.(selectedValue);
+    setOpen(false);
+    setSearch("");
+    setHighlightedIndex(-1);
+  }, [onChange]);
+
   useEffect(() => {
-    if (open) {
-      setHighlightedIndex(-1);
-      if (searchable && searchInputRef.current) {
-        searchInputRef.current.focus();
-      }
+    if (open && searchable && searchInputRef.current) {
+      searchInputRef.current.focus();
     }
   }, [open, searchable]);
 
@@ -100,20 +106,13 @@ export default function DropdownField({
         document.removeEventListener("keydown", handleKeyDown);
       };
     }
-  }, [open, filteredOptions, highlightedIndex]);
+  }, [filteredOptions, handleSelect, highlightedIndex, open]);
 
   useEffect(() => {
     if (highlightedIndex >= 0 && optionsRef.current[highlightedIndex]) {
       optionsRef.current[highlightedIndex].scrollIntoView({ block: "nearest" });
     }
   }, [highlightedIndex]);
-
-  const handleSelect = useCallback((selectedValue: string) => {
-    onChange?.(selectedValue);
-    setOpen(false);
-    setSearch("");
-    setHighlightedIndex(-1);
-  }, [onChange]);
 
   return (
     <div ref={dropdownRef} className={cn("relative", className)}>
@@ -122,12 +121,22 @@ export default function DropdownField({
       <button
         ref={buttonRef}
         type="button"
-        onClick={() => setOpen(!open)}
+        onClick={() => {
+          if (disabled) {
+            return;
+          }
+          setOpen((currentOpen) => !currentOpen);
+          setHighlightedIndex(-1);
+          if (open) {
+            setSearch("");
+          }
+        }}
+        disabled={disabled}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={id ? `${id}-listbox` : undefined}
         className={cn(
-          "inline-flex h-9 w-full items-center justify-between rounded-full border border-gray-300 bg-white px-3 text-sm leading-tight text-slate-700 outline-none transition focus-visible:ring-2 focus-visible:ring-ring hover:bg-gray-50",
+          "inline-flex h-9 w-full items-center justify-between rounded-full border border-gray-300 bg-white px-3 text-sm leading-tight text-slate-700 outline-none transition focus-visible:ring-2 focus-visible:ring-ring hover:bg-gray-50 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400",
           buttonClassName
         )}
       >

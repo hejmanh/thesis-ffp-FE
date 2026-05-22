@@ -42,7 +42,14 @@ export function validateStep2(data: Step2PersonalData): string | null {
 }
 
 export function isStageComplete(stage: StageItem): boolean {
-  return Boolean(stage.ageStart && stage.ageEnd && stage.annualSaving && stage.currency && stage.annualRate);
+  return Boolean(
+    stage.lifeStageRangeId &&
+      stage.ageStart &&
+      stage.ageEnd &&
+      stage.annualSaving &&
+      stage.currency &&
+      stage.annualRate,
+  );
 }
 
 export function isAssetComplete(asset: AssetItem): boolean {

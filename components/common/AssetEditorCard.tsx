@@ -1,7 +1,7 @@
 "use client";
 
 import FormField from "@/components/common/FormField";
-import { ASSET_TYPE_OPTIONS } from "@/utils/onboardingConstants";
+import type { SelectOption } from "@/utils/referenceOptions";
 
 export interface AssetEditorValue {
   assetTypeId: string;
@@ -20,6 +20,8 @@ interface AssetEditorCardProps<TAsset extends AssetEditorValue> {
   deleteActionClassName?: string;
   deleteLabel?: string;
   getTitle?: (asset: TAsset, index: number) => string;
+  assetTypeOptions: SelectOption[];
+  assetTypeDisabled?: boolean;
 }
 
 export default function AssetEditorCard<TAsset extends AssetEditorValue>({
@@ -33,6 +35,8 @@ export default function AssetEditorCard<TAsset extends AssetEditorValue>({
   deleteActionClassName = "text-sm font-semibold text-red-500",
   deleteLabel = "Delete",
   getTitle,
+  assetTypeOptions,
+  assetTypeDisabled = false,
 }: AssetEditorCardProps<TAsset>) {
   function updateField<K extends keyof AssetEditorValue>(key: K, value: AssetEditorValue[K]) {
     onChange({
@@ -62,7 +66,8 @@ export default function AssetEditorCard<TAsset extends AssetEditorValue>({
           selectClassName="h-11"
           value={asset.assetTypeId}
           onChange={(value) => updateField("assetTypeId", value)}
-          options={ASSET_TYPE_OPTIONS.map((option) => ({ label: option.label, value: String(option.id) }))}
+          options={assetTypeOptions}
+          disabled={assetTypeDisabled}
         />
         <FormField
           id={`${idPrefix}initialAnnualIncome`}

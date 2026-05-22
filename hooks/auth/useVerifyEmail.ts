@@ -1,34 +1,56 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { authService } from "@/services/auth.service";
 
 type Status = "pending" | "success" | "error";
 
 export function useVerifyEmail() {
-  const searchParams = useSearchParams();
-  const token = searchParams.get("token");
-  const [status, setStatus] = useState<Status>("pending");
-  const [error, setError] = useState<string | null>(null);
+  const [verificationState, setVerificationState] = useState<{
+    token: string | null;
+    status: Status;
+    error: string | null;
+  }>(() => {
+    if (typeof window === "undefined") {
+      return { token: null, status: "pending", error: null };
+    }
+
+    const token = new URLSearchParams(window.location.search).get("token");
+    if (!token) {
+      return {
+        token: null,
+        status: "error",
+        error: "Invalid verification link",
+      };
+    }
+
+    return { token, status: "pending", error: null };
+  });
 
   useEffect(() => {
-    if (!token) {
+    if (!verificationState.token) {
       return;
     }
 
     authService
-      .verifyEmail(token)
-      .then(() => setStatus("success"))
+      .verifyEmail(verificationState.token)
+      .then(() =>
+        setVerificationState((currentState) => ({
+          ...currentState,
+          status: "success",
+        })),
+      )
       .catch((err) => {
-        setError(err instanceof Error ? err.message : "Verification failed");
-        setStatus("error");
+        setVerificationState((currentState) => ({
+          ...currentState,
+          status: "error",
+          error: err instanceof Error ? err.message : "Verification failed",
+        }));
       });
-  }, [token]);
+  }, [verificationState.token]);
 
-  if (!token) {
-    return { status: "error", error: "Invalid verification link" };
-  }
-
-  return { status, error };
+  return {
+    status: verificationState.status,
+    error: verificationState.error,
+  };
 }

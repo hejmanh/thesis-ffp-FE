@@ -1,16 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { authService } from "@/services/auth.service";
 
 export function useResetPassword() {
-  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const submit = async (password: string) => {
-    const token = searchParams.get("token");
+    const token = new URLSearchParams(window.location.search).get("token");
     if (!token) {
       setError("Invalid reset link");
       return;

@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import { authService } from "@/services/auth.service";
 import { useAuthStore } from "@/store/auth.store";
-import type { LoginPayload, RegisterInput } from "@/types/auth";
+import type { LoginPayload, LoginResult, RegisterInput } from "@/types/auth";
 
 export function useAuth() {
   const { user, isAuthenticated } = useAuthStore();
@@ -26,7 +26,7 @@ export function useAuth() {
   }, []);
 
   const login = useCallback(
-    (payload: LoginPayload) => wrap(() => authService.login(payload)),
+    (payload: LoginPayload) => wrap<LoginResult>(() => authService.login(payload)),
     [wrap],
   );
 

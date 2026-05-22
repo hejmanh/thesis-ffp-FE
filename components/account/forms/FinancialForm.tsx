@@ -1,6 +1,8 @@
 "use client";
 
+import Button from "@/components/common/Button";
 import FinancialProfileFields from "@/components/common/FinancialProfileFields";
+import type { SelectOption } from "@/utils/referenceOptions";
 import type { Allocation, FinancialData, Habits } from "@/utils/types";
 
 interface FinancialFormProps {
@@ -12,15 +14,21 @@ interface FinancialFormProps {
   };
   allocation: FinancialData["allocation"];
   habits: Habits;
-  onProfileChange: (field: "estimatedLE" | "savings" | "currency" | "desiredLE", value: string) => void;
-  onAllocationChange: (period: "before" | "after", key: keyof Allocation, value: string) => void;
+  currencyOptions: SelectOption[];
+  habitOptions: Record<keyof Habits, SelectOption[]>;
+  canSave: boolean;
+  isSaving: boolean;
+  onSave: () => void;
+  onProfileChange: (
+    field: "estimatedLE" | "savings" | "currency" | "desiredLE",
+    value: string,
+  ) => void;
+  onAllocationChange: (
+    period: "before" | "after",
+    key: keyof Allocation,
+    value: string,
+  ) => void;
   onHabitChange: (key: keyof Habits, value: string) => void;
-  onSaveProfile: () => void;
-  onSaveAllocations: () => void;
-  onSaveHabits: () => void;
-  canSaveProfile?: boolean;
-  canSaveAllocations?: boolean;
-  canSaveHabits?: boolean;
 }
 
 const HABIT_LABELS: Record<keyof Habits, string> = {
@@ -34,47 +42,50 @@ export default function FinancialForm({
   profile,
   allocation,
   habits,
+  currencyOptions,
+  habitOptions,
+  canSave,
+  isSaving,
+  onSave,
   onProfileChange,
   onAllocationChange,
   onHabitChange,
-  onSaveProfile,
-  onSaveAllocations,
-  onSaveHabits,
-  canSaveProfile,
-  canSaveAllocations,
-  canSaveHabits,
 }: FinancialFormProps) {
   return (
     <FinancialProfileFields
-      profile={{
-        estimatedLifeExpectancy: profile.estimatedLE,
-        desiredLifeExpectancy: profile.desiredLE,
-        currentSavings: profile.savings,
-        preferredCurrency: profile.currency,
-      }}
-      allocations={allocation}
-      habits={(Object.keys(habits) as Array<keyof Habits>).map((habit) => ({
-        key: habit,
-        label: HABIT_LABELS[habit],
-        value: habits[habit],
-      }))}
-      onRootChange={(field, value) => {
-        const fieldMap = {
-          estimatedLifeExpectancy: "estimatedLE",
-          desiredLifeExpectancy: "desiredLE",
-          currentSavings: "savings",
-          preferredCurrency: "currency",
-        } as const;
-        onProfileChange(fieldMap[field], value);
-      }}
-      onAllocationChange={onAllocationChange}
-      onHabitChange={onHabitChange}
-      onSaveProfile={onSaveProfile}
-      onSaveAllocations={onSaveAllocations}
-      onSaveHabits={onSaveHabits}
-      canSaveProfile={canSaveProfile}
-      canSaveAllocations={canSaveAllocations}
-      canSaveHabits={canSaveHabits}
-    />
+        profile={{
+          estimatedLifeExpectancy: profile.estimatedLE,
+          desiredLifeExpectancy: profile.desiredLE,
+          currentSavings: profile.savings,
+          preferredCurrency: profile.currency,
+        }}
+        allocations={allocation}
+        habits={(Object.keys(habits) as Array<keyof Habits>).map((habit) => ({
+          key: habit,
+          label: HABIT_LABELS[habit],
+          value: habits[habit],
+          options: habitOptions[habit],
+        }))}
+        currencyOptions={currencyOptions}
+        disabledRootFields={{ estimatedLifeExpectancy: true }}
+        onRootChange={(field, value) => {
+          const fieldMap = {
+            estimatedLifeExpectancy: "estimatedLE",
+            desiredLifeExpectancy: "desiredLE",
+            currentSavings: "savings",
+            preferredCurrency: "currency",
+          } as const;
+          onProfileChange(fieldMap[field], value);
+        }}
+        onAllocationChange={onAllocationChange}
+        onHabitChange={onHabitChange}
+        footer={
+          <div className="mt-4 flex justify-end">
+            <Button size="sm" onClick={onSave} disabled={!canSave}>
+              {isSaving ? "Saving..." : "Save changes"}
+            </Button>
+          </div>
+        }
+      />
   );
 }

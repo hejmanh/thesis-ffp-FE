@@ -3,11 +3,15 @@
 import Button from "@/components/common/Button";
 import AssetCardEditor from "@/components/register/cards/AssetCardEditor";
 import type { AssetItem } from "@/types/onboarding";
+import type { SelectOption } from "@/utils/referenceOptions";
 import { isAssetComplete } from "@/utils/onboardingValidators";
 
 interface Step4AssetsCardsProps {
   assets: AssetItem[];
+  assetTypeOptions: SelectOption[];
   error: string;
+  referenceError?: string | null;
+  isReferenceLoading: boolean;
   isSubmitting: boolean;
   onBack: () => void;
   onSubmit: () => void;
@@ -25,7 +29,10 @@ function makeEmptyAsset(): AssetItem {
 
 export default function Step4AssetsCards({
   assets,
+  assetTypeOptions,
   error,
+  referenceError,
+  isReferenceLoading,
   isSubmitting,
   onBack,
   onSubmit,
@@ -43,7 +50,7 @@ export default function Step4AssetsCards({
     onChange([...assets, makeEmptyAsset()]);
   }
 
-  const canSubmit = assets.length > 0 && assets.every(isAssetComplete);
+  const canSubmit = assets.length === 0 || assets.every(isAssetComplete);
 
   return (
     <div className="mt-8">
@@ -57,22 +64,34 @@ export default function Step4AssetsCards({
             key={asset.id}
             asset={asset}
             index={index}
+            assetTypeOptions={assetTypeOptions}
             onChange={handleAssetChange}
             onDelete={handleDelete}
           />
         ))}
       </div>
       <div className="mx-auto mt-5 max-w-5xl">
-        <button type="button" onClick={handleAddAsset} className="text-sm font-semibold text-primary">
+        <button
+          type="button"
+          onClick={handleAddAsset}
+          className="text-sm font-semibold text-primary disabled:cursor-not-allowed disabled:text-slate-400"
+          disabled={isReferenceLoading || assetTypeOptions.length === 0}
+        >
           + Add another asset
         </button>
       </div>
+      {isReferenceLoading ? (
+        <p className="mt-4 text-center text-sm text-muted-foreground">Loading asset types...</p>
+      ) : null}
+      {referenceError ? (
+        <p className="mt-4 text-center text-sm font-semibold text-red-600">{referenceError}</p>
+      ) : null}
       {error ? <p className="mt-4 text-center text-sm font-semibold text-red-600">{error}</p> : null}
       <div className="mx-auto mt-8 flex max-w-5xl flex-col gap-3">
         <Button
           className="h-12 w-full rounded-full text-base"
           onClick={onSubmit}
-          disabled={!canSubmit || isSubmitting}
+          disabled={!canSubmit || isSubmitting || isReferenceLoading}
         >
           {isSubmitting ? "Saving..." : "Complete Onboarding"}
         </Button>

@@ -15,6 +15,10 @@ export interface LoginResponseData {
   isFirstLogin: boolean;
 }
 
+export interface LoginResult {
+  isFirstLogin: boolean;
+}
+
 export interface RefreshResponseData {
   accessToken: string;
 }

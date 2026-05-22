@@ -1,5 +1,6 @@
 "use client";
 
+import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/common/Button";
 import FormField from "@/components/common/FormField";
@@ -10,7 +11,7 @@ import type { SelectOption } from "@/utils/referenceOptions";
 interface Step1AccountFormProps {
   data: Step1AccountData;
   error: string;
-  isSubmitting: boolean;
+  submissionStage: "registering" | "logging-in" | null;
   countryOptions: SelectOption[];
   sexOptions: SelectOption[];
   onFieldChange: <K extends keyof Step1AccountData>(
@@ -23,7 +24,7 @@ interface Step1AccountFormProps {
 export default function Step1AccountForm({
   data,
   error,
-  isSubmitting,
+  submissionStage,
   countryOptions,
   sexOptions,
   onFieldChange,
@@ -31,6 +32,19 @@ export default function Step1AccountForm({
 }: Step1AccountFormProps) {
   const isReferenceReady = countryOptions.length > 0 && sexOptions.length > 0;
   const router = useRouter();
+  const isSubmitting = submissionStage !== null;
+  const submitLabel =
+    submissionStage === "logging-in"
+      ? "Signing you in..."
+      : submissionStage === "registering"
+        ? "Creating account..."
+        : "Create account";
+  const loadingMessage =
+    submissionStage === "logging-in"
+      ? "Account created. Logging you in and opening step 1..."
+      : submissionStage === "registering"
+        ? "Creating your account..."
+        : "";
 
   return (
     <div className="mt-3">
@@ -94,8 +108,19 @@ export default function Step1AccountForm({
           onClick={onNext}
           disabled={isSubmitting || !isReferenceReady}
         >
-          {isSubmitting ? "Creating account..." : "Create account"}
+          <span className="inline-flex items-center gap-2 transition-opacity duration-200">
+            {isSubmitting ? (
+              <Icon icon="mdi:loading" className="h-4 w-4 animate-spin" />
+            ) : null}
+            <span>{submitLabel}</span>
+          </span>
         </Button>
+        {isSubmitting ? (
+          <div className="mt-4 flex items-center justify-center gap-2 text-sm font-medium text-primary">
+            <span className="h-2 w-2 animate-pulse rounded-full bg-current" />
+            <p>{loadingMessage}</p>
+          </div>
+        ) : null}
       </div>
       <p className="mt-6 text-center text-sm text-muted-foreground">
         Already have an account?{" "}

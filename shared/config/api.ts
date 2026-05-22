@@ -10,10 +10,18 @@ export interface ApiErrorDetail {
   message: string;
 }
 
+export interface ApiMeta {
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+}
+
 export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   message?: string;
   error?: string;
   errors?: ApiErrorDetail[];
+  meta?: ApiMeta;
 }

@@ -1,7 +1,16 @@
 import { authApi } from "@/api/auth.api";
+import { queryClient } from "@/lib/queryClient";
 import { tokenService } from "@/services/token.service";
 import { useAuthStore } from "@/store/auth.store";
-import type { LoginPayload, RegisterInput } from "@/types/auth";
+import type { LoginPayload, LoginResult, RegisterInput } from "@/types/auth";
+import { clearOnboardingState } from "@/utils/onboardingStorage";
+
+function clearClientSessionState() {
+  tokenService.clear();
+  useAuthStore.getState().clearUser();
+  clearOnboardingState();
+  queryClient.clear();
+}
 
 export const authService = {
   getAccessToken: () => tokenService.get(),
@@ -20,7 +29,7 @@ export const authService = {
    * On error, clears any existing auth state to ensure consistent store.
    * @throws Error with descriptive message on login failure
    */
-  async login(payload: LoginPayload): Promise<void> {
+  async login(payload: LoginPayload): Promise<LoginResult> {
     const res = await authApi.login(payload);
     if (!res.success || !res.data?.accessToken) {
       throw new Error(res.error ?? "Login failed");
@@ -29,10 +38,12 @@ export const authService = {
     try {
       tokenService.set(res.data.accessToken);
       useAuthStore.getState().setUser(res.data.user ?? { email: payload.email });
+      return {
+        isFirstLogin: res.data.isFirstLogin,
+      };
     } catch (error) {
       // rollback on state update failure
-      tokenService.clear();
-      useAuthStore.getState().clearUser();
+      clearClientSessionState();
       throw error;
     }
   },
@@ -42,9 +53,23 @@ export const authService = {
    * @throws Error on logout API failure (state is still cleared)
    */
   async logout(): Promise<void> {
-    await authApi.logout();
-    tokenService.clear();
-    useAuthStore.getState().clearUser();
+    let logoutError: Error | null = null;
+
+    try {
+      const res = await authApi.logout();
+      if (!res.success) {
+        logoutError = new Error(res.error ?? "Logout failed");
+      }
+    } catch (error) {
+      logoutError =
+        error instanceof Error ? error : new Error("Logout failed");
+    } finally {
+      clearClientSessionState();
+    }
+
+    if (logoutError) {
+      throw logoutError;
+    }
   },
 
   /**
