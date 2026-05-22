@@ -16,14 +16,16 @@ import {
   mapSexTypesToOptions,
 } from "@/utils/referenceOptions";
 
+type SubmissionStage = "registering" | "logging-in" | null;
+
 export default function RegisterAccountForm() {
   const router = useRouter();
   const [data, setData] = useState<Step1AccountData>(
     () => createEmptyOnboardingState().step1,
   );
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const { register } = useAuth();
+  const [submissionStage, setSubmissionStage] = useState<SubmissionStage>(null);
+  const { login, register } = useAuth();
   const { countries, sexTypes, error: referenceError } = usePersonalInfoReferences();
 
   const countryOptions = useMemo(
@@ -57,7 +59,7 @@ export default function RegisterAccountForm() {
       return;
     }
 
-    setLoading(true);
+    setSubmissionStage("registering");
     try {
       await register({
         name: data.name,
@@ -73,15 +75,21 @@ export default function RegisterAccountForm() {
         step1: data,
       });
 
-      router.push("/?login=1");
+      setSubmissionStage("logging-in");
+      await login({
+        email: data.email,
+        password: data.password,
+      });
+
+      router.replace("/onboarding");
     } catch (submitError) {
       setError(
         submitError instanceof Error
           ? submitError.message
-          : "Unable to register.",
+          : "Unable to create your account.",
       );
     } finally {
-      setLoading(false);
+      setSubmissionStage(null);
     }
   }
 
@@ -91,7 +99,7 @@ export default function RegisterAccountForm() {
         <Step1AccountForm
           data={data}
           error={displayError}
-          isSubmitting={loading}
+          submissionStage={submissionStage}
           countryOptions={countryOptions}
           sexOptions={sexOptions}
           onFieldChange={updateField}
