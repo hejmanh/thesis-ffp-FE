@@ -52,7 +52,7 @@ export default function PersonalInfoSection() {
 
       <div className="mt-8 rounded-xl border border-border bg-slate-50 p-4">
         <h3 className="text-lg font-semibold text-slate-900">Security</h3>
-        <p className="mt-1 text-sm text-muted-foreground">Update your password.</p>
+        <p className="mt-1 text-xs italic text-slate-600">Update your password.</p>
         <div className="mt-6">
           <PersonalInfoFields
             variant="account"

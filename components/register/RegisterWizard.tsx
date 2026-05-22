@@ -47,6 +47,19 @@ export default function RegisterWizard() {
     stages: false,
   });
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    Promise.all([
+      userInfoService.getFinancial().catch(() => null),
+      userInfoService.getStages().catch(() => []),
+    ]).then(([financial, stages]) => {
+      setCreatedSteps({
+        financial: financial !== null,
+        stages: stages.length > 0,
+      });
+    });
+  }, [isAuthenticated]);
   const onboardingReferences = useOnboardingReferences();
   const lifeStageRangesQuery = useLifeStageRangesQuery(draft.step1.birthYear);
 

@@ -511,6 +511,9 @@ export default function FinancialSection() {
               diet: references.dietQualityOptions,
               alcohol: references.alcoholConsumptionOptions,
             }}
+            canSave={canSaveFinancial}
+            isSaving={isSavingFinancial}
+            onSave={handleSaveFinancial}
             onProfileChange={(field, value) => {
               setProfileDraft((prev) => ({
                 ...(prev ?? {
@@ -538,15 +541,6 @@ export default function FinancialSection() {
               }));
             }}
           />
-          <div className="flex justify-end">
-            <Button
-              size="sm"
-              onClick={handleSaveFinancial}
-              disabled={!canSaveFinancial}
-            >
-              {isSavingFinancial ? "Saving..." : "Save changes"}
-            </Button>
-          </div>
         </div>
 
         <div className="rounded-xl border border-border bg-slate-50 p-4">

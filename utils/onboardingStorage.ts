@@ -30,7 +30,7 @@ export function createEmptyOnboardingState(): OnboardingDraft {
   };
 }
 
-let onboardingDraftState: OnboardingDraft = createEmptyOnboardingState();
+const STORAGE_KEY = "onboarding_draft";
 
 export function mergeOnboardingState(
   parsedDraft: Partial<OnboardingDraft> | null | undefined,
@@ -68,13 +68,32 @@ export function mergeOnboardingState(
 }
 
 export function loadOnboardingState(): OnboardingDraft {
-  return onboardingDraftState;
+  if (typeof window === "undefined") {
+    return createEmptyOnboardingState();
+  }
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return createEmptyOnboardingState();
+    return mergeOnboardingState(JSON.parse(raw) as Partial<OnboardingDraft>);
+  } catch {
+    return createEmptyOnboardingState();
+  }
 }
 
 export function saveOnboardingState(draft: OnboardingDraft) {
-  onboardingDraftState = mergeOnboardingState(draft);
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(mergeOnboardingState(draft)));
+  } catch {
+    // localStorage unavailable (e.g. private browsing quota exceeded) — silently ignore
+  }
 }
 
 export function clearOnboardingState() {
-  onboardingDraftState = createEmptyOnboardingState();
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // ignore
+  }
 }
