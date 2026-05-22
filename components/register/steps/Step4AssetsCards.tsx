@@ -50,7 +50,7 @@ export default function Step4AssetsCards({
     onChange([...assets, makeEmptyAsset()]);
   }
 
-  const canSubmit = assets.length > 0 && assets.every(isAssetComplete);
+  const canSubmit = assets.length === 0 || assets.every(isAssetComplete);
 
   return (
     <div className="mt-8">
@@ -91,7 +91,7 @@ export default function Step4AssetsCards({
         <Button
           className="h-12 w-full rounded-full text-base"
           onClick={onSubmit}
-          disabled={!canSubmit || isSubmitting || isReferenceLoading || assetTypeOptions.length === 0}
+          disabled={!canSubmit || isSubmitting || isReferenceLoading}
         >
           {isSubmitting ? "Saving..." : "Complete Onboarding"}
         </Button>

@@ -38,6 +38,7 @@ interface FinancialProfileFieldsProps<HabitKey extends string> {
   onHabitChange: (key: HabitKey, value: string) => void;
   idPrefix?: string;
   cardClassName?: string;
+  infoCardClassName?: string;
   titleClassName?: string;
   hintClassName?: string;
   fieldLabels?: Partial<Record<RootFieldKey, string>>;

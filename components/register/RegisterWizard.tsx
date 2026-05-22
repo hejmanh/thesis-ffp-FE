@@ -49,6 +49,22 @@ export default function RegisterWizard() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   useEffect(() => {
+    if (isAuthenticated || !tokenService.get()) {
+      return;
+    }
+
+    if (draft.step1.email) {
+      useAuthStore.getState().setUser({
+        email: draft.step1.email,
+        name: draft.step1.name || undefined,
+      });
+      return;
+    }
+
+    useAuthStore.getState().setAuthenticated(true);
+  }, [draft.step1.email, draft.step1.name, isAuthenticated]);
+
+  useEffect(() => {
     if (!isAuthenticated) return;
     Promise.all([
       userInfoService.getFinancial().catch(() => null),
@@ -201,15 +217,17 @@ export default function RegisterWizard() {
       setError("Please complete your stage data before submitting.");
       return;
     }
-    if (!nextDraft.assets.length || !nextDraft.assets.every(isAssetComplete)) {
-      setError("Please add at least one complete asset card.");
+    if (nextDraft.assets.length > 0 && !nextDraft.assets.every(isAssetComplete)) {
+      setError("Please complete each asset card before submitting.");
       return;
     }
     setSaving(true);
     setToastMessage("Saving your assets...");
     try {
-      const payload = buildCreateAssetsRequest(nextDraft.assets);
-      await userInfoService.createAssets(payload);
+      if (nextDraft.assets.length > 0) {
+        const payload = buildCreateAssetsRequest(nextDraft.assets);
+        await userInfoService.createAssets(payload);
+      }
       clearOnboardingState();
       setCompleted(true);
     } catch (submitError) {
@@ -227,10 +245,15 @@ export default function RegisterWizard() {
   const stepContent = completed ? (
     <div className="py-16 text-center">
       <h2 className="text-4xl font-bold text-primary">Onboarding Complete</h2>
-      <p className="mt-4 text-lg text-muted-foreground">
+      <p className="mt-4 text-md text-muted-foreground">
         Your profile has been saved. You can now proceed to scenarios and planning
         tools.
       </p>
+      <div className="mt-8 flex justify-center">
+        <Button className="h-12 rounded-full px-8 text-base" onClick={() => router.push("/account")}>
+          Start Your Financial Journey
+        </Button>
+      </div>
     </div>
   ) : step === 1 ? (
     <Step2PersonalForm
