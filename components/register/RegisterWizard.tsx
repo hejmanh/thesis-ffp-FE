@@ -42,10 +42,6 @@ export default function RegisterWizard() {
   const [saving, setSaving] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [completed, setCompleted] = useState(false);
-  const [createdSteps, setCreatedSteps] = useState({
-    financial: false,
-    stages: false,
-  });
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   useEffect(() => {
@@ -64,18 +60,6 @@ export default function RegisterWizard() {
     useAuthStore.getState().setAuthenticated(true);
   }, [draft.step1.email, draft.step1.name, isAuthenticated]);
 
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    Promise.all([
-      userInfoService.getFinancial().catch(() => null),
-      userInfoService.getStages().catch(() => []),
-    ]).then(([financial, stages]) => {
-      setCreatedSteps({
-        financial: financial !== null,
-        stages: stages.length > 0,
-      });
-    });
-  }, [isAuthenticated]);
   const onboardingReferences = useOnboardingReferences();
   const lifeStageRangesQuery = useLifeStageRangesQuery(draft.step1.birthYear);
 
@@ -161,12 +145,7 @@ export default function RegisterWizard() {
     setToastMessage("Saving your financial information...");
     try {
       const payload = buildCreateFinancialRequestFromOnboarding(nextDraft);
-      if (createdSteps.financial) {
-        await userInfoService.patchFinancial(payload);
-      } else {
-        await userInfoService.createFinancial(payload);
-      }
-      setCreatedSteps((prev) => ({ ...prev, financial: true }));
+      await userInfoService.upsertFinancial(payload);
       setDraft({ ...nextDraft, stages: generatedStages });
       setStep(2);
     } catch (submitError) {
@@ -192,12 +171,7 @@ export default function RegisterWizard() {
     setToastMessage("Saving your stage information...");
     try {
       const payload = buildStagesRequest(draft.stages);
-      if (createdSteps.stages) {
-        await userInfoService.patchStages(payload);
-      } else {
-        await userInfoService.createStages(payload);
-      }
-      setCreatedSteps((prev) => ({ ...prev, stages: true }));
+      await userInfoService.upsertStages(payload);
       setStep(3);
     } catch (submitError) {
       setError(
@@ -311,6 +285,7 @@ export default function RegisterWizard() {
             variant="ghost"
             size="sm"
             className="h-auto rounded-lg px-0 py-0 text-sm font-semibold"
+            disabled={saving}
             onClick={() => router.push("/account")}
           >
             <Icon icon="ic:round-skip-previous" className="h-4 w-4" />

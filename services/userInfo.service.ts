@@ -97,6 +97,21 @@ export const userInfoService = {
     }
   },
 
+  /** Try PATCH; fall back to POST only when the server confirms the resource does not exist yet. */
+  async upsertFinancial(payload: CreateFinancialRequest): Promise<void> {
+    const patchRes = await userInfoApi.patchFinancial(payload);
+    if (isNotFoundResponse(patchRes.message, patchRes.error)) {
+      const createRes = await userInfoApi.createFinancial(payload);
+      if (!createRes.success) {
+        throw new Error(createRes.error ?? "Unable to create financial information");
+      }
+      return;
+    }
+    if (!patchRes.success) {
+      throw new Error(patchRes.error ?? "Unable to update financial information");
+    }
+  },
+
   async getStages(): Promise<UserInfoStageData[]> {
     const res = await userInfoApi.getStages();
     if (isNotFoundResponse(res.message, res.error)) {
@@ -112,6 +127,21 @@ export const userInfoService = {
     const res = await userInfoApi.patchStages(payload);
     if (!res.success) {
       throw new Error(res.error ?? "Unable to update stages");
+    }
+  },
+
+  /** Try PATCH; fall back to POST only when the server confirms the resource does not exist yet. */
+  async upsertStages(payload: CreateStagesRequest): Promise<void> {
+    const patchRes = await userInfoApi.patchStages(payload);
+    if (isNotFoundResponse(patchRes.message, patchRes.error)) {
+      const createRes = await userInfoApi.createStages(payload);
+      if (!createRes.success) {
+        throw new Error(createRes.error ?? "Unable to create stages");
+      }
+      return;
+    }
+    if (!patchRes.success) {
+      throw new Error(patchRes.error ?? "Unable to update stages");
     }
   },
 

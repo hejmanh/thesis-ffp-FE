@@ -11,7 +11,11 @@ import type {
 import type { Asset, FinancialData, Habits, Stage } from "@/utils/types";
 
 function parseRequiredNumber(value: string, fieldName: string): number {
-  const parsedValue = Number(value);
+  const trimmed = value.trim();
+  if (trimmed === "") {
+    throw new Error(`${fieldName} is required`);
+  }
+  const parsedValue = Number(trimmed);
   if (!Number.isFinite(parsedValue)) {
     throw new Error(`${fieldName} must be a valid number`);
   }
@@ -19,7 +23,11 @@ function parseRequiredNumber(value: string, fieldName: string): number {
 }
 
 function parseRequiredInteger(value: string, fieldName: string): number {
-  const parsedValue = Number(value);
+  const trimmed = value.trim();
+  if (trimmed === "") {
+    throw new Error(`${fieldName} is required`);
+  }
+  const parsedValue = Number(trimmed);
   if (!Number.isInteger(parsedValue)) {
     throw new Error(`${fieldName} must be a valid integer`);
   }
