@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Button from "@/components/common/Button";
 import { authService } from "@/services/auth.service";
 import { useAuthStore } from "@/store/auth.store";
+import { tokenService } from "@/services/token.service";
 
 interface HeaderProps {
   authReady?: boolean;
@@ -28,6 +29,11 @@ export default function Header({
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const displayName = user?.email ?? "Account";
   const logoutPending = isLoggingOut || isNavigating;
+
+  const [hasStoredToken, setHasStoredToken] = useState(false);
+  useEffect(() => {
+    setHasStoredToken(!!tokenService.get());
+  }, []);
 
   async function handleLogout() {
     if (logoutPending) return;
@@ -54,7 +60,7 @@ export default function Header({
           <span className="text-xl font-bold tracking-tight text-primary sm:text-2xl">Coinfused</span>
         </Link>
         <nav className="flex items-center gap-3">
-          {!authReady ? (
+          {!authReady && hasStoredToken ? (
             <div
               className="h-9 w-28 animate-pulse rounded-full bg-slate-200/70"
               aria-hidden="true"

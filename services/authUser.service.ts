@@ -1,5 +1,3 @@
-"use client";
-
 import type { AuthUser } from "@/types/auth";
 
 const AUTH_USER_KEY = "coinfused_auth_user";
