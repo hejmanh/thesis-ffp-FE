@@ -9,12 +9,18 @@ import { authService } from "@/services/auth.service";
 import { useAuthStore } from "@/store/auth.store";
 
 interface HeaderProps {
+  authReady?: boolean;
   onLoginClick?: () => void;
   hideLoginButton?: boolean;
   hideRegisterButton?: boolean;
 }
 
-export default function Header({ onLoginClick, hideLoginButton = false, hideRegisterButton = false }: HeaderProps) {
+export default function Header({
+  authReady = true,
+  onLoginClick,
+  hideLoginButton = false,
+  hideRegisterButton = false,
+}: HeaderProps) {
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isNavigating, startTransition] = useTransition();
@@ -48,7 +54,12 @@ export default function Header({ onLoginClick, hideLoginButton = false, hideRegi
           <span className="text-xl font-bold tracking-tight text-primary sm:text-2xl">Coinfused</span>
         </Link>
         <nav className="flex items-center gap-3">
-          {isAuthenticated ? (
+          {!authReady ? (
+            <div
+              className="h-9 w-28 animate-pulse rounded-full bg-slate-200/70"
+              aria-hidden="true"
+            />
+          ) : isAuthenticated ? (
             <>
               <Link
                 href="/account"

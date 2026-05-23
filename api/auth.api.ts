@@ -32,8 +32,13 @@ export const authApi = {
     });
   },
 
-  refresh: (): Promise<ApiResponse<RefreshResponseData>> =>
-    api.post(API_ENDPOINTS.auth.refresh),
+  refresh: (): Promise<ApiResponse<RefreshResponseData>> => {
+    const csrfToken = csrfService.get();
+
+    return api.post(API_ENDPOINTS.auth.refresh, undefined, {
+      headers: csrfToken ? { "X-CSRF-Token": csrfToken } : undefined,
+    });
+  },
 
   forgotPassword: (email: string): Promise<ApiResponse<EmptyResponseData>> =>
     api.post(API_ENDPOINTS.auth.forgotPassword, { email }),
