@@ -62,7 +62,9 @@ export interface FinancialRequestPayload {
 }
 
 export type CreateFinancialRequest = FinancialRequestPayload;
-export type PatchFinancialRequest = FinancialRequestPayload;
+export interface PatchFinancialRequest {
+  financial: FinancialRequestPayload;
+}
 export type CreateFinancialResponse = null;
 export type PatchFinancialResponse = null;
 

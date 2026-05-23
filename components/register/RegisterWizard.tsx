@@ -145,12 +145,7 @@ export default function RegisterWizard() {
     setToastMessage("Saving your financial information...");
     try {
       const payload = buildCreateFinancialRequestFromOnboarding(nextDraft);
-      const existingFinancial = await userInfoService.getFinancial();
-      if (existingFinancial) {
-        await userInfoService.patchFinancial(payload);
-      } else {
-        await userInfoService.createFinancial(payload);
-      }
+      await userInfoService.createFinancial(payload);
       setDraft({ ...nextDraft, stages: generatedStages });
       setStep(2);
     } catch (submitError) {
@@ -176,12 +171,7 @@ export default function RegisterWizard() {
     setToastMessage("Saving your stage information...");
     try {
       const payload = buildStagesRequest(draft.stages);
-      const existingStages = await userInfoService.getStages();
-      if (existingStages.length > 0) {
-        await userInfoService.patchStages(payload);
-      } else {
-        await userInfoService.createStages(payload);
-      }
+      await userInfoService.createStages(payload);
       setStep(3);
     } catch (submitError) {
       setError(

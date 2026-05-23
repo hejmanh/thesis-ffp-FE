@@ -8,7 +8,6 @@ import type {
   GetFinancialResponse,
   GetStagesResponse,
   PatchAssetsRequest,
-  PatchFinancialRequest,
   PatchStagesRequest,
   UserInfoAssetResponse,
   UserInfoFinancialResource,
@@ -90,7 +89,7 @@ export const userInfoService = {
     }
   },
 
-  async patchFinancial(payload: PatchFinancialRequest): Promise<void> {
+  async patchFinancial(payload: CreateFinancialRequest): Promise<void> {
     const res = await userInfoApi.patchFinancial(payload);
     if (!res.success) {
       throw new Error(res.error ?? "Unable to update financial information");
