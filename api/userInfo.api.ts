@@ -16,6 +16,14 @@ import type {
   PatchStagesRequest,
 } from "@/types/userInfo";
 
+function buildFinancialPayload(
+  payload: CreateFinancialRequest,
+): PatchFinancialRequest {
+  return {
+    financial: payload,
+  };
+}
+
 export const userInfoApi = {
   getFinancial: (): Promise<ApiResponse<GetFinancialResponse>> =>
     api.get(API_ENDPOINTS.userInfo.financial),
@@ -23,12 +31,12 @@ export const userInfoApi = {
   createFinancial: (
     payload: CreateFinancialRequest,
   ): Promise<ApiResponse<CreateFinancialResponse>> =>
-    api.post(API_ENDPOINTS.userInfo.financial, payload),
+    api.post(API_ENDPOINTS.userInfo.financial, buildFinancialPayload(payload)),
 
   patchFinancial: (
-    payload: PatchFinancialRequest,
+    payload: CreateFinancialRequest,
   ): Promise<ApiResponse<PatchFinancialResponse>> =>
-    api.patch(API_ENDPOINTS.userInfo.financial, payload),
+    api.patch(API_ENDPOINTS.userInfo.financial, buildFinancialPayload(payload)),
 
   getStages: (): Promise<ApiResponse<GetStagesResponse | CreateStagesRequest>> =>
     api.get(API_ENDPOINTS.userInfo.stages),
