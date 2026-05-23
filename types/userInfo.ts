@@ -56,11 +56,9 @@ export interface GetFinancialResponse {
 }
 
 export interface FinancialRequestPayload {
-  financial: {
-    financialProfile: UserInfoFinancialProfile;
-    portfolioAllocations: UserInfoPortfolioAllocation[];
-    lifestyleProfile: UserInfoLifestyleProfile;
-  };
+  financialProfile: UserInfoFinancialProfile;
+  portfolioAllocations: UserInfoPortfolioAllocation[];
+  lifestyleProfile: UserInfoLifestyleProfile;
 }
 
 export type CreateFinancialRequest = FinancialRequestPayload;

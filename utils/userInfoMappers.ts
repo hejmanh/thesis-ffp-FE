@@ -42,38 +42,36 @@ export function buildCreateFinancialRequestFromOnboarding(
   draft: OnboardingDraft,
 ): CreateFinancialRequest {
   return {
-    financial: {
-      financialProfile: {
-        desiredLifeExpectancy: parseRequiredNumber(
-          draft.step2.desiredLifeExpectancy,
-          "Desired life expectancy",
-        ),
-        currentSavings: parseRequiredNumber(
-          draft.step2.currentSavings,
-          "Current savings",
-        ),
-        currencyCode: normalizeCode(draft.step2.preferredCurrency),
+    financialProfile: {
+      desiredLifeExpectancy: parseRequiredNumber(
+        draft.step2.desiredLifeExpectancy,
+        "Desired life expectancy",
+      ),
+      currentSavings: parseRequiredNumber(
+        draft.step2.currentSavings,
+        "Current savings",
+      ),
+      currencyCode: normalizeCode(draft.step2.preferredCurrency),
+    },
+    portfolioAllocations: [
+      {
+        allocationType: "PRE_FFP",
+        u: parseRequiredNumber(draft.step2.beforeFfp.u, "Pre-FFP risky allocation"),
+        mu: parseRequiredNumber(draft.step2.beforeFfp.mu, "Pre-FFP expected return"),
+        rf: parseRequiredNumber(draft.step2.beforeFfp.rf, "Pre-FFP risk-free rate"),
       },
-      portfolioAllocations: [
-        {
-          allocationType: "PRE_FFP",
-          u: parseRequiredNumber(draft.step2.beforeFfp.u, "Pre-FFP risky allocation"),
-          mu: parseRequiredNumber(draft.step2.beforeFfp.mu, "Pre-FFP expected return"),
-          rf: parseRequiredNumber(draft.step2.beforeFfp.rf, "Pre-FFP risk-free rate"),
-        },
-        {
-          allocationType: "POST_FFP",
-          u: parseRequiredNumber(draft.step2.afterFfp.u, "Post-FFP risky allocation"),
-          mu: parseRequiredNumber(draft.step2.afterFfp.mu, "Post-FFP expected return"),
-          rf: parseRequiredNumber(draft.step2.afterFfp.rf, "Post-FFP risk-free rate"),
-        },
-      ],
-      lifestyleProfile: {
-        smokingCode: normalizeCode(draft.step2.habits.smoke),
-        physicalActivityCode: normalizeCode(draft.step2.habits.physical),
-        dietQualityCode: normalizeCode(draft.step2.habits.diet),
-        alcoholConsumptionCode: normalizeCode(draft.step2.habits.alcohol),
+      {
+        allocationType: "POST_FFP",
+        u: parseRequiredNumber(draft.step2.afterFfp.u, "Post-FFP risky allocation"),
+        mu: parseRequiredNumber(draft.step2.afterFfp.mu, "Post-FFP expected return"),
+        rf: parseRequiredNumber(draft.step2.afterFfp.rf, "Post-FFP risk-free rate"),
       },
+    ],
+    lifestyleProfile: {
+      smokingCode: normalizeCode(draft.step2.habits.smoke),
+      physicalActivityCode: normalizeCode(draft.step2.habits.physical),
+      dietQualityCode: normalizeCode(draft.step2.habits.diet),
+      alcoholConsumptionCode: normalizeCode(draft.step2.habits.alcohol),
     },
   };
 }
@@ -84,53 +82,51 @@ export function buildFinancialRequestFromFinancialData(
   habits: Habits,
 ): CreateFinancialRequest {
   return {
-    financial: {
-      financialProfile: {
-        currentSavings: parseRequiredNumber(profile.savings, "Current savings"),
-        desiredLifeExpectancy: parseRequiredNumber(
-          profile.desiredLE,
-          "Desired life expectancy",
+    financialProfile: {
+      currentSavings: parseRequiredNumber(profile.savings, "Current savings"),
+      desiredLifeExpectancy: parseRequiredNumber(
+        profile.desiredLE,
+        "Desired life expectancy",
+      ),
+      currencyCode: normalizeCode(profile.currency),
+    },
+    portfolioAllocations: [
+      {
+        allocationType: "PRE_FFP",
+        u: parseRequiredNumber(
+          allocation.before.u,
+          "Pre-FFP risky allocation",
         ),
-        currencyCode: normalizeCode(profile.currency),
+        mu: parseRequiredNumber(
+          allocation.before.mu,
+          "Pre-FFP expected return",
+        ),
+        rf: parseRequiredNumber(
+          allocation.before.rf,
+          "Pre-FFP risk-free rate",
+        ),
       },
-      portfolioAllocations: [
-        {
-          allocationType: "PRE_FFP",
-          u: parseRequiredNumber(
-            allocation.before.u,
-            "Pre-FFP risky allocation",
-          ),
-          mu: parseRequiredNumber(
-            allocation.before.mu,
-            "Pre-FFP expected return",
-          ),
-          rf: parseRequiredNumber(
-            allocation.before.rf,
-            "Pre-FFP risk-free rate",
-          ),
-        },
-        {
-          allocationType: "POST_FFP",
-          u: parseRequiredNumber(
-            allocation.after.u,
-            "Post-FFP risky allocation",
-          ),
-          mu: parseRequiredNumber(
-            allocation.after.mu,
-            "Post-FFP expected return",
-          ),
-          rf: parseRequiredNumber(
-            allocation.after.rf,
-            "Post-FFP risk-free rate",
-          ),
-        },
-      ],
-      lifestyleProfile: {
-        smokingCode: normalizeCode(habits.smoking),
-        physicalActivityCode: normalizeCode(habits.physical),
-        dietQualityCode: normalizeCode(habits.diet),
-        alcoholConsumptionCode: normalizeCode(habits.alcohol),
+      {
+        allocationType: "POST_FFP",
+        u: parseRequiredNumber(
+          allocation.after.u,
+          "Post-FFP risky allocation",
+        ),
+        mu: parseRequiredNumber(
+          allocation.after.mu,
+          "Post-FFP expected return",
+        ),
+        rf: parseRequiredNumber(
+          allocation.after.rf,
+          "Post-FFP risk-free rate",
+        ),
       },
+    ],
+    lifestyleProfile: {
+      smokingCode: normalizeCode(habits.smoking),
+      physicalActivityCode: normalizeCode(habits.physical),
+      dietQualityCode: normalizeCode(habits.diet),
+      alcoholConsumptionCode: normalizeCode(habits.alcohol),
     },
   };
 }
