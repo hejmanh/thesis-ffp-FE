@@ -28,9 +28,12 @@ function decodeJwtPayload(token: string): Record<string, unknown> | null {
   try {
     const base64 = segments[1].replace(/-/g, "+").replace(/_/g, "/");
     const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
-    const decoded =
-      typeof window !== "undefined" ? window.atob(padded) : Buffer.from(padded, "base64").toString("utf-8");
-    return JSON.parse(decoded) as Record<string, unknown>;
+    const binary =
+      typeof window !== "undefined"
+        ? window.atob(padded)
+        : Buffer.from(padded, "base64").toString("binary");
+    const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+    return JSON.parse(new TextDecoder().decode(bytes)) as Record<string, unknown>;
   } catch {
     return null;
   }
