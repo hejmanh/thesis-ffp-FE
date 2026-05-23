@@ -7,10 +7,18 @@ export function useAutoRefresh() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
+    let mounted = true;
+
     authService
       .restoreSession()
       .catch(() => undefined)
-      .finally(() => setReady(true));
+      .finally(() => {
+        if (mounted) setReady(true);
+      });
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   return { ready };

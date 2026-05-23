@@ -1,15 +1,75 @@
 import { authApi } from "@/api/auth.api";
 import { queryClient } from "@/lib/queryClient";
 import { tokenService } from "@/services/token.service";
+import { authUserService } from "@/services/authUser.service";
 import { useAuthStore } from "@/store/auth.store";
-import type { LoginPayload, LoginResult, RegisterInput } from "@/types/auth";
+import type {
+  AuthUser,
+  LoginPayload,
+  LoginResult,
+  RegisterInput,
+} from "@/types/auth";
 import { clearOnboardingState } from "@/utils/onboardingStorage";
 
 function clearClientSessionState() {
   tokenService.clear();
+  authUserService.clear();
   useAuthStore.getState().clearUser();
   clearOnboardingState();
   queryClient.clear();
+}
+
+function decodeJwtPayload(token: string): Record<string, unknown> | null {
+  const segments = token.split(".");
+  if (segments.length < 2) {
+    return null;
+  }
+
+  try {
+    const base64 = segments[1].replace(/-/g, "+").replace(/_/g, "/");
+    const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
+    const binary =
+      typeof window !== "undefined"
+        ? window.atob(padded)
+        : Buffer.from(padded, "base64").toString("binary");
+    const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+    return JSON.parse(new TextDecoder().decode(bytes)) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+}
+
+function extractUserFromAccessToken(token: string): AuthUser | null {
+  const payload = decodeJwtPayload(token);
+  if (!payload) {
+    return null;
+  }
+
+  const email =
+    typeof payload.email === "string"
+      ? payload.email
+      : typeof payload.sub === "string" && payload.sub.includes("@")
+        ? payload.sub
+        : null;
+
+  if (!email) {
+    return null;
+  }
+
+  return {
+    email,
+    id: typeof payload.userId === "string"
+      ? payload.userId
+      : typeof payload.id === "string"
+        ? payload.id
+        : undefined,
+    name:
+      typeof payload.name === "string"
+        ? payload.name
+        : typeof payload.preferred_username === "string"
+          ? payload.preferred_username
+          : undefined,
+  };
 }
 
 export const authService = {
@@ -37,7 +97,9 @@ export const authService = {
 
     try {
       tokenService.set(res.data.accessToken);
-      useAuthStore.getState().setUser(res.data.user ?? { email: payload.email });
+      const user = res.data.user ?? { email: payload.email };
+      authUserService.set(user);
+      useAuthStore.getState().setUser(user);
       return {
         isFirstLogin: res.data.isFirstLogin,
       };
@@ -79,8 +141,19 @@ export const authService = {
   async restoreSession(): Promise<boolean> {
     const res = await authApi.refresh();
     if (!res.success || !res.data?.accessToken) return false;
-    tokenService.set(res.data.accessToken);
-    useAuthStore.getState().setAuthenticated(true);
+    const accessToken = res.data.accessToken;
+    tokenService.set(accessToken);
+
+    const restoredUser =
+      authUserService.get() ?? extractUserFromAccessToken(accessToken);
+
+    if (restoredUser) {
+      authUserService.set(restoredUser);
+      useAuthStore.getState().setUser(restoredUser);
+    } else {
+      useAuthStore.getState().setAuthenticated(true);
+    }
+
     return true;
   },
 

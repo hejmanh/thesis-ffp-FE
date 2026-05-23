@@ -1,7 +1,6 @@
 import { api } from "@/lib/apiRequest";
 import type { ApiResponse } from "@/shared/config/api";
 import { API_ENDPOINTS } from "@/api/endpoints";
-import { csrfService } from "@/services/csrf.service";
 import type {
   EmptyResponseData,
   LoginResponseData,
@@ -24,16 +23,11 @@ export const authApi = {
   login: (payload: LoginPayload): Promise<ApiResponse<LoginResponseData>> =>
     api.post(API_ENDPOINTS.auth.login, payload),
 
-  logout: (): Promise<ApiResponse<EmptyResponseData>> => {
-    const csrfToken = csrfService.get();
-
-    return api.post(API_ENDPOINTS.auth.logout, undefined, {
-      headers: csrfToken ? { "X-CSRF-Token": csrfToken } : undefined,
-    });
-  },
+  logout: (): Promise<ApiResponse<EmptyResponseData>> =>
+    api.post(API_ENDPOINTS.auth.logout, undefined),
 
   refresh: (): Promise<ApiResponse<RefreshResponseData>> =>
-    api.post(API_ENDPOINTS.auth.refresh),
+    api.post(API_ENDPOINTS.auth.refresh, undefined),
 
   forgotPassword: (email: string): Promise<ApiResponse<EmptyResponseData>> =>
     api.post(API_ENDPOINTS.auth.forgotPassword, { email }),
