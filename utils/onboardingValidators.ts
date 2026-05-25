@@ -1,4 +1,9 @@
-import type { AssetItem, StageItem, Step1AccountData, Step2PersonalData } from "@/types/onboarding";
+import type {
+  AssetItem,
+  StageItem,
+  Step1AccountData,
+  Step2PersonalData,
+} from "@/types/onboarding";
 
 export function validateStep1(data: Step1AccountData): string | null {
   if (
@@ -42,16 +47,22 @@ export function validateStep2(data: Step2PersonalData): string | null {
 }
 
 export function isStageComplete(stage: StageItem): boolean {
+  const isFilled = (value?: string) => value != null && value.trim() !== "";
   return Boolean(
     stage.lifeStageRangeId &&
-      stage.ageStart &&
-      stage.ageEnd &&
-      stage.annualSaving &&
-      stage.currency &&
-      stage.annualRate,
+    isFilled(stage.ageStart) &&
+    isFilled(stage.ageEnd) &&
+    isFilled(stage.annualSaving) &&
+    isFilled(stage.currency) &&
+    isFilled(stage.annualRate),
   );
 }
 
 export function isAssetComplete(asset: AssetItem): boolean {
-  return Boolean(asset.assetTypeId && asset.initialAnnualIncome && asset.growthRate);
+  const isFilled = (value?: string) => value != null && value.trim() !== "";
+  return Boolean(
+    asset.assetTypeId &&
+    isFilled(asset.initialAnnualIncome) &&
+    isFilled(asset.growthRate),
+  );
 }

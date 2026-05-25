@@ -22,7 +22,7 @@ export const API_ENDPOINTS = {
   },
   userInfo: {
     financial: "/user-info/financial",
-    stages: "/user-info/stages",
+    lifeStages: "/user-info/life-stages",
     assets: "/user-info/assets",
     assetByUid: (uid: string) => `/user-info/assets/${uid}`,
   },

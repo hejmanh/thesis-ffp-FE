@@ -79,16 +79,22 @@ function fromStageEditorValue(stage: Stage, next: StageEditorValue): Stage {
 }
 
 function isStageComplete(stage: Stage): boolean {
+  const isFilled = (value?: string) => value != null && value.trim() !== "";
   return (
     stage.lifeStageRangeId != null &&
     stage.lifeStageRangeId > 0 &&
-    Boolean(stage.annualSaving && stage.currency && stage.growthRate)
+    isFilled(stage.annualSaving) &&
+    isFilled(stage.currency) &&
+    isFilled(stage.growthRate)
   );
 }
 
 function isAssetComplete(asset: Asset): boolean {
+  const isFilled = (value?: string) => value != null && value.trim() !== "";
   return Boolean(
-    asset.assetTypeId && asset.initialAnnualIncome && asset.growthRate,
+    asset.assetTypeId &&
+    isFilled(asset.initialAnnualIncome) &&
+    isFilled(asset.growthRate),
   );
 }
 
@@ -600,7 +606,9 @@ export default function FinancialSection() {
         </div>
 
         <div className="rounded-xl border border-border bg-slate-50 p-4">
-          <h3 className="text-base font-semibold text-slate-900">Post-FFP Assets</h3>
+          <h3 className="text-base font-semibold text-slate-900">
+            Post-FFP Assets
+          </h3>
           <p className="mt-1 text-xs italic text-slate-600">
             Add additional income-generating assets such as rental properties,
             pensions, or investments.

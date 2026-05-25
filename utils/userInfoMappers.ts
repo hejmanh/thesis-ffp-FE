@@ -23,7 +23,11 @@ function parseRequiredNumber(value: string, fieldName: string): number {
 }
 
 function parsePercentToRatio(value: string, fieldName: string): number {
-  return parseRequiredNumber(value, fieldName) / 100;
+  const parsedValue = parseRequiredNumber(value, fieldName);
+  if (parsedValue < 0 || parsedValue > 100) {
+    throw new Error(`${fieldName} must be between 0 and 100`);
+  }
+  return parsedValue / 100;
 }
 
 function ratioToPercent(value: number): string {
@@ -269,7 +273,7 @@ export function mapUserInfoResourcesToFinancialData({
         financialProfile?.currencyId == null
           ? ""
           : String(financialProfile.currencyId),
-      growthRate: String(stage.growthRate),
+      growthRate: ratioToPercent(stage.growthRate),
     })),
     assets: assetData.map((asset) => mapUserInfoAssetToAsset(asset)),
   };
@@ -310,7 +314,7 @@ export function mapUserInfoAssetToAsset(asset: UserInfoAssetResponse): Asset {
     assetTypeCode: asset.assetTypeCode ?? undefined,
     assetTypeTitle: asset.assetTypeTitle ?? undefined,
     initialAnnualIncome: String(asset.initialAnnualIncome),
-    growthRate: String(asset.growthRate),
+    growthRate: ratioToPercent(asset.growthRate),
   };
 }
 
@@ -339,7 +343,7 @@ export function buildStagesRequest(
         stage.annualSaving,
         "Initial annual savings",
       ),
-      growthRate: parseRequiredNumber(
+      growthRate: parsePercentToRatio(
         "annualRate" in stage ? stage.annualRate : stage.growthRate,
         "Stage growth rate",
       ),
@@ -362,7 +366,7 @@ export function buildCreateAssetsRequest(
         asset.initialAnnualIncome,
         "Initial annual income",
       ),
-      growthRate: parseRequiredNumber(asset.growthRate, "Asset growth rate"),
+      growthRate: parsePercentToRatio(asset.growthRate, "Asset growth rate"),
     })),
   };
 }
@@ -374,6 +378,6 @@ export function buildPatchAssetsRequest(assets: Asset[]): PatchAssetsRequest {
       asset.initialAnnualIncome,
       "Initial annual income",
     ),
-    growthRate: parseRequiredNumber(asset.growthRate, "Asset growth rate"),
+    growthRate: parsePercentToRatio(asset.growthRate, "Asset growth rate"),
   }));
 }

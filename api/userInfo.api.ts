@@ -39,13 +39,13 @@ export const userInfoApi = {
     api.patch(API_ENDPOINTS.userInfo.financial, buildFinancialPayload(payload)),
 
   getStages: (): Promise<ApiResponse<GetStagesResponse | CreateStagesRequest>> =>
-    api.get(API_ENDPOINTS.userInfo.stages),
+    api.get(API_ENDPOINTS.userInfo.lifeStages),
 
   patchStages: (payload: PatchStagesRequest): Promise<ApiResponse<null>> =>
-    api.patch(API_ENDPOINTS.userInfo.stages, payload),
+    api.patch(API_ENDPOINTS.userInfo.lifeStages, payload),
 
   createStages: (payload: CreateStagesRequest): Promise<ApiResponse<null>> =>
-    api.post(API_ENDPOINTS.userInfo.stages, payload),
+    api.post(API_ENDPOINTS.userInfo.lifeStages, payload),
 
   getAssets: (): Promise<ApiResponse<GetAssetsResponse>> =>
     api.get(API_ENDPOINTS.userInfo.assets),
