@@ -31,6 +31,7 @@ import {
   buildStageItemsFromRanges,
   buildStagesRequest,
 } from "@/utils/userInfoMappers";
+import { resolveCurrencyCode } from "@/utils/referenceOptions";
 
 const ONBOARDING_STEPS = ["Personal Information", "Stages Data", "Asset Data"];
 
@@ -114,7 +115,9 @@ export default function RegisterWizard() {
       return;
     }
     if (!lifeStageRangesQuery.enabled) {
-      setError("A valid birth year is required to continue. Please go back and update your account details.");
+      setError(
+        "A valid birth year is required to continue. Please go back and update your account details.",
+      );
       return;
     }
     if (lifeStageRangesQuery.isLoading) {
@@ -126,7 +129,9 @@ export default function RegisterWizard() {
       return;
     }
     if (!lifeStageRangesQuery.data?.length) {
-      setError("No life stage ranges are available for the selected birth year.");
+      setError(
+        "No life stage ranges are available for the selected birth year.",
+      );
       return;
     }
     const validation = validateStep2(nextDraft.step2);
@@ -138,7 +143,10 @@ export default function RegisterWizard() {
     const generatedStages = buildStageItemsFromRanges(
       lifeStageRangesQuery.data,
       nextDraft.stages,
-      nextDraft.step2.preferredCurrency,
+      resolveCurrencyCode(
+        onboardingReferences.currencies,
+        nextDraft.step2.preferredCurrency,
+      ),
     );
 
     setSaving(true);
@@ -175,7 +183,9 @@ export default function RegisterWizard() {
       setStep(3);
     } catch (submitError) {
       setError(
-        submitError instanceof Error ? submitError.message : "Unable to save stages.",
+        submitError instanceof Error
+          ? submitError.message
+          : "Unable to save stages.",
       );
     } finally {
       setToastMessage("");
@@ -195,7 +205,10 @@ export default function RegisterWizard() {
       setError("Please complete your stage data before submitting.");
       return;
     }
-    if (nextDraft.assets.length > 0 && !nextDraft.assets.every(isAssetComplete)) {
+    if (
+      nextDraft.assets.length > 0 &&
+      !nextDraft.assets.every(isAssetComplete)
+    ) {
       setError("Please complete each asset card before submitting.");
       return;
     }
@@ -224,11 +237,14 @@ export default function RegisterWizard() {
     <div className="py-16 text-center">
       <h2 className="text-4xl font-bold text-primary">Onboarding Complete</h2>
       <p className="mt-4 text-md text-muted-foreground">
-        Your profile has been saved. You can now proceed to scenarios and planning
-        tools.
+        Your profile has been saved. You can now proceed to scenarios and
+        planning tools.
       </p>
       <div className="mt-8 flex justify-center">
-        <Button className="h-12 rounded-full px-8 text-base" onClick={() => router.push("/account")}>
+        <Button
+          className="h-12 rounded-full px-8 text-base"
+          onClick={() => router.push("/account")}
+        >
           Start Your Financial Journey
         </Button>
       </div>

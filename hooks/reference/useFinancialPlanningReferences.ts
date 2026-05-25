@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { referenceApi } from "@/api/reference.api";
 import {
-  mapCodeReferencesToOptions,
   mapCurrenciesToOptions,
   mapIdReferencesToOptions,
 } from "@/utils/referenceOptions";
@@ -65,7 +64,9 @@ export const useFinancialPlanningReferences = () => {
     queryFn: async () => {
       const res = await referenceApi.getAlcoholConsumptionTypes();
       if (!res.success) {
-        throw new Error(res.error ?? "Failed to load alcohol consumption types");
+        throw new Error(
+          res.error ?? "Failed to load alcohol consumption types",
+        );
       }
       return res.data ?? [];
     },
@@ -95,17 +96,18 @@ export const useFinancialPlanningReferences = () => {
   return useMemo(
     () => ({
       currencyOptions: mapCurrenciesToOptions(currenciesQuery.data ?? []),
-      smokingOptions: mapCodeReferencesToOptions(smokingTypesQuery.data ?? []),
-      physicalActivityOptions: mapCodeReferencesToOptions(
+      smokingOptions: mapIdReferencesToOptions(smokingTypesQuery.data ?? []),
+      physicalActivityOptions: mapIdReferencesToOptions(
         physicalActivityTypesQuery.data ?? [],
       ),
-      dietQualityOptions: mapCodeReferencesToOptions(
+      dietQualityOptions: mapIdReferencesToOptions(
         dietQualityTypesQuery.data ?? [],
       ),
-      alcoholConsumptionOptions: mapCodeReferencesToOptions(
+      alcoholConsumptionOptions: mapIdReferencesToOptions(
         alcoholConsumptionTypesQuery.data ?? [],
       ),
       assetTypeOptions: mapIdReferencesToOptions(assetTypesQuery.data ?? []),
+      currencies: currenciesQuery.data ?? [],
       isLoading:
         currenciesQuery.isLoading ||
         smokingTypesQuery.isLoading ||

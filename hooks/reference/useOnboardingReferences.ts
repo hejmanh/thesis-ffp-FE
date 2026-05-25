@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { referenceApi } from "@/api/reference.api";
 import {
-  mapCodeReferencesToOptions,
   mapCurrenciesToOptions,
   mapIdReferencesToOptions,
 } from "@/utils/referenceOptions";
@@ -32,7 +31,9 @@ function extractEstimatedLifeExpectancy(data: unknown): number {
     }
   }
 
-  throw new Error("Estimated life expectancy response is missing a numeric value");
+  throw new Error(
+    "Estimated life expectancy response is missing a numeric value",
+  );
 }
 
 export const useOnboardingReferences = () => {
@@ -41,7 +42,9 @@ export const useOnboardingReferences = () => {
     queryFn: async () => {
       const res = await referenceApi.getEstimateLifeExpectancy();
       if (!res.success) {
-        throw new Error(res.error ?? "Failed to load estimated life expectancy");
+        throw new Error(
+          res.error ?? "Failed to load estimated life expectancy",
+        );
       }
       return String(extractEstimatedLifeExpectancy(res.data));
     },
@@ -101,7 +104,9 @@ export const useOnboardingReferences = () => {
     queryFn: async () => {
       const res = await referenceApi.getAlcoholConsumptionTypes();
       if (!res.success) {
-        throw new Error(res.error ?? "Failed to load alcohol consumption types");
+        throw new Error(
+          res.error ?? "Failed to load alcohol consumption types",
+        );
       }
       return res.data ?? [];
     },
@@ -133,17 +138,18 @@ export const useOnboardingReferences = () => {
     () => ({
       estimatedLifeExpectancy: estimateLifeExpectancyQuery.data ?? "",
       currencyOptions: mapCurrenciesToOptions(currenciesQuery.data ?? []),
-      smokingOptions: mapCodeReferencesToOptions(smokingTypesQuery.data ?? []),
-      physicalActivityOptions: mapCodeReferencesToOptions(
+      smokingOptions: mapIdReferencesToOptions(smokingTypesQuery.data ?? []),
+      physicalActivityOptions: mapIdReferencesToOptions(
         physicalActivityTypesQuery.data ?? [],
       ),
-      dietQualityOptions: mapCodeReferencesToOptions(
+      dietQualityOptions: mapIdReferencesToOptions(
         dietQualityTypesQuery.data ?? [],
       ),
-      alcoholConsumptionOptions: mapCodeReferencesToOptions(
+      alcoholConsumptionOptions: mapIdReferencesToOptions(
         alcoholConsumptionTypesQuery.data ?? [],
       ),
       assetTypeOptions: mapIdReferencesToOptions(assetTypesQuery.data ?? []),
+      currencies: currenciesQuery.data ?? [],
       isLoading:
         estimateLifeExpectancyQuery.isLoading ||
         currenciesQuery.isLoading ||

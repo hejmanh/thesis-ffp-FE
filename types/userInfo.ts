@@ -3,7 +3,7 @@ export type AllocationType = "PRE_FFP" | "POST_FFP";
 export interface UserInfoFinancialProfile {
   desiredLifeExpectancy: number;
   currentSavings: number;
-  currencyCode: string;
+  currencyId: number;
 }
 
 export interface UserInfoFinancialProfileResponse extends UserInfoFinancialProfile {
@@ -18,10 +18,10 @@ export interface UserInfoPortfolioAllocation {
 }
 
 export interface UserInfoLifestyleProfile {
-  smokingCode: string;
-  physicalActivityCode: string;
-  dietQualityCode: string;
-  alcoholConsumptionCode: string;
+  smokingTypeId: number;
+  physicalActivityTypeId: number;
+  dietQualityTypeId: number;
+  alcoholConsumptionTypeId: number;
 }
 
 export interface UserInfoStageData {

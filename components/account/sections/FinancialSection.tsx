@@ -1,11 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import {
-  useMutation,
-  useQueries,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 import Button from "@/components/common/Button";
 import Card from "@/components/common/Card";
 import AssetForm from "@/components/account/forms/AssetForm";
@@ -13,7 +9,10 @@ import StageEditorCard, {
   type StageEditorValue,
 } from "@/components/common/StageEditorCard";
 import FinancialForm from "@/components/account/forms/FinancialForm";
-import { useFinancialPlanningReferences, useLifeStageRangesQuery } from "@/hooks";
+import {
+  useFinancialPlanningReferences,
+  useLifeStageRangesQuery,
+} from "@/hooks";
 import { userInfoService } from "@/services/userInfo.service";
 import type { UserInfoFinancialResource } from "@/types/userInfo";
 import type { SelectOption } from "@/utils/referenceOptions";
@@ -27,6 +26,7 @@ import {
 } from "@/utils/userInfoMappers";
 import type { Asset, FinancialData, Habits, Stage } from "@/utils/types";
 import { loadOnboardingState } from "@/utils/onboardingStorage";
+import { resolveCurrencyCode } from "@/utils/referenceOptions";
 
 const EMPTY_FINANCIAL_DATA: FinancialData = {
   estimatedLE: "",
@@ -97,20 +97,22 @@ function areValuesEqual<T>(left: T, right: T): boolean {
 }
 
 function areStagesMeaningfullyEqual(left: Stage[], right: Stage[]): boolean {
-  return JSON.stringify(
-    left.map((stage) => ({
-      lifeStageRangeId: stage.lifeStageRangeId ?? 0,
-      annualSaving: stage.annualSaving,
-      growthRate: stage.growthRate,
-    })),
-  ) ===
+  return (
+    JSON.stringify(
+      left.map((stage) => ({
+        lifeStageRangeId: stage.lifeStageRangeId ?? 0,
+        annualSaving: stage.annualSaving,
+        growthRate: stage.growthRate,
+      })),
+    ) ===
     JSON.stringify(
       right.map((stage) => ({
         lifeStageRangeId: stage.lifeStageRangeId ?? 0,
         annualSaving: stage.annualSaving,
         growthRate: stage.growthRate,
       })),
-    );
+    )
+  );
 }
 
 function hasFinancialResourceData(
@@ -124,9 +126,10 @@ function hasFinancialResourceData(
     financial.financialProfile != null &&
     (financial.financialProfile.currentSavings != null ||
       financial.financialProfile.desiredLifeExpectancy != null ||
-      Boolean(financial.financialProfile.currencyCode));
+      financial.financialProfile.currencyId != null);
 
-  const hasPortfolioAllocations = (financial.portfolioAllocations?.length ?? 0) > 0;
+  const hasPortfolioAllocations =
+    (financial.portfolioAllocations?.length ?? 0) > 0;
 
   const hasLifestyleProfile =
     financial.lifestyleProfile != null &&
@@ -272,12 +275,14 @@ export default function FinancialSection() {
     currency: safeBaseFinancialData.currency,
     desiredLE: safeBaseFinancialData.desiredLE,
   };
-  const currentAllocation =
-    allocationDraft ?? safeBaseFinancialData.allocation;
+  const currentAllocation = allocationDraft ?? safeBaseFinancialData.allocation;
   const currentHabits = habitsDraft ?? safeBaseFinancialData.habits;
   const currentStages = useMemo(() => {
     const sourceStages = stagesDraft ?? safeBaseFinancialData.stages;
-    const stageCurrency = currentProfile.currency || safeBaseFinancialData.currency;
+    const stageCurrency = resolveCurrencyCode(
+      references.currencies,
+      currentProfile.currency || safeBaseFinancialData.currency,
+    );
 
     if (!lifeStageRangesQuery.data?.length) {
       return sourceStages.map((stage) => ({
@@ -294,6 +299,7 @@ export default function FinancialSection() {
   }, [
     currentProfile.currency,
     lifeStageRangesQuery.data,
+    references.currencies,
     safeBaseFinancialData.currency,
     safeBaseFinancialData.stages,
     stagesDraft,
@@ -315,7 +321,9 @@ export default function FinancialSection() {
     deleteAssetMutation.isPending;
   const pageError =
     sectionError ??
-    (financialQuery.error instanceof Error ? financialQuery.error.message : null) ??
+    (financialQuery.error instanceof Error
+      ? financialQuery.error.message
+      : null) ??
     (stagesQuery.error instanceof Error ? stagesQuery.error.message : null) ??
     (assetsQuery.error instanceof Error ? assetsQuery.error.message : null) ??
     references.error ??
@@ -336,13 +344,13 @@ export default function FinancialSection() {
   const canSaveFinancial =
     Boolean(
       currentProfile.savings &&
-        currentProfile.currency &&
-        currentProfile.desiredLE &&
-        (["before", "after"] as const).every((period) =>
-          (["u", "mu", "rf"] as const).every((key) =>
-            Boolean(currentAllocation[period][key]),
-          ),
+      currentProfile.currency &&
+      currentProfile.desiredLE &&
+      (["before", "after"] as const).every((period) =>
+        (["u", "mu", "rf"] as const).every((key) =>
+          Boolean(currentAllocation[period][key]),
         ),
+      ),
     ) &&
     (Object.keys(currentHabits) as Array<keyof Habits>).every((key) =>
       Boolean(currentHabits[key]),
@@ -473,7 +481,10 @@ export default function FinancialSection() {
 
   if (isLoading) {
     return (
-      <Card hoverable={false} className="w-full rounded-xl bg-white p-6 shadow-md">
+      <Card
+        hoverable={false}
+        className="w-full rounded-xl bg-white p-6 shadow-md"
+      >
         <h2 className="text-2xl font-bold text-primary">
           Financial Profile and Planning
         </h2>
@@ -485,7 +496,10 @@ export default function FinancialSection() {
   }
 
   return (
-    <Card hoverable={false} className="w-full rounded-xl bg-white p-6 shadow-md">
+    <Card
+      hoverable={false}
+      className="w-full rounded-xl bg-white p-6 shadow-md"
+    >
       <h2 className="text-2xl font-bold text-primary">
         Financial Profile and Planning
       </h2>
@@ -543,7 +557,9 @@ export default function FinancialSection() {
         </div>
 
         <div className="rounded-xl border border-border bg-slate-50 p-4">
-          <h3 className="text-base font-semibold text-slate-900">Life Stages</h3>
+          <h3 className="text-base font-semibold text-slate-900">
+            Life Stages
+          </h3>
           <p className="mt-1 text-xs italic text-slate-600">
             Includes all pre-FFP income sources (e.g. salary, rental income,
             etc.)
@@ -551,8 +567,8 @@ export default function FinancialSection() {
           <div className="mt-4 max-h-[24rem] space-y-4 overflow-y-auto pr-2">
             {!lifeStageRangesQuery.isLoading && currentStages.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                Life stages will appear here once your registration birth year is
-                available.
+                Life stages will appear here once your registration birth year
+                is available.
               </p>
             ) : null}
             {currentStages.map((stage, index) => (
