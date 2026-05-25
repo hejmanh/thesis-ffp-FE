@@ -22,6 +22,14 @@ function parseRequiredNumber(value: string, fieldName: string): number {
   return parsedValue;
 }
 
+function parsePercentToRatio(value: string, fieldName: string): number {
+  return parseRequiredNumber(value, fieldName) / 100;
+}
+
+function ratioToPercent(value: number): string {
+  return String(value * 100);
+}
+
 function parseRequiredInteger(value: string, fieldName: string): number {
   const trimmed = value.trim();
   if (trimmed === "") {
@@ -32,10 +40,6 @@ function parseRequiredInteger(value: string, fieldName: string): number {
     throw new Error(`${fieldName} must be a valid integer`);
   }
   return parsedValue;
-}
-
-function normalizeCode(value: string): string {
-  return value.trim().toUpperCase();
 }
 
 export function buildCreateFinancialRequestFromOnboarding(
@@ -51,27 +55,60 @@ export function buildCreateFinancialRequestFromOnboarding(
         draft.step2.currentSavings,
         "Current savings",
       ),
-      currencyCode: normalizeCode(draft.step2.preferredCurrency),
+      currencyId: parseRequiredInteger(
+        draft.step2.preferredCurrency,
+        "Preferred currency",
+      ),
     },
     portfolioAllocations: [
       {
         allocationType: "PRE_FFP",
-        u: parseRequiredNumber(draft.step2.beforeFfp.u, "Pre-FFP risky allocation"),
-        mu: parseRequiredNumber(draft.step2.beforeFfp.mu, "Pre-FFP expected return"),
-        rf: parseRequiredNumber(draft.step2.beforeFfp.rf, "Pre-FFP risk-free rate"),
+        u: parsePercentToRatio(
+          draft.step2.beforeFfp.u,
+          "Pre-FFP risky allocation",
+        ),
+        mu: parsePercentToRatio(
+          draft.step2.beforeFfp.mu,
+          "Pre-FFP expected return",
+        ),
+        rf: parsePercentToRatio(
+          draft.step2.beforeFfp.rf,
+          "Pre-FFP risk-free rate",
+        ),
       },
       {
         allocationType: "POST_FFP",
-        u: parseRequiredNumber(draft.step2.afterFfp.u, "Post-FFP risky allocation"),
-        mu: parseRequiredNumber(draft.step2.afterFfp.mu, "Post-FFP expected return"),
-        rf: parseRequiredNumber(draft.step2.afterFfp.rf, "Post-FFP risk-free rate"),
+        u: parsePercentToRatio(
+          draft.step2.afterFfp.u,
+          "Post-FFP risky allocation",
+        ),
+        mu: parsePercentToRatio(
+          draft.step2.afterFfp.mu,
+          "Post-FFP expected return",
+        ),
+        rf: parsePercentToRatio(
+          draft.step2.afterFfp.rf,
+          "Post-FFP risk-free rate",
+        ),
       },
     ],
     lifestyleProfile: {
-      smokingCode: normalizeCode(draft.step2.habits.smoke),
-      physicalActivityCode: normalizeCode(draft.step2.habits.physical),
-      dietQualityCode: normalizeCode(draft.step2.habits.diet),
-      alcoholConsumptionCode: normalizeCode(draft.step2.habits.alcohol),
+      smokingTypeId: parseRequiredInteger(
+        draft.step2.habits.smoke,
+        "Smoking type",
+      ),
+      physicalActivityTypeId: parseRequiredInteger(
+        draft.step2.habits.physical,
+        "Physical activity type",
+      ),
+      dietQualityTypeId: parseRequiredInteger(
+        draft.step2.habits.diet,
+        "Diet quality type",
+      ),
+      alcoholConsumptionTypeId: parseRequiredInteger(
+        draft.step2.habits.alcohol,
+        "Alcohol consumption type",
+      ),
     },
   };
 }
@@ -88,45 +125,39 @@ export function buildFinancialRequestFromFinancialData(
         profile.desiredLE,
         "Desired life expectancy",
       ),
-      currencyCode: normalizeCode(profile.currency),
+      currencyId: parseRequiredInteger(profile.currency, "Preferred currency"),
     },
     portfolioAllocations: [
       {
         allocationType: "PRE_FFP",
-        u: parseRequiredNumber(
-          allocation.before.u,
-          "Pre-FFP risky allocation",
-        ),
-        mu: parseRequiredNumber(
+        u: parsePercentToRatio(allocation.before.u, "Pre-FFP risky allocation"),
+        mu: parsePercentToRatio(
           allocation.before.mu,
           "Pre-FFP expected return",
         ),
-        rf: parseRequiredNumber(
-          allocation.before.rf,
-          "Pre-FFP risk-free rate",
-        ),
+        rf: parsePercentToRatio(allocation.before.rf, "Pre-FFP risk-free rate"),
       },
       {
         allocationType: "POST_FFP",
-        u: parseRequiredNumber(
-          allocation.after.u,
-          "Post-FFP risky allocation",
-        ),
-        mu: parseRequiredNumber(
+        u: parsePercentToRatio(allocation.after.u, "Post-FFP risky allocation"),
+        mu: parsePercentToRatio(
           allocation.after.mu,
           "Post-FFP expected return",
         ),
-        rf: parseRequiredNumber(
-          allocation.after.rf,
-          "Post-FFP risk-free rate",
-        ),
+        rf: parsePercentToRatio(allocation.after.rf, "Post-FFP risk-free rate"),
       },
     ],
     lifestyleProfile: {
-      smokingCode: normalizeCode(habits.smoking),
-      physicalActivityCode: normalizeCode(habits.physical),
-      dietQualityCode: normalizeCode(habits.diet),
-      alcoholConsumptionCode: normalizeCode(habits.alcohol),
+      smokingTypeId: parseRequiredInteger(habits.smoking, "Smoking type"),
+      physicalActivityTypeId: parseRequiredInteger(
+        habits.physical,
+        "Physical activity type",
+      ),
+      dietQualityTypeId: parseRequiredInteger(habits.diet, "Diet quality type"),
+      alcoholConsumptionTypeId: parseRequiredInteger(
+        habits.alcohol,
+        "Alcohol consumption type",
+      ),
     },
   };
 }
@@ -190,28 +221,43 @@ export function mapUserInfoResourcesToFinancialData({
       financialProfile?.currentSavings == null
         ? ""
         : String(financialProfile.currentSavings),
-    currency: financialProfile?.currencyCode ?? "",
+    currency:
+      financialProfile?.currencyId == null
+        ? ""
+        : String(financialProfile.currencyId),
     desiredLE:
       financialProfile?.desiredLifeExpectancy == null
         ? ""
         : String(financialProfile.desiredLifeExpectancy),
     allocation: {
       before: {
-        u: preFfpAllocation ? String(preFfpAllocation.u) : "",
-        mu: preFfpAllocation ? String(preFfpAllocation.mu) : "",
-        rf: preFfpAllocation ? String(preFfpAllocation.rf) : "",
+        u: preFfpAllocation ? ratioToPercent(preFfpAllocation.u) : "",
+        mu: preFfpAllocation ? ratioToPercent(preFfpAllocation.mu) : "",
+        rf: preFfpAllocation ? ratioToPercent(preFfpAllocation.rf) : "",
       },
       after: {
-        u: postFfpAllocation ? String(postFfpAllocation.u) : "",
-        mu: postFfpAllocation ? String(postFfpAllocation.mu) : "",
-        rf: postFfpAllocation ? String(postFfpAllocation.rf) : "",
+        u: postFfpAllocation ? ratioToPercent(postFfpAllocation.u) : "",
+        mu: postFfpAllocation ? ratioToPercent(postFfpAllocation.mu) : "",
+        rf: postFfpAllocation ? ratioToPercent(postFfpAllocation.rf) : "",
       },
     },
     habits: {
-      smoking: lifestyleProfile?.smokingCode ?? "",
-      physical: lifestyleProfile?.physicalActivityCode ?? "",
-      diet: lifestyleProfile?.dietQualityCode ?? "",
-      alcohol: lifestyleProfile?.alcoholConsumptionCode ?? "",
+      smoking:
+        lifestyleProfile?.smokingTypeId == null
+          ? ""
+          : String(lifestyleProfile.smokingTypeId),
+      physical:
+        lifestyleProfile?.physicalActivityTypeId == null
+          ? ""
+          : String(lifestyleProfile.physicalActivityTypeId),
+      diet:
+        lifestyleProfile?.dietQualityTypeId == null
+          ? ""
+          : String(lifestyleProfile.dietQualityTypeId),
+      alcohol:
+        lifestyleProfile?.alcoholConsumptionTypeId == null
+          ? ""
+          : String(lifestyleProfile.alcoholConsumptionTypeId),
     },
     stages: stageData.map((stage, index) => ({
       lifeStageRangeId: stage.lifeStageRangeId,
@@ -219,7 +265,10 @@ export function mapUserInfoResourcesToFinancialData({
       startAge: "",
       endAge: "",
       annualSaving: String(stage.initialAnnualSavings),
-      currency: financialProfile?.currencyCode ?? "",
+      currency:
+        financialProfile?.currencyId == null
+          ? ""
+          : String(financialProfile.currencyId),
       growthRate: String(stage.growthRate),
     })),
     assets: assetData.map((asset) => mapUserInfoAssetToAsset(asset)),
@@ -265,8 +314,10 @@ export function mapUserInfoAssetToAsset(asset: UserInfoAssetResponse): Asset {
   };
 }
 
-type StageRequestStage = Pick<Stage, "annualSaving" | "growthRate"> &
-  Required<Pick<Stage, "lifeStageRangeId">>;
+type StageRequestStage = Pick<
+  Stage,
+  "annualSaving" | "growthRate" | "lifeStageRangeId"
+>;
 
 type StageRequestStageItem = Pick<
   StageItem,
