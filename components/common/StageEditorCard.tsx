@@ -34,7 +34,7 @@ const variantConfig = {
   register: {
     containerClassName: "rounded-2xl border border-border bg-white p-5 shadow-sm",
     headerClassName: "text-xl font-semibold text-slate-900",
-    inputRateLabel: "Annual Rate",
+    inputRateLabel: "Annual Growth Rate",
   },
 };
 
@@ -50,10 +50,10 @@ export default function StageEditorCard({ stage, onChange, variant, index }: Sta
       <h3 className={config.headerClassName}>{formatStageTitle(stage, index)}</h3>
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <FormField
-          label="Annual Savings"
+          label="Initial Annual Savings"
           inputClassName="h-11 px-3 pr-14"
           suffix={stage.currency}
-          placeholder="Enter annual savings"
+          placeholder="e.g. 100000"
           inputProps={{
             value: stage.annualSaving,
             onChange: (event) => updateField("annualSaving", event.target.value),
@@ -64,7 +64,7 @@ export default function StageEditorCard({ stage, onChange, variant, index }: Sta
           label={config.inputRateLabel}
           inputClassName="h-11 px-3 pr-8"
           suffix="%"
-          placeholder="8"
+          placeholder="e.g. 15"
           inputProps={{
             value: stage.annualRate,
             onChange: (event) => updateField("annualRate", event.target.value),

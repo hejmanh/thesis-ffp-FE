@@ -61,7 +61,7 @@ const ALLOCATION_LABELS: Record<
 > = {
   u: { description: "Proportion of risky asset", symbol: "u" },
   mu: { description: "Expected annual return rate of risky asset", symbol: "μ" },
-  rf: { description: "Risk-free annual return rate", symbol: "r_f" },
+  rf: { description: "Annual return rate of risk-free asset", symbol: "r_f" },
 };
 
 const ALLOCATION_PERIODS: Array<{
@@ -105,13 +105,13 @@ export default function FinancialProfileFields<HabitKey extends string>({
     <div className={cardClassName}>
       <div className="space-y-6">
         <div className={infoCardClassName}>
-          <h3 className={titleClassName}>Financial Profile</h3>
+          <h3 className={titleClassName}>Life Expectancy and Savings</h3>
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <FormField
               id={`${idPrefix}estimatedLifeExpectancy`}
               name={`${idPrefix}estimatedLifeExpectancy`}
               label={labels.estimatedLifeExpectancy}
-              hint="Estimated using your profile information and lifestyle habits."
+              hint="Estimated based on your birthplace, gender, and lifestyle habits"
               inputClassName="h-11"
               placeholder="90"
               inputProps={{
@@ -126,9 +126,9 @@ export default function FinancialProfileFields<HabitKey extends string>({
               id={`${idPrefix}desiredLifeExpectancy`}
               name={`${idPrefix}desiredLifeExpectancy`}
               label={labels.desiredLifeExpectancy}
-              hint="Your personal target lifespan"
+              hint="Your target lifespan"
               inputClassName="h-11"
-              placeholder="90"
+              placeholder="e.g. 90"
               inputProps={{
                 value: profile.desiredLifeExpectancy,
                 onChange: (event) =>
@@ -142,7 +142,7 @@ export default function FinancialProfileFields<HabitKey extends string>({
               name={`${idPrefix}currentSavings`}
               label={labels.currentSavings}
               inputClassName="h-11"
-              placeholder={currentSavingsPlaceholder}
+              placeholder="e.g. 100000"
               inputProps={{
                 value: profile.currentSavings,
                 onChange: (event) =>
@@ -165,7 +165,7 @@ export default function FinancialProfileFields<HabitKey extends string>({
         </div>
 
         <div className={infoCardClassName}>
-          <h3 className={titleClassName}>Asset Allocation</h3>
+          <h3 className={titleClassName}>Investment Portfolio</h3>
           <div className="mt-4 space-y-6">
             {ALLOCATION_PERIODS.map((period) => (
               <div key={period.key}>
@@ -198,7 +198,11 @@ export default function FinancialProfileFields<HabitKey extends string>({
                           "aria-label": `${period.label} ${ALLOCATION_LABELS[key].description} (${ALLOCATION_LABELS[key].symbol})`,
                           value: allocations[period.key][key],
                           onChange: (event) =>
-                            onAllocationChange(period.key, key, event.target.value),
+                            onAllocationChange(
+                              period.key,
+                              key,
+                              event.target.value,
+                            ),
                           autoComplete: "off",
                         }}
                       />
@@ -211,7 +215,7 @@ export default function FinancialProfileFields<HabitKey extends string>({
         </div>
 
         <div className={infoCardClassName}>
-          <h3 className={titleClassName}>Habits</h3>
+          <h3 className={titleClassName}>Lifestyle</h3>
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
             {habits.map((habit) => (
               <FormField

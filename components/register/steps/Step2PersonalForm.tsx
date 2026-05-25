@@ -79,7 +79,7 @@ export default function Step2PersonalForm({
   return (
     <div className="mt-8">
       <h2 className="text-center text-3xl font-bold text-primary">
-        Financial Information
+        Personal Information
       </h2>
       <div className="mx-auto mt-8 max-w-4xl space-y-7">
         <FinancialProfileFields

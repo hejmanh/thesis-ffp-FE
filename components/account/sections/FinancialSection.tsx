@@ -486,10 +486,10 @@ export default function FinancialSection() {
         className="w-full rounded-xl bg-white p-6 shadow-md"
       >
         <h2 className="text-2xl font-bold text-primary">
-          Financial Profile and Planning
+          Detailed Information
         </h2>
         <p className="mt-4 text-sm text-muted-foreground">
-          Loading your financial profile...
+          Loading your detailed information...
         </p>
       </Card>
     );
@@ -500,12 +500,10 @@ export default function FinancialSection() {
       hoverable={false}
       className="w-full rounded-xl bg-white p-6 shadow-md"
     >
-      <h2 className="text-2xl font-bold text-primary">
-        Financial Profile and Planning
-      </h2>
+      <h2 className="text-2xl font-bold text-primary">Detailed Information</h2>
       <p className="mt-1 text-sm text-muted-foreground">
-        Manage your financial background, investment assumptions, lifestyle
-        habits, life stages, and asset information.
+        Manage your life expectancy, savings, investment portfolio, lifestyle,
+        life stages, and post-FFP asset profiles.
       </p>
       {pageError ? (
         <p className="mt-4 text-sm font-semibold text-red-600">{pageError}</p>
@@ -602,7 +600,7 @@ export default function FinancialSection() {
         </div>
 
         <div className="rounded-xl border border-border bg-slate-50 p-4">
-          <h3 className="text-base font-semibold text-slate-900">Assets</h3>
+          <h3 className="text-base font-semibold text-slate-900">Post-FFP Assets</h3>
           <p className="mt-1 text-xs italic text-slate-600">
             Add additional income-generating assets such as rental properties,
             pensions, or investments.
