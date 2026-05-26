@@ -6,7 +6,6 @@ import type {
   Country,
   Currency,
   DietQualityType,
-  EstimateLifeExpectancyData,
   LifeStageRange,
   PhysicalActivityType,
   SexType,
@@ -15,8 +14,6 @@ import type {
 import { API_ENDPOINTS } from "@/api/endpoints";
 
 export const referenceApi = {
-  getEstimateLifeExpectancy: (): Promise<ApiResponse<EstimateLifeExpectancyData>> =>
-    api.get(API_ENDPOINTS.reference.estimateLifeExpectancy),
   getCurrencies: (): Promise<ApiResponse<Currency[]>> =>
     api.get(API_ENDPOINTS.reference.currencies),
   getCountries: (): Promise<ApiResponse<Country[]>> =>
@@ -25,7 +22,9 @@ export const referenceApi = {
     api.get(API_ENDPOINTS.reference.sexTypes),
   getAssetTypes: (): Promise<ApiResponse<AssetType[]>> =>
     api.get(API_ENDPOINTS.reference.assetTypes),
-  getLifeStageRanges: (birthYear: number): Promise<ApiResponse<LifeStageRange[]>> =>
+  getLifeStageRanges: (
+    birthYear: number,
+  ): Promise<ApiResponse<LifeStageRange[]>> =>
     api.get(API_ENDPOINTS.reference.lifeStageRanges, {
       params: { birthYear },
     }),
@@ -35,6 +34,7 @@ export const referenceApi = {
     api.get(API_ENDPOINTS.reference.physicalActivityTypes),
   getDietQualityTypes: (): Promise<ApiResponse<DietQualityType[]>> =>
     api.get(API_ENDPOINTS.reference.dietQualityTypes),
-  getAlcoholConsumptionTypes: (): Promise<ApiResponse<AlcoholConsumptionType[]>> =>
-    api.get(API_ENDPOINTS.reference.alcoholConsumptionTypes),
+  getAlcoholConsumptionTypes: (): Promise<
+    ApiResponse<AlcoholConsumptionType[]>
+  > => api.get(API_ENDPOINTS.reference.alcoholConsumptionTypes),
 };

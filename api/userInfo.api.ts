@@ -15,6 +15,7 @@ import type {
   PatchFinancialResponse,
   PatchStagesRequest,
 } from "@/types/userInfo";
+import type { UserContextData } from "@/types/userContext";
 
 function buildFinancialPayload(
   payload: CreateFinancialRequest,
@@ -25,6 +26,9 @@ function buildFinancialPayload(
 }
 
 export const userInfoApi = {
+  getMe: (): Promise<ApiResponse<UserContextData>> =>
+    api.get(API_ENDPOINTS.userInfo.me),
+
   getFinancial: (): Promise<ApiResponse<GetFinancialResponse>> =>
     api.get(API_ENDPOINTS.userInfo.financial),
 
@@ -38,8 +42,9 @@ export const userInfoApi = {
   ): Promise<ApiResponse<PatchFinancialResponse>> =>
     api.patch(API_ENDPOINTS.userInfo.financial, buildFinancialPayload(payload)),
 
-  getStages: (): Promise<ApiResponse<GetStagesResponse | CreateStagesRequest>> =>
-    api.get(API_ENDPOINTS.userInfo.lifeStages),
+  getStages: (): Promise<
+    ApiResponse<GetStagesResponse | CreateStagesRequest>
+  > => api.get(API_ENDPOINTS.userInfo.lifeStages),
 
   patchStages: (payload: PatchStagesRequest): Promise<ApiResponse<null>> =>
     api.patch(API_ENDPOINTS.userInfo.lifeStages, payload),

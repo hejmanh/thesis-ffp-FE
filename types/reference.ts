@@ -53,11 +53,3 @@ export interface LifeStageRange {
   beginningAge: number;
   endingAge: number;
 }
-
-export type EstimateLifeExpectancyData =
-  | number
-  | {
-      estimatedLifeExpectancy?: number | null;
-      lifeExpectancy?: number | null;
-      value?: number | null;
-    };

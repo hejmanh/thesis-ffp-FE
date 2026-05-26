@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useState, useTransition } from "react";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Button from "@/components/common/Button";
-import { authService } from "@/services/auth.service";
 import { useAuthStore } from "@/store/auth.store";
 import { tokenService } from "@/services/token.service";
+import { useAuth } from "@/hooks";
+import { useUserContext } from "@/providers/UserContextProvider";
 
 interface HeaderProps {
   authReady?: boolean;
@@ -27,20 +28,19 @@ export default function Header({
   const [isNavigating, startTransition] = useTransition();
   const user = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const displayName = user?.email ?? "Account";
+  const { data: userContext } = useUserContext();
+  const { logout } = useAuth();
+  const displayName = userContext?.name ?? user?.email ?? "Account";
   const logoutPending = isLoggingOut || isNavigating;
 
-  const [hasStoredToken, setHasStoredToken] = useState(false);
-  useEffect(() => {
-    setHasStoredToken(!!tokenService.get());
-  }, []);
+  const [hasStoredToken] = useState(() => Boolean(tokenService.get()));
 
   async function handleLogout() {
     if (logoutPending) return;
 
     setIsLoggingOut(true);
     try {
-      await authService.logout();
+      await logout();
     } catch {
     } finally {
       setIsLoggingOut(false);
@@ -57,7 +57,9 @@ export default function Header({
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-primary to-indigo-500 text-white sm:h-10 sm:w-10">
             $
           </span>
-          <span className="text-xl font-bold tracking-tight text-primary sm:text-2xl">Coinfused</span>
+          <span className="text-xl font-bold tracking-tight text-primary sm:text-2xl">
+            Coinfused
+          </span>
         </Link>
         <nav className="flex items-center gap-3">
           {!authReady && hasStoredToken ? (

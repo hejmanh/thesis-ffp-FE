@@ -13,10 +13,14 @@ import type {
   UserInfoFinancialResource,
   UserInfoStageData,
 } from "@/types/userInfo";
+import type { UserContextData } from "@/types/userContext";
 
 const USER_INFO_NOT_FOUND_MESSAGE = "user info not found";
 
-function isNotFoundResponse(message?: string | null, error?: string | null): boolean {
+function isNotFoundResponse(
+  message?: string | null,
+  error?: string | null,
+): boolean {
   return [message, error].some((value) =>
     value?.toLowerCase().includes(USER_INFO_NOT_FOUND_MESSAGE),
   );
@@ -71,6 +75,14 @@ function normalizeAssetsResponse(
 }
 
 export const userInfoService = {
+  async getMe(): Promise<UserContextData> {
+    const res = await userInfoApi.getMe();
+    if (!res.success || !res.data) {
+      throw new Error(res.error ?? "Unable to load user context");
+    }
+    return res.data;
+  },
+
   async getFinancial(): Promise<UserInfoFinancialResource | null> {
     const res = await userInfoApi.getFinancial();
     if (isNotFoundResponse(res.message, res.error)) {
@@ -102,12 +114,16 @@ export const userInfoService = {
     if (isNotFoundResponse(patchRes.message, patchRes.error)) {
       const createRes = await userInfoApi.createFinancial(payload);
       if (!createRes.success) {
-        throw new Error(createRes.error ?? "Unable to create financial information");
+        throw new Error(
+          createRes.error ?? "Unable to create financial information",
+        );
       }
       return;
     }
     if (!patchRes.success) {
-      throw new Error(patchRes.error ?? "Unable to update financial information");
+      throw new Error(
+        patchRes.error ?? "Unable to update financial information",
+      );
     }
   },
 
@@ -162,7 +178,9 @@ export const userInfoService = {
     return normalizeAssetsResponse(res.data);
   },
 
-  async createAssets(payload: CreateAssetsRequest): Promise<CreateAssetsResponse> {
+  async createAssets(
+    payload: CreateAssetsRequest,
+  ): Promise<CreateAssetsResponse> {
     const res = await userInfoApi.createAssets(payload);
     if (!res.success) {
       throw new Error(res.error ?? "Unable to create assets");

@@ -10,6 +10,7 @@ import Step2PersonalForm from "@/components/register/steps/Step2PersonalForm";
 import Step3StagesCards from "@/components/register/steps/Step3StagesCards";
 import Step4AssetsCards from "@/components/register/steps/Step4AssetsCards";
 import { useLifeStageRangesQuery, useOnboardingReferences } from "@/hooks";
+import { useUserContext } from "@/providers/UserContextProvider";
 import { tokenService } from "@/services/token.service";
 import { userInfoService } from "@/services/userInfo.service";
 import { useAuthStore } from "@/store/auth.store";
@@ -44,6 +45,7 @@ export default function RegisterWizard() {
   const [toastMessage, setToastMessage] = useState("");
   const [completed, setCompleted] = useState(false);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { data: userContext } = useUserContext();
 
   useEffect(() => {
     if (isAuthenticated || !tokenService.get()) {
@@ -63,16 +65,40 @@ export default function RegisterWizard() {
 
   const onboardingReferences = useOnboardingReferences();
   const lifeStageRangesQuery = useLifeStageRangesQuery(draft.step1.birthYear);
+  const preferredCurrencyFallback =
+    userContext?.preferredCurrencyId != null
+      ? String(userContext.preferredCurrencyId)
+      : "";
+  const step2Data =
+    draft.step2.preferredCurrency || !preferredCurrencyFallback
+      ? draft.step2
+      : {
+          ...draft.step2,
+          preferredCurrency: preferredCurrencyFallback,
+        };
 
   function getDraftWithEstimatedLifeExpectancy(
     sourceDraft: OnboardingDraft,
   ): OnboardingDraft {
+    const preferredCurrencyId = userContext?.preferredCurrencyId;
+    const preferredCurrency =
+      sourceDraft.step2.preferredCurrency ||
+      (preferredCurrencyId != null ? String(preferredCurrencyId) : "");
     if (
-      !onboardingReferences.estimatedLifeExpectancy ||
+      (!onboardingReferences.estimatedLifeExpectancy &&
+        preferredCurrency === sourceDraft.step2.preferredCurrency) ||
       sourceDraft.step2.estimatedLifeExpectancy ===
         onboardingReferences.estimatedLifeExpectancy
     ) {
-      return sourceDraft;
+      return preferredCurrency === sourceDraft.step2.preferredCurrency
+        ? sourceDraft
+        : {
+            ...sourceDraft,
+            step2: {
+              ...sourceDraft.step2,
+              preferredCurrency,
+            },
+          };
     }
 
     return {
@@ -80,6 +106,7 @@ export default function RegisterWizard() {
       step2: {
         ...sourceDraft.step2,
         estimatedLifeExpectancy: onboardingReferences.estimatedLifeExpectancy,
+        preferredCurrency,
       },
     };
   }
@@ -251,7 +278,7 @@ export default function RegisterWizard() {
     </div>
   ) : step === 1 ? (
     <Step2PersonalForm
-      data={draft.step2}
+      data={step2Data}
       estimatedLifeExpectancy={
         draft.step2.estimatedLifeExpectancy ||
         onboardingReferences.estimatedLifeExpectancy

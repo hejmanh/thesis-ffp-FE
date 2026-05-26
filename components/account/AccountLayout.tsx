@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import AccountContent from "@/components/account/AccountContent";
 import AccountSidebar from "@/components/account/AccountSidebar";
-import { authService } from "@/services/auth.service";
+import { useAuth } from "@/hooks";
 import type { AccountTab } from "@/utils/types";
 
 export default function AccountLayout() {
@@ -13,13 +13,14 @@ export default function AccountLayout() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isNavigating, startTransition] = useTransition();
   const logoutPending = isLoggingOut || isNavigating;
+  const { logout } = useAuth();
 
   async function handleLogout() {
     if (logoutPending) return;
 
     setIsLoggingOut(true);
     try {
-      await authService.logout();
+      await logout();
     } catch {
     } finally {
       setIsLoggingOut(false);
