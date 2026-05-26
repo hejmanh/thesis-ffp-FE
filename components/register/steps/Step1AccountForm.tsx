@@ -11,7 +11,8 @@ import type { SelectOption } from "@/utils/referenceOptions";
 interface Step1AccountFormProps {
   data: Step1AccountData;
   error: string;
-  submissionStage: "registering" | "logging-in" | null;
+  successMessage?: string;
+  submissionStage: "registering" | null;
   countryOptions: SelectOption[];
   sexOptions: SelectOption[];
   onFieldChange: <K extends keyof Step1AccountData>(
@@ -24,6 +25,7 @@ interface Step1AccountFormProps {
 export default function Step1AccountForm({
   data,
   error,
+  successMessage,
   submissionStage,
   countryOptions,
   sexOptions,
@@ -34,17 +36,11 @@ export default function Step1AccountForm({
   const router = useRouter();
   const isSubmitting = submissionStage !== null;
   const submitLabel =
-    submissionStage === "logging-in"
-      ? "Signing you in..."
-      : submissionStage === "registering"
-        ? "Creating account..."
-        : "Create account";
+    submissionStage === "registering"
+      ? "Creating account..."
+      : "Create account";
   const loadingMessage =
-    submissionStage === "logging-in"
-      ? "Account created. Logging you in and opening step 1..."
-      : submissionStage === "registering"
-        ? "Creating your account..."
-        : "";
+    submissionStage === "registering" ? "Creating your account..." : "";
 
   return (
     <div className="mt-3">
@@ -95,6 +91,11 @@ export default function Step1AccountForm({
       {error ? (
         <p className="mt-4 text-center text-sm font-semibold text-red-600">
           {error}
+        </p>
+      ) : null}
+      {!error && successMessage ? (
+        <p className="mt-4 text-center text-sm font-semibold text-emerald-600">
+          {successMessage}
         </p>
       ) : null}
       {!isReferenceReady ? (

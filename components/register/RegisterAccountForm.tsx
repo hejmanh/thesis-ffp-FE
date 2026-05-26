@@ -16,7 +16,7 @@ import {
   mapSexTypesToOptions,
 } from "@/utils/referenceOptions";
 
-type SubmissionStage = "registering" | "logging-in" | null;
+type SubmissionStage = "registering" | null;
 
 export default function RegisterAccountForm() {
   const router = useRouter();
@@ -24,9 +24,14 @@ export default function RegisterAccountForm() {
     () => createEmptyOnboardingState().step1,
   );
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [submissionStage, setSubmissionStage] = useState<SubmissionStage>(null);
-  const { login, register } = useAuth();
-  const { countries, sexTypes, error: referenceError } = usePersonalInfoReferences();
+  const { register } = useAuth();
+  const {
+    countries,
+    sexTypes,
+    error: referenceError,
+  } = usePersonalInfoReferences();
 
   const countryOptions = useMemo(
     () => mapCountriesToOptions(countries),
@@ -46,6 +51,7 @@ export default function RegisterAccountForm() {
 
   async function handleCreateAccount() {
     setError("");
+    setSuccessMessage("");
     const validation = validateStep1(data);
     if (validation) {
       setError(validation);
@@ -75,13 +81,9 @@ export default function RegisterAccountForm() {
         step1: data,
       });
 
-      setSubmissionStage("logging-in");
-      await login({
-        email: data.email,
-        password: data.password,
-      });
-
-      router.replace("/onboarding");
+      setSuccessMessage(
+        "Account created. Please check your email to verify it.",
+      );
     } catch (submitError) {
       setError(
         submitError instanceof Error
@@ -99,6 +101,7 @@ export default function RegisterAccountForm() {
         <Step1AccountForm
           data={data}
           error={displayError}
+          successMessage={successMessage}
           submissionStage={submissionStage}
           countryOptions={countryOptions}
           sexOptions={sexOptions}
