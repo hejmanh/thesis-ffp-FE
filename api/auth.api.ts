@@ -15,10 +15,7 @@ export const authApi = {
     api.post(API_ENDPOINTS.auth.register, payload),
 
   verifyEmail: (token: string): Promise<ApiResponse<EmptyResponseData>> =>
-    api.get(API_ENDPOINTS.auth.verifyEmail, {
-      params: { token },
-      timeout: 30_000,
-    }),
+    api.post(API_ENDPOINTS.auth.verifyEmail, { token }, { timeout: 30_000 }),
 
   login: (payload: LoginPayload): Promise<ApiResponse<LoginResponseData>> =>
     api.post(API_ENDPOINTS.auth.login, payload),
