@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Icon } from "@iconify/react";
 import AnimatedPanel from "@/components/common/AnimatedPanel";
-import Button from "@/components/common/Button";
 import RegistrationProgressBar from "@/components/register/progress/RegistrationProgressBar";
+import RegisterCompletedView from "@/components/register/RegisterCompletedView";
+import RegisterSkipNotice from "@/components/register/RegisterSkipNotice";
+import RegisterToast from "@/components/register/RegisterToast";
 import Step2PersonalForm from "@/components/register/steps/Step2PersonalForm";
 import Step3StagesCards from "@/components/register/steps/Step3StagesCards";
 import Step4AssetsCards from "@/components/register/steps/Step4AssetsCards";
@@ -20,12 +21,12 @@ import {
   isStageComplete,
   validateStep2,
 } from "@/utils/onboardingValidators";
-import { canAccessOnboardingSteps } from "@/utils/onboardingGuard";
+import { canAccessOnboardingSteps } from "@/guards/onboardingGuard";
 import {
   clearOnboardingState,
   loadOnboardingState,
   saveOnboardingState,
-} from "@/utils/onboardingStorage";
+} from "@/store/onboardingStorage";
 import {
   buildCreateAssetsRequest,
   buildCreateFinancialRequestFromOnboarding,
@@ -261,21 +262,7 @@ export default function RegisterWizard() {
   }
 
   const stepContent = completed ? (
-    <div className="py-16 text-center">
-      <h2 className="text-4xl font-bold text-primary">Onboarding Complete</h2>
-      <p className="mt-4 text-md text-muted-foreground">
-        Your profile has been saved. You can now proceed to scenarios and
-        planning tools.
-      </p>
-      <div className="mt-8 flex justify-center">
-        <Button
-          className="h-12 rounded-full px-8 text-base"
-          onClick={() => router.push("/account")}
-        >
-          Start Your Financial Journey
-        </Button>
-      </div>
-    </div>
+    <RegisterCompletedView />
   ) : step === 1 ? (
     <Step2PersonalForm
       data={step2Data}
@@ -323,31 +310,15 @@ export default function RegisterWizard() {
   return (
     <div className="relative mx-auto max-w-3xl rounded-3xl bg-slate-50 p-6 shadow-[0_20px_50px_-25px_rgba(15,23,42,0.4)] sm:p-8 lg:p-10">
       {!completed ? (
-        <div className="mb-8">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-auto rounded-lg px-0 py-0 text-sm font-semibold"
-            disabled={saving}
-            onClick={() => router.push("/account")}
-          >
-            <Icon icon="ic:round-skip-previous" className="h-4 w-4" />
-            Skip
-          </Button>
-          <p className="mt-2 ml-4 text-xs text-muted-foreground">
-            * You can skip this setup for now and complete it later from the
-            account page.
-          </p>
-        </div>
+        <RegisterSkipNotice
+          disabled={saving}
+          onSkip={() => router.push("/account")}
+        />
       ) : null}
       <RegistrationProgressBar steps={ONBOARDING_STEPS} currentStep={step} />
       <AnimatedPanel key={transitionKey}>{stepContent}</AnimatedPanel>
 
-      {toastMessage ? (
-        <div className="fixed right-6 top-6 z-50 rounded-xl bg-slate-900 px-4 py-3 text-sm font-medium text-white shadow-lg">
-          {toastMessage}
-        </div>
-      ) : null}
+      <RegisterToast message={toastMessage} />
     </div>
   );
 }

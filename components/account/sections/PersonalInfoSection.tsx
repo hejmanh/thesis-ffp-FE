@@ -1,10 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Button from "@/components/common/Button";
 import Card from "@/components/common/Card";
-import PersonalInfoFields from "@/components/common/PersonalInfoFields";
-import PersonalInfoForm from "@/components/account/forms/PersonalInfoForm";
+import AccountBasicInfoCard from "@/components/account/sections/AccountBasicInfoCard";
+import AccountPasswordCard from "@/components/account/sections/AccountPasswordCard";
 import type { PersonalInfoData, SecurityData } from "@/utils/types";
 import { usePersonalInfoReferences } from "@/hooks";
 import {
@@ -57,47 +56,14 @@ export default function PersonalInfoSection() {
       <p className="mt-1 text-sm text-muted-foreground">
         Manage your account settings and basic information.
       </p>
-      <div className="mt-8 rounded-xl border border-border bg-slate-50 p-4">
-        <h3 className="text-lg font-semibold text-slate-900">
-          Email and Basic information
-        </h3>
-        <PersonalInfoForm
-          data={personalData}
-          onChange={setPersonalData}
-          countryOptions={countryOptions}
-          sexOptions={sexOptions}
-        />
-      </div>
+      <AccountBasicInfoCard
+        data={personalData}
+        onChange={setPersonalData}
+        countryOptions={countryOptions}
+        sexOptions={sexOptions}
+      />
 
-      <div className="mt-8 rounded-xl border border-border bg-slate-50 p-4">
-        <h3 className="text-lg font-semibold text-slate-900 mb-2">Password</h3>
-        <PersonalInfoFields
-          variant="account"
-          showPersonalFields={false}
-          onFieldChange={() => {}}
-          passwordFields={{
-            mode: "account",
-            data: {
-              currentPassword: securityData.currentPassword,
-              password: securityData.newPassword,
-              confirmPassword: securityData.confirmPassword,
-            },
-            onFieldChange: (key, value) => {
-              if (key === "password") {
-                updateSecurityField("newPassword", value);
-                return;
-              }
-
-              if (key === "confirmPassword" || key === "currentPassword") {
-                updateSecurityField(key, value);
-              }
-            },
-          }}
-        />
-        <div className="mt-6 flex flex-wrap gap-3">
-          <Button className="h-11 rounded-full px-5">Change Password</Button>
-        </div>
-      </div>
+      <AccountPasswordCard data={securityData} onChange={updateSecurityField} />
     </Card>
   );
 }

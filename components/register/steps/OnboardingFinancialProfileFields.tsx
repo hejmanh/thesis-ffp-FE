@@ -25,7 +25,7 @@ interface HabitField<HabitKey extends string> {
   options: SelectOption[];
 }
 
-interface FinancialProfileFieldsProps<HabitKey extends string> {
+interface OnboardingFinancialProfileFieldsProps<HabitKey extends string> {
   profile: Record<RootFieldKey, string>;
   allocations: Record<AllocationPeriod, AllocationValues>;
   habits: HabitField<HabitKey>[];
@@ -84,7 +84,9 @@ const ALLOCATION_PERIODS: Array<{
   },
 ];
 
-export default function FinancialProfileFields<HabitKey extends string>({
+export default function OnboardingFinancialProfileFields<
+  HabitKey extends string,
+>({
   profile,
   allocations,
   habits,
@@ -101,7 +103,7 @@ export default function FinancialProfileFields<HabitKey extends string>({
   currencyOptions = [],
   disabledRootFields,
   footer,
-}: FinancialProfileFieldsProps<HabitKey>) {
+}: OnboardingFinancialProfileFieldsProps<HabitKey>) {
   const labels = { ...ROOT_FIELD_LABELS, ...fieldLabels };
 
   return (
@@ -145,7 +147,7 @@ export default function FinancialProfileFields<HabitKey extends string>({
               name={`${idPrefix}currentSavings`}
               label={labels.currentSavings}
               inputClassName="h-11"
-              placeholder="e.g. 100000"
+              placeholder={currentSavingsPlaceholder}
               inputProps={{
                 value: profile.currentSavings,
                 onChange: (event) =>

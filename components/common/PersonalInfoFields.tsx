@@ -80,7 +80,11 @@ export default function PersonalInfoFields({
           id="account_current_password"
           name="account_current_password"
           label="Current password"
-          className={passwordFields.mode === "account" ? accountFieldWidthClassName : undefined}
+          className={
+            passwordFields.mode === "account"
+              ? accountFieldWidthClassName
+              : undefined
+          }
           variant="password"
           inputClassName={inputClassName}
           placeholder="Enter current password"
@@ -97,11 +101,23 @@ export default function PersonalInfoFields({
       ) : null}
 
       <FormField
-        id={passwordFields.mode === "register" ? "password" : "account_new_password"}
-        name={passwordFields.mode === "register" ? "password" : "account_new_password"}
+        id={
+          passwordFields.mode === "register"
+            ? "password"
+            : "account_new_password"
+        }
+        name={
+          passwordFields.mode === "register"
+            ? "password"
+            : "account_new_password"
+        }
         label={passwordFields.mode === "register" ? "Password" : "New password"}
         isRequired={passwordFields.mode === "register"}
-        className={passwordFields.mode === "account" ? accountFieldWidthClassName : undefined}
+        className={
+          passwordFields.mode === "account"
+            ? accountFieldWidthClassName
+            : undefined
+        }
         variant="password"
         inputClassName={inputClassName}
         placeholder={
@@ -130,7 +146,11 @@ export default function PersonalInfoFields({
         }
         label="Confirm password"
         isRequired={passwordFields.mode === "register"}
-        className={passwordFields.mode === "account" ? accountFieldWidthClassName : undefined}
+        className={
+          passwordFields.mode === "account"
+            ? accountFieldWidthClassName
+            : undefined
+        }
         variant="password"
         inputClassName={inputClassName}
         placeholder={

@@ -9,7 +9,7 @@ import type {
   LoginResult,
   RegisterInput,
 } from "@/types/auth";
-import { clearOnboardingState } from "@/utils/onboardingStorage";
+import { clearOnboardingState } from "@/store/onboardingStorage";
 
 function clearClientSessionState() {
   tokenService.clear();
@@ -33,7 +33,10 @@ function decodeJwtPayload(token: string): Record<string, unknown> | null {
         ? window.atob(padded)
         : Buffer.from(padded, "base64").toString("binary");
     const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
-    return JSON.parse(new TextDecoder().decode(bytes)) as Record<string, unknown>;
+    return JSON.parse(new TextDecoder().decode(bytes)) as Record<
+      string,
+      unknown
+    >;
   } catch {
     return null;
   }
@@ -58,11 +61,12 @@ function extractUserFromAccessToken(token: string): AuthUser | null {
 
   return {
     email,
-    id: typeof payload.userId === "string"
-      ? payload.userId
-      : typeof payload.id === "string"
-        ? payload.id
-        : undefined,
+    id:
+      typeof payload.userId === "string"
+        ? payload.userId
+        : typeof payload.id === "string"
+          ? payload.id
+          : undefined,
     name:
       typeof payload.name === "string"
         ? payload.name
@@ -123,8 +127,7 @@ export const authService = {
         logoutError = new Error(res.error ?? "Logout failed");
       }
     } catch (error) {
-      logoutError =
-        error instanceof Error ? error : new Error("Logout failed");
+      logoutError = error instanceof Error ? error : new Error("Logout failed");
     } finally {
       clearClientSessionState();
     }

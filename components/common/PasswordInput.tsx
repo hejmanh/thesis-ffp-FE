@@ -16,7 +16,7 @@ export default function PasswordInput({
         type={isVisible ? "text" : "password"}
         className={cn(
           "h-9 w-full rounded-full border border-gray-300 bg-white px-3 pr-10 text-sm text-slate-700 placeholder:text-slate-500 outline-none transition focus-visible:ring-2 focus-visible:ring-ring",
-          className
+          className,
         )}
         {...props}
       />

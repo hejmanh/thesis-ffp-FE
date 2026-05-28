@@ -9,7 +9,7 @@ import { validateStep1 } from "@/utils/onboardingValidators";
 import {
   createEmptyOnboardingState,
   saveOnboardingState,
-} from "@/utils/onboardingStorage";
+} from "@/store/onboardingStorage";
 import { useAuth, usePersonalInfoReferences } from "@/hooks";
 import {
   mapCountriesToOptions,

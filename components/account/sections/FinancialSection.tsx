@@ -25,7 +25,7 @@ import {
   mapUserInfoResourcesToFinancialData,
 } from "@/utils/userInfoMappers";
 import type { Asset, FinancialData, Habits, Stage } from "@/utils/types";
-import { loadOnboardingState } from "@/utils/onboardingStorage";
+import { loadOnboardingState } from "@/store/onboardingStorage";
 import { resolveCurrencyCode } from "@/utils/referenceOptions";
 
 const EMPTY_FINANCIAL_DATA: FinancialData = {

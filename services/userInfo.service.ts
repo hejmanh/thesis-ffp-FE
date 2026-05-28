@@ -15,7 +15,7 @@ import type {
 } from "@/types/userInfo";
 import type { UserContextData } from "@/types/userContext";
 
-const USER_INFO_NOT_FOUND_MESSAGE = "user info not found";
+const USER_INFO_NOT_FOUND_MESSAGE = "not found";
 
 function isNotFoundResponse(
   message?: string | null,

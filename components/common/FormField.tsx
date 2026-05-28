@@ -88,13 +88,13 @@ export default function FormField({
             className={selectClassName}
             buttonClassName={selectClassName}
             options={options}
-             placeholder={placeholder}
-             value={value}
-             onChange={onChange}
-             searchable={searchable}
-             disabled={disabled}
-           />
-         ))
+            placeholder={placeholder}
+            value={value}
+            onChange={onChange}
+            searchable={searchable}
+            disabled={disabled}
+          />
+        ))
       ) : variant === "password" ? (
         <PasswordInput
           id={id}
@@ -114,7 +114,9 @@ export default function FormField({
           {...inputProps}
         />
       )}
-      {hint ? <span className="mt-1 block text-xs text-slate-500">{hint}</span> : null}
+      {hint ? (
+        <span className="mt-1 block text-xs text-slate-500">{hint}</span>
+      ) : null}
     </label>
   );
 }
