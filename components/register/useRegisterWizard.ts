@@ -56,12 +56,16 @@ export function useRegisterWizard() {
     userContext?.preferredCurrencyId != null
       ? String(userContext.preferredCurrencyId)
       : "";
+  const preferredCurrencyDefault =
+    onboardingReferences.currencyOptions.find(
+      (option) => option.value === preferredCurrencyFallback,
+    )?.value ?? "";
   const step2Data =
-    draft.step2.preferredCurrency || !preferredCurrencyFallback
+    draft.step2.preferredCurrency || !preferredCurrencyDefault
       ? draft.step2
       : {
           ...draft.step2,
-          preferredCurrency: preferredCurrencyFallback,
+          preferredCurrency: preferredCurrencyDefault,
         };
 
   function getDraftWithEstimatedLifeExpectancy(
