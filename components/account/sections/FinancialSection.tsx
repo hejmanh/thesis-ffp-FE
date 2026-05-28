@@ -13,6 +13,7 @@ import {
   useFinancialPlanningReferences,
   useLifeStageRangesQuery,
 } from "@/hooks";
+import { useUserContext } from "@/providers/UserContextProvider";
 import { userInfoService } from "@/services/userInfo.service";
 import type { UserInfoFinancialResource } from "@/types/userInfo";
 import type { SelectOption } from "@/utils/referenceOptions";
@@ -25,7 +26,6 @@ import {
   mapUserInfoResourcesToFinancialData,
 } from "@/utils/userInfoMappers";
 import type { Asset, FinancialData, Habits, Stage } from "@/utils/types";
-import { loadOnboardingState } from "@/store/onboardingStorage";
 import { resolveCurrencyCode } from "@/utils/referenceOptions";
 
 const EMPTY_FINANCIAL_DATA: FinancialData = {
@@ -197,10 +197,9 @@ function getAssetOptionsForAsset(
 export default function FinancialSection() {
   const queryClient = useQueryClient();
   const references = useFinancialPlanningReferences();
-  const registrationBirthYear = useMemo(
-    () => loadOnboardingState().step1.birthYear,
-    [],
-  );
+  const { data: userContext } = useUserContext();
+  const registrationBirthYear =
+    userContext?.birthYear == null ? "" : String(userContext.birthYear);
   const [profileDraft, setProfileDraft] = useState<{
     estimatedLE: string;
     savings: string;

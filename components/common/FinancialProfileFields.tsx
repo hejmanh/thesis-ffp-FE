@@ -97,7 +97,7 @@ export default function FinancialProfileFields<HabitKey extends string>({
   titleClassName = "text-base font-semibold text-slate-900",
   hintClassName = "mt-1 text-xs italic text-slate-600",
   fieldLabels,
-  currentSavingsPlaceholder = "100000",
+  currentSavingsPlaceholder = "e.g. 100 000",
   currencyOptions = [],
   disabledRootFields,
   footer,
@@ -145,7 +145,7 @@ export default function FinancialProfileFields<HabitKey extends string>({
               name={`${idPrefix}currentSavings`}
               label={labels.currentSavings}
               inputClassName="h-11"
-              placeholder="e.g. 100000"
+              placeholder={currentSavingsPlaceholder}
               inputProps={{
                 value: profile.currentSavings,
                 onChange: (event) =>

@@ -16,6 +16,7 @@ interface Step2PersonalFormProps {
   error: string;
   referenceError?: string | null;
   isReferenceLoading: boolean;
+  canContinue?: boolean;
   isSubmitting: boolean;
   onBack?: () => void;
   onNext: () => void;
@@ -40,6 +41,7 @@ export default function Step2PersonalForm({
   error,
   referenceError,
   isReferenceLoading,
+  canContinue = true,
   isSubmitting,
   onBack,
   onNext,
@@ -163,7 +165,12 @@ export default function Step2PersonalForm({
         <Button
           className="h-12 flex-1 rounded-full text-base"
           onClick={onNext}
-          disabled={isSubmitting || isReferenceLoading || Boolean(referenceError)}
+          disabled={
+            isSubmitting ||
+            isReferenceLoading ||
+            !canContinue ||
+            Boolean(referenceError)
+          }
         >
           {isSubmitting ? "Saving..." : "Next"}
         </Button>

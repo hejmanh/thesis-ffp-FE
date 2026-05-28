@@ -1,15 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import AnimatedPanel from "@/components/common/AnimatedPanel";
 import Step1AccountForm from "@/components/register/steps/Step1AccountForm";
 import type { Step1AccountData } from "@/types/onboarding";
 import { validateStep1 } from "@/utils/onboardingValidators";
-import {
-  createEmptyOnboardingState,
-  saveOnboardingState,
-} from "@/store/onboardingStorage";
+import { createEmptyOnboardingState } from "@/store/onboardingStorage";
 import { useAuth, usePersonalInfoReferences } from "@/hooks";
 import {
   mapCountriesToOptions,
@@ -19,7 +15,6 @@ import {
 type SubmissionStage = "registering" | null;
 
 export default function RegisterAccountForm() {
-  const router = useRouter();
   const [data, setData] = useState<Step1AccountData>(
     () => createEmptyOnboardingState().step1,
   );
@@ -74,11 +69,6 @@ export default function RegisterAccountForm() {
         birthYear: Number(data.birthYear),
         countryId,
         sexTypeId,
-      });
-
-      saveOnboardingState({
-        ...createEmptyOnboardingState(),
-        step1: data,
       });
 
       setSuccessMessage(

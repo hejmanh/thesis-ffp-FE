@@ -74,13 +74,55 @@ function normalizeAssetsResponse(
   return data.assets ?? data.assetData ?? [];
 }
 
+function readString(value: unknown): string {
+  return typeof value === "string" ? value : "";
+}
+
+function readNullableNumber(value: unknown): number | null {
+  if (value == null || value === "") {
+    return null;
+  }
+
+  const parsedValue = Number(value);
+  return Number.isFinite(parsedValue) ? parsedValue : null;
+}
+
+function readRecord(value: unknown): Record<string, unknown> {
+  return value != null && typeof value === "object"
+    ? (value as Record<string, unknown>)
+    : {};
+}
+
+function normalizeUserContextData(data: unknown): UserContextData {
+  const root = readRecord(data);
+  const nestedUser = readRecord(root.user);
+  const nestedProfile = readRecord(root.profile ?? root.userProfile);
+  const source = {
+    ...nestedUser,
+    ...nestedProfile,
+    ...root,
+  };
+
+  return {
+    name: readString(source.name),
+    email: readString(source.email),
+    birthYear: readNullableNumber(source.birthYear ?? source.birth_year),
+    estimatedLifeExpectancy: readNullableNumber(
+      source.estimatedLifeExpectancy ?? source.estimated_life_expectancy,
+    ),
+    preferredCurrencyId: readNullableNumber(
+      source.preferredCurrencyId ?? source.preferred_currency_id,
+    ),
+  };
+}
+
 export const userInfoService = {
   async getMe(): Promise<UserContextData> {
     const res = await userInfoApi.getMe();
     if (!res.success || !res.data) {
       throw new Error(res.error ?? "Unable to load user context");
     }
-    return res.data;
+    return normalizeUserContextData(res.data);
   },
 
   async getFinancial(): Promise<UserInfoFinancialResource | null> {

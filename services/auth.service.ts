@@ -9,13 +9,11 @@ import type {
   LoginResult,
   RegisterInput,
 } from "@/types/auth";
-import { clearOnboardingState } from "@/store/onboardingStorage";
 
 function clearClientSessionState() {
   tokenService.clear();
   authUserService.clear();
   useAuthStore.getState().clearUser();
-  clearOnboardingState();
   queryClient.clear();
 }
 

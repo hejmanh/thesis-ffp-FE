@@ -5,15 +5,24 @@ import type {
   Step2PersonalData,
 } from "@/types/onboarding";
 
+// avoid falsy values like "0" or "false" to be considered as empty
+function isFilledValue(value: unknown): boolean {
+  if (value == null) {
+    return false;
+  }
+
+  return String(value).trim() !== "";
+}
+
 export function validateStep1(data: Step1AccountData): string | null {
   if (
-    !data.name ||
-    !data.email ||
-    !data.password ||
-    !data.confirmPassword ||
-    !data.birthYear ||
-    !data.country ||
-    !data.sex
+    !isFilledValue(data.name) ||
+    !isFilledValue(data.email) ||
+    !isFilledValue(data.password) ||
+    !isFilledValue(data.confirmPassword) ||
+    !isFilledValue(data.birthYear) ||
+    !isFilledValue(data.country) ||
+    !isFilledValue(data.sex)
   ) {
     return "Please fill all required fields.";
   }
@@ -40,7 +49,7 @@ export function validateStep2(data: Step2PersonalData): string | null {
     data.habits.diet,
     data.habits.alcohol,
   ];
-  if (required.some((value) => !value)) {
+  if (required.some((value) => !isFilledValue(value))) {
     return "Please complete all fields in Personal Information.";
   }
   return null;

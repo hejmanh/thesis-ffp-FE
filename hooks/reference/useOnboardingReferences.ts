@@ -13,6 +13,7 @@ export const useOnboardingReferences = () => {
         userContext?.estimatedLifeExpectancy == null
           ? ""
           : String(userContext.estimatedLifeExpectancy),
+      preferredCurrencyId: userContext?.preferredCurrencyId,
       isLoading: planningReferences.isLoading || isLoading,
       error: error ?? planningReferences.error,
     }),
