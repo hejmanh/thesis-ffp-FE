@@ -10,12 +10,16 @@ import type {
 } from "@/types/userInfo";
 import type { Asset, FinancialData, Habits, Stage } from "@/utils/types";
 
+function normalizeNumericInput(value: string): string {
+  return value.replace(/\s+/g, "").trim();
+}
+
 function parseRequiredNumber(value: string, fieldName: string): number {
-  const trimmed = value.trim();
-  if (trimmed === "") {
+  const normalizedValue = normalizeNumericInput(value);
+  if (normalizedValue === "") {
     throw new Error(`${fieldName} is required`);
   }
-  const parsedValue = Number(trimmed);
+  const parsedValue = Number(normalizedValue);
   if (!Number.isFinite(parsedValue)) {
     throw new Error(`${fieldName} must be a valid number`);
   }
