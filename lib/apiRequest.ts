@@ -21,6 +21,21 @@ const SKIP_REFRESH_URLS = [
 type RetryConfig = AxiosRequestConfig & { _retry?: boolean };
 type ApiEnvelope<T> = ApiResponse<T> & { data?: T };
 
+function formatApiErrorMessage<T>(
+  data: Partial<ApiEnvelope<T>>,
+  fallback: string,
+) {
+  const validationMessages = data.errors
+    ?.map((entry) => entry.message.trim())
+    .filter((message) => message.length > 0);
+
+  if (validationMessages && validationMessages.length > 0) {
+    return validationMessages.join("; ");
+  }
+
+  return data.message ?? fallback;
+}
+
 class ApiRequest {
   private readonly instance = axios.create({
     baseURL: API_CONFIG.baseURL,
@@ -36,7 +51,7 @@ class ApiRequest {
     this.instance.interceptors.request.use((config) => {
       const headers = config.headers ?? {};
       const token = tokenService.get();
-    
+
       // attach or replace access token
       if (token) {
         (headers as Record<string, string>).Authorization = `Bearer ${token}`;
@@ -65,7 +80,8 @@ class ApiRequest {
 
     this.instance.interceptors.response.use(
       (res) => res, // pass through successful responses
-      async (error) => { // refresh access token on 401 response
+      async (error) => {
+        // refresh access token on 401 response
         const original = error.config as RetryConfig | undefined;
 
         // ignore non-401 errors or missing request config
@@ -90,18 +106,18 @@ class ApiRequest {
         original._retry = true;
 
         try {
-          // refresh access token 
+          // refresh access token
           const newToken = await tokenRefreshManager.getValidToken(async () => {
             const { authApi } = await import("@/api/auth.api");
 
             const res = await authApi.refresh();
-            
+
             if (!res.success || !res.data?.accessToken) {
               throw new Error("Refresh failed");
             }
-            
+
             tokenService.set(res.data.accessToken);
-            
+
             return res.data.accessToken;
           });
 
@@ -192,12 +208,15 @@ class ApiRequest {
   private normalise<T>(res: AxiosResponse<ApiEnvelope<T>>): ApiResponse<T> {
     const data = res.data ?? {};
     const ok = data.success === true || (res.status >= 200 && res.status < 300);
+    const message = ok
+      ? data.message
+      : formatApiErrorMessage(data, data.message ?? "Request failed");
 
     return {
       success: ok,
       data: data.data as T,
-      message: data.message,
-      error: ok ? undefined : data.message,
+      message,
+      error: ok ? undefined : message,
       errors: data.errors,
       meta: data.meta,
     };
@@ -207,7 +226,10 @@ class ApiRequest {
     if (axios.isAxiosError(err)) {
       const axiosError = err as AxiosError<ApiEnvelope<T>>;
       const data: Partial<ApiEnvelope<T>> = axiosError.response?.data ?? {};
-      const message = data.message ?? axiosError.message ?? "Request failed";
+      const message = formatApiErrorMessage(
+        data,
+        axiosError.message ?? "Request failed",
+      );
       return {
         success: false,
         data: data.data as T,

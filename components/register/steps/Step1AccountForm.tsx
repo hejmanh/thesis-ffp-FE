@@ -39,8 +39,6 @@ export default function Step1AccountForm({
     submissionStage === "registering"
       ? "Creating account..."
       : "Create account";
-  const loadingMessage =
-    submissionStage === "registering" ? "Creating your account..." : "";
 
   return (
     <div className="mt-3">
@@ -116,12 +114,6 @@ export default function Step1AccountForm({
             <span>{submitLabel}</span>
           </span>
         </Button>
-        {isSubmitting ? (
-          <div className="mt-4 flex items-center justify-center gap-2 text-sm font-medium text-primary">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-current" />
-            <p>{loadingMessage}</p>
-          </div>
-        ) : null}
       </div>
       <p className="mt-6 text-center text-sm text-muted-foreground">
         Already have an account?{" "}
