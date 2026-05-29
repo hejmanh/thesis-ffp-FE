@@ -197,4 +197,13 @@ export const authService = {
     if (!res.success) throw new Error(res.error ?? "Reset failed");
     return res.message ?? "Password reset successful";
   },
+
+  async updatePassword(
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<string> {
+    const res = await authApi.updatePassword({ currentPassword, newPassword });
+    if (!res.success) throw new Error(res.error ?? "Update password failed");
+    return res.message ?? "Password updated successfully";
+  },
 };

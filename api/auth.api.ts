@@ -8,6 +8,7 @@ import type {
   RefreshResponseData,
   RegisterInput,
   ResetPasswordPayload,
+  UpdatePasswordPayload,
 } from "@/types/auth";
 
 export const authApi = {
@@ -33,4 +34,9 @@ export const authApi = {
     payload: ResetPasswordPayload,
   ): Promise<ApiResponse<EmptyResponseData>> =>
     api.post(API_ENDPOINTS.auth.resetPassword, payload, { timeout: 30_000 }),
+
+  updatePassword: (
+    payload: UpdatePasswordPayload,
+  ): Promise<ApiResponse<EmptyResponseData>> =>
+    api.post(API_ENDPOINTS.auth.updatePassword, payload, { timeout: 30_000 }),
 };

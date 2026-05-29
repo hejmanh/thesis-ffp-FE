@@ -6,6 +6,7 @@ import Button from "@/components/common/Button";
 import FormField from "@/components/common/FormField";
 import PersonalInfoFields from "@/components/common/PersonalInfoFields";
 import { useUserContext } from "@/providers/UserContextProvider";
+import { authService } from "@/services/auth.service";
 import type { SecurityData } from "@/utils/types";
 
 const ACCOUNT_FIELD_WIDTH_CLASS = "max-w-sm";
@@ -21,6 +22,9 @@ export default function PersonalInfoSection() {
   const [securityData, setSecurityData] = useState<SecurityData>(
     INITIAL_SECURITY_DATA,
   );
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
   const email = userContext?.email ?? "";
 
   function updateSecurityField<K extends keyof SecurityData>(
@@ -28,6 +32,41 @@ export default function PersonalInfoSection() {
     value: SecurityData[K],
   ) {
     setSecurityData((prev) => ({ ...prev, [key]: value }));
+  }
+
+  async function handleChangePassword() {
+    setPasswordMessage(null);
+    setPasswordError(null);
+
+    const currentPassword = securityData.currentPassword.trim();
+    const newPassword = securityData.newPassword.trim();
+    const confirmPassword = securityData.confirmPassword.trim();
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setPasswordError("All password fields are required.");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError("New password and confirm password do not match.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const message = await authService.updatePassword(
+        currentPassword,
+        newPassword,
+      );
+      setPasswordMessage(message);
+      setSecurityData(INITIAL_SECURITY_DATA);
+    } catch (error) {
+      setPasswordError(
+        error instanceof Error ? error.message : "Unable to change password.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -82,8 +121,24 @@ export default function PersonalInfoSection() {
               },
             }}
           />
+          {passwordError ? (
+            <p className="mt-4 text-sm font-semibold text-rose-700">
+              {passwordError}
+            </p>
+          ) : null}
+          {passwordMessage ? (
+            <p className="mt-4 text-sm font-semibold text-emerald-700">
+              {passwordMessage}
+            </p>
+          ) : null}
           <div className="mt-6 flex flex-wrap gap-3">
-            <Button className="h-11 rounded-full px-5">Change Password</Button>
+            <Button
+              className="h-11 rounded-full px-5"
+              onClick={() => void handleChangePassword()}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Updating..." : "Change Password"}
+            </Button>
           </div>
         </div>
       </div>

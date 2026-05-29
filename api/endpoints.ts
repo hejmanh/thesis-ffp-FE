@@ -7,6 +7,7 @@ export const API_ENDPOINTS = {
     refresh: "/auth/refresh",
     forgotPassword: "/auth/forgot-password",
     resetPassword: "/auth/reset-password",
+    updatePassword: "/auth/update-password",
   },
   reference: {
     currencies: "/reference/currencies",
