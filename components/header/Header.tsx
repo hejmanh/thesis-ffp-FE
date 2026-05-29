@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Button from "@/components/common/Button";
 import { useAuthStore } from "@/store/auth.store";
-import { tokenService } from "@/services/token.service";
 import { useAuth } from "@/hooks";
 import { useUserContext } from "@/providers/UserContextProvider";
 
@@ -33,8 +32,6 @@ export default function Header({
   const displayName = userContext?.name ?? user?.email ?? "Account";
   const logoutPending = isLoggingOut || isNavigating;
 
-  const [hasStoredToken] = useState(() => Boolean(tokenService.get()));
-
   async function handleLogout() {
     if (logoutPending) return;
 
@@ -52,7 +49,7 @@ export default function Header({
 
   return (
     <header className="w-full border-b border-border bg-surface/80 backdrop-blur">
-      <div className="mx-auto flex h-16 w-full max-w-[1200px] items-center justify-between px-4 sm:h-18 sm:px-6 lg:px-8 xl:max-w-[1280px]">
+      <div className="mx-auto flex h-16 w-full max-w-300 items-center justify-between px-4 sm:h-18 sm:px-6 lg:px-8 xl:max-w-7xl">
         <Link href="/" className="flex items-center gap-3">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-primary to-indigo-500 text-white sm:h-10 sm:w-10">
             $
@@ -62,7 +59,7 @@ export default function Header({
           </span>
         </Link>
         <nav className="flex items-center gap-3">
-          {!authReady && hasStoredToken ? (
+          {!authReady ? (
             <div
               className="h-9 w-28 animate-pulse rounded-full bg-slate-200/70"
               aria-hidden="true"
@@ -70,7 +67,7 @@ export default function Header({
           ) : isAuthenticated ? (
             <>
               <Link
-                href="/account"
+                href="/profile"
                 className="hidden text-sm text-muted-foreground underline-offset-4 hover:text-primary hover:underline sm:inline"
               >
                 {displayName}

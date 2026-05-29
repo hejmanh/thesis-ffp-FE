@@ -51,17 +51,11 @@ export default function Step3StagesCards({
         Your Life Stages
       </h2> */}
       <p className="mt-2 text-center text-sm text-muted-foreground">
-        Define how your savings change over time
-      </p>
-      <p className="mt-1 text-center text-xs italic text-slate-600">
-        Includes all pre-FFP income sources (e.g. salary, rental income, etc.)
-      </p>
-      <p className="mt-1 text-center text-xs italic text-slate-600">
-        For stages after your desired Financial Freedom age, enter 0 for the
-        Initial Annual Savings and Annual Growth Rate.
+        Includes salary, rental income, and other savings contributions before
+        Financial Freedom Point.
       </p>
       <div className="mx-auto mt-8 max-w-5xl">
-        <div className="max-h-[34rem] space-y-5 overflow-y-auto pr-2">
+        <div className="max-h-136 space-y-5 overflow-y-auto pr-2">
           {stages.map((stage, index) => (
             <StageEditorCard
               key={stage.id}

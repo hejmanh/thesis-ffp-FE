@@ -218,7 +218,7 @@ export function useRegisterWizard() {
     setToastMessage("Saving your financial information...");
     try {
       const payload = buildCreateFinancialRequestFromOnboarding(nextDraft);
-      await userInfoService.createFinancial(payload);
+      await userInfoService.upsertFinancial(payload);
       setDraft({ ...nextDraft, stages: generatedStages });
       setStep(2);
     } catch (submitError) {
@@ -244,7 +244,7 @@ export function useRegisterWizard() {
     setToastMessage("Saving your stage information...");
     try {
       const payload = buildStagesRequest(draft.stages);
-      await userInfoService.createStages(payload);
+      await userInfoService.upsertStages(payload);
       setStep(3);
     } catch (submitError) {
       setError(
@@ -310,7 +310,7 @@ export function useRegisterWizard() {
     estimatedLifeExpectancy:
       draft.step2.estimatedLifeExpectancy ||
       onboardingReferences.estimatedLifeExpectancy,
-    goToAccount: () => router.push("/account"),
+    goToAccount: () => router.push("/profile"),
     goToStep: setStep,
     updateStep2: (step2: OnboardingDraft["step2"]) => {
       const lifestyleChanged = didLifestyleChange(draft.step2.habits, step2.habits);

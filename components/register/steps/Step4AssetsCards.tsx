@@ -56,7 +56,8 @@ export default function Step4AssetsCards({
     <div className="mt-8">
       {/* <h2 className="text-center text-3xl font-bold text-primary">Asset Data</h2> */}
       <p className="mt-2 text-center text-sm text-muted-foreground">
-        Add and organize your assets with growth assumptions
+        Includes passive income sources after Financial Freedom Point, such as
+        rental income and pensions.
       </p>
       <div className="mx-auto mt-8 flex max-w-5xl flex-col gap-5">
         {assets.map((asset, index) => (
@@ -81,12 +82,20 @@ export default function Step4AssetsCards({
         </button>
       </div>
       {isReferenceLoading ? (
-        <p className="mt-4 text-center text-sm text-muted-foreground">Loading asset types...</p>
+        <p className="mt-4 text-center text-sm text-muted-foreground">
+          Loading asset types...
+        </p>
       ) : null}
       {referenceError ? (
-        <p className="mt-4 text-center text-sm font-semibold text-red-600">{referenceError}</p>
+        <p className="mt-4 text-center text-sm font-semibold text-red-600">
+          {referenceError}
+        </p>
       ) : null}
-      {error ? <p className="mt-4 text-center text-sm font-semibold text-red-600">{error}</p> : null}
+      {error ? (
+        <p className="mt-4 text-center text-sm font-semibold text-red-600">
+          {error}
+        </p>
+      ) : null}
       <StepNavigationActions
         className="max-w-5xl"
         layout="column"

@@ -643,7 +643,7 @@ export default function FinancialSection() {
             Includes salary, rental income, and other savings contributions
             before Financial Freedom Point.
           </p>
-          <div className="mt-4 max-h-[24rem] space-y-4 overflow-y-auto pr-2">
+          <div className="mt-4 max-h-96 space-y-4 overflow-y-auto pr-2">
             {!lifeStageRangesQuery.isLoading && currentStages.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 Life stages will appear here once your registration birth year

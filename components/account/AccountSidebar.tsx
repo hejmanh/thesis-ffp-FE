@@ -25,7 +25,7 @@ export default function AccountSidebar({
   isLoggingOut = false,
 }: AccountSidebarProps) {
   return (
-    <Card hoverable={false} className="h-fit w-full rounded-xl bg-white p-3 shadow-md lg:w-[21.25rem]">
+    <Card hoverable={false} className="h-fit w-full rounded-xl bg-white p-3 shadow-md lg:w-85">
       <nav className="space-y-1">
         {TABS.map((tab) => (
           <button

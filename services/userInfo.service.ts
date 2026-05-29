@@ -16,15 +16,22 @@ import type {
 } from "@/types/userInfo";
 import type { UserContextData } from "@/types/userContext";
 
-const USER_INFO_NOT_FOUND_MESSAGE = "not found";
+const MISSING_RESOURCE_PATTERNS = [
+  "not found",
+  "does not exist yet",
+  "does not exist",
+];
 
 function isNotFoundResponse(
   message?: string | null,
   error?: string | null,
 ): boolean {
-  return [message, error].some((value) =>
-    value?.toLowerCase().includes(USER_INFO_NOT_FOUND_MESSAGE),
-  );
+  return [message, error].some((value) => {
+    const normalized = value?.toLowerCase() ?? "";
+    return MISSING_RESOURCE_PATTERNS.some((pattern) =>
+      normalized.includes(pattern),
+    );
+  });
 }
 
 function isGetFinancialResponse(
