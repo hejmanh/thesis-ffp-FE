@@ -103,6 +103,19 @@ export default function FinancialProfileFields<HabitKey extends string>({
   footer,
 }: FinancialProfileFieldsProps<HabitKey>) {
   const labels = { ...ROOT_FIELD_LABELS, ...fieldLabels };
+  const orderedHabits = [...habits].sort((left, right) => {
+    const priority: Record<string, number> = {
+      physical: 0,
+      diet: 1,
+      smoking: 2,
+      alcohol: 3,
+    };
+
+    const leftIndex = priority[String(left.key)] ?? Number.MAX_SAFE_INTEGER;
+    const rightIndex = priority[String(right.key)] ?? Number.MAX_SAFE_INTEGER;
+
+    return leftIndex - rightIndex;
+  });
 
   return (
     <div className={cardClassName}>
@@ -220,7 +233,7 @@ export default function FinancialProfileFields<HabitKey extends string>({
         <div className={infoCardClassName}>
           <h3 className={titleClassName}>Lifestyle</h3>
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {habits.map((habit) => (
+            {orderedHabits.map((habit) => (
               <FormField
                 key={habit.key}
                 id={`${idPrefix}habit_${habit.key}`}

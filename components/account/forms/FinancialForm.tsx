@@ -37,6 +37,12 @@ const HABIT_LABELS: Record<keyof Habits, string> = {
   diet: "Healthy Diet",
   alcohol: "Alcohol Consumption",
 };
+const HABIT_ORDER: Array<keyof Habits> = [
+  "physical",
+  "diet",
+  "smoking",
+  "alcohol",
+];
 
 export default function FinancialForm({
   profile,
@@ -60,7 +66,7 @@ export default function FinancialForm({
           preferredCurrency: profile.currency,
         }}
         allocations={allocation}
-        habits={(Object.keys(habits) as Array<keyof Habits>).map((habit) => ({
+        habits={HABIT_ORDER.map((habit) => ({
           key: habit,
           label: HABIT_LABELS[habit],
           value: habits[habit],
