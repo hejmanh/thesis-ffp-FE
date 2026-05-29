@@ -167,7 +167,17 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
             }}
           />
           {error ? <p className="text-sm text-red-600">{error}</p> : null}
-          <button type="button" className="text-sm font-semibold text-primary">
+          <button
+            type="button"
+            className="text-sm font-semibold text-primary underline"
+            onClick={() => {
+              onClose();
+              const query = email.trim()
+                ? `?email=${encodeURIComponent(email.trim())}`
+                : "";
+              router.push(`/forgot-password${query}`);
+            }}
+          >
             Forgot password?
           </button>
           <Button

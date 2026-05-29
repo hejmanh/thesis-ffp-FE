@@ -182,17 +182,19 @@ export const authService = {
    * Request password reset email. Throws on failure.
    * @throws Error on request failure
    */
-  async forgotPassword(email: string): Promise<void> {
+  async forgotPassword(email: string): Promise<string> {
     const res = await authApi.forgotPassword(email);
     if (!res.success) throw new Error(res.error ?? "Request failed");
+    return res.message ?? "Check your email to reset your password";
   },
 
   /**
    * Reset password with token. Throws on failure.
    * @throws Error on reset failure
    */
-  async resetPassword(token: string, password: string): Promise<void> {
+  async resetPassword(token: string, password: string): Promise<string> {
     const res = await authApi.resetPassword({ token, password });
     if (!res.success) throw new Error(res.error ?? "Reset failed");
+    return res.message ?? "Password reset successful";
   },
 };
