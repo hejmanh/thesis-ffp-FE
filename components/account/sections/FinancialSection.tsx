@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 import Button from "@/components/common/Button";
 import Card from "@/components/common/Card";
+import FormField from "@/components/common/FormField";
 import AssetForm from "@/components/account/forms/AssetForm";
 import StageEditorCard, {
   type StageEditorValue,
@@ -197,7 +198,8 @@ function getAssetOptionsForAsset(
 export default function FinancialSection() {
   const queryClient = useQueryClient();
   const references = useFinancialPlanningReferences();
-  const { data: userContext } = useUserContext();
+  const { data: userContext, set: setUserContext, refresh: refreshUserContext } =
+    useUserContext();
   const registrationBirthYear =
     userContext?.birthYear == null ? "" : String(userContext.birthYear);
   const [profileDraft, setProfileDraft] = useState<{
@@ -213,6 +215,12 @@ export default function FinancialSection() {
   const [stagesDraft, setStagesDraft] = useState<Stage[] | null>(null);
   const [assetsDraft, setAssetsDraft] = useState<Asset[] | null>(null);
   const [sectionError, setSectionError] = useState<string | null>(null);
+  const [personalDraft, setPersonalDraft] = useState<{
+    name: string;
+    birthYear: string;
+    countryId: string;
+    sexTypeId: string;
+  } | null>(null);
 
   const [financialQuery, stagesQuery, assetsQuery] = useQueries({
     queries: [
@@ -253,6 +261,9 @@ export default function FinancialSection() {
   const deleteAssetMutation = useMutation({
     mutationFn: userInfoService.deleteAsset,
   });
+  const patchMeMutation = useMutation({
+    mutationFn: userInfoService.patchMe,
+  });
 
   const baseFinancialData = useMemo(
     () =>
@@ -274,10 +285,17 @@ export default function FinancialSection() {
       ? EMPTY_FINANCIAL_DATA
       : baseFinancialData;
 
+  const preferredCurrencyFallback =
+    userContext?.preferredCurrencyId != null
+      ? String(userContext.preferredCurrencyId)
+      : "";
+  const effectiveBaseCurrency =
+    safeBaseFinancialData.currency || preferredCurrencyFallback;
+
   const currentProfile = profileDraft ?? {
     estimatedLE: safeBaseFinancialData.estimatedLE,
     savings: safeBaseFinancialData.savings,
-    currency: safeBaseFinancialData.currency,
+    currency: effectiveBaseCurrency,
     desiredLE: safeBaseFinancialData.desiredLE,
   };
   const currentAllocation = allocationDraft ?? safeBaseFinancialData.allocation;
@@ -286,7 +304,7 @@ export default function FinancialSection() {
     const sourceStages = stagesDraft ?? safeBaseFinancialData.stages;
     const stageCurrency = resolveCurrencyCode(
       references.currencies,
-      currentProfile.currency || safeBaseFinancialData.currency,
+      currentProfile.currency || effectiveBaseCurrency,
     );
 
     if (!lifeStageRangesQuery.data?.length) {
@@ -305,7 +323,7 @@ export default function FinancialSection() {
     currentProfile.currency,
     lifeStageRangesQuery.data,
     references.currencies,
-    safeBaseFinancialData.currency,
+    effectiveBaseCurrency,
     safeBaseFinancialData.stages,
     stagesDraft,
   ]);
@@ -324,6 +342,7 @@ export default function FinancialSection() {
     createAssetsMutation.isPending ||
     patchAssetsMutation.isPending ||
     deleteAssetMutation.isPending;
+  const isSavingPersonal = patchMeMutation.isPending;
   const pageError =
     sectionError ??
     (financialQuery.error instanceof Error
@@ -335,6 +354,27 @@ export default function FinancialSection() {
     (lifeStageRangesQuery.error instanceof Error
       ? lifeStageRangesQuery.error.message
       : null);
+
+  const basePersonal = {
+    name: userContext?.name ?? "",
+    birthYear:
+      userContext?.birthYear == null ? "" : String(userContext.birthYear),
+    countryId:
+      userContext?.countryId == null ? "" : String(userContext.countryId),
+    sexTypeId:
+      userContext?.sexTypeId == null ? "" : String(userContext.sexTypeId),
+  };
+  const currentPersonal = personalDraft ?? basePersonal;
+  const hasPersonalChanges = !areValuesEqual(currentPersonal, basePersonal);
+  const canSavePersonal =
+    Boolean(
+      currentPersonal.name.trim() &&
+        currentPersonal.birthYear &&
+        currentPersonal.countryId &&
+        currentPersonal.sexTypeId,
+    ) &&
+    hasPersonalChanges &&
+    !isSavingPersonal;
 
   const hasFinancialChanges =
     !areValuesEqual(currentProfile, {
@@ -386,6 +426,32 @@ export default function FinancialSection() {
       queryClient.invalidateQueries({ queryKey: ["user-info", "stages"] }),
       queryClient.invalidateQueries({ queryKey: ["user-info", "assets"] }),
     ]);
+  }
+
+  async function handleSavePersonal() {
+    setSectionError(null);
+
+    try {
+      const next = await patchMeMutation.mutateAsync({
+        userInfo: {
+          name: currentPersonal.name.trim(),
+          birthYear: Number(currentPersonal.birthYear),
+          countryId: Number(currentPersonal.countryId),
+          sexTypeId: Number(currentPersonal.sexTypeId),
+        },
+      });
+
+      setUserContext(next);
+      await refreshUserContext();
+      setPersonalDraft(null);
+      await refreshUserInfoData();
+    } catch (error) {
+      setSectionError(
+        error instanceof Error
+          ? error.message
+          : "Unable to update personal information.",
+      );
+    }
   }
 
   async function handleSaveFinancial() {
@@ -515,6 +581,92 @@ export default function FinancialSection() {
       ) : null}
 
       <div className="mt-6 space-y-6">
+        <div className="rounded-xl border border-border bg-slate-50 p-4">
+          <h3 className="text-base font-semibold text-slate-900">
+            Personal Details
+          </h3>
+          <p className="mt-1 text-xs text-slate-600">
+            Update your name, birth year, country, and gender.
+          </p>
+          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <FormField
+              id="detailed_name"
+              name="detailed_name"
+              label="Name"
+              inputClassName="h-10"
+              inputProps={{
+                value: currentPersonal.name,
+                onChange: (event) =>
+                  setPersonalDraft((prev) => ({
+                    ...(prev ?? basePersonal),
+                    name: event.target.value,
+                  })),
+              }}
+            />
+            <FormField
+              id="detailed_birth_year"
+              name="detailed_birth_year"
+              label="Birth Year"
+              variant="select"
+              selectClassName="h-11"
+              value={currentPersonal.birthYear}
+              onChange={(value) =>
+                setPersonalDraft((prev) => ({
+                  ...(prev ?? basePersonal),
+                  birthYear: value,
+                }))
+              }
+              options={Array.from(
+                { length: new Date().getFullYear() - 1900 + 1 },
+                (_, index) => {
+                  const year = String(new Date().getFullYear() - index);
+                  return { label: year, value: year };
+                },
+              )}
+            />
+            <FormField
+              id="detailed_country"
+              name="detailed_country"
+              label="Country"
+              variant="select"
+              searchable={true}
+              selectClassName="h-11"
+              value={currentPersonal.countryId}
+              onChange={(value) =>
+                setPersonalDraft((prev) => ({
+                  ...(prev ?? basePersonal),
+                  countryId: value,
+                }))
+              }
+              options={references.countryOptions}
+            />
+            <FormField
+              id="detailed_gender"
+              name="detailed_gender"
+              label="Gender"
+              variant="select"
+              selectClassName="h-11"
+              value={currentPersonal.sexTypeId}
+              onChange={(value) =>
+                setPersonalDraft((prev) => ({
+                  ...(prev ?? basePersonal),
+                  sexTypeId: value,
+                }))
+              }
+              options={references.sexTypeOptions}
+            />
+          </div>
+          <div className="mt-4 flex justify-end">
+            <Button
+              size="sm"
+              onClick={handleSavePersonal}
+              disabled={!canSavePersonal}
+            >
+              {isSavingPersonal ? "Saving..." : "Save changes"}
+            </Button>
+          </div>
+        </div>
+
         <div className="space-y-4">
           <FinancialForm
             profile={currentProfile}
@@ -535,7 +687,7 @@ export default function FinancialSection() {
                 ...(prev ?? {
                   estimatedLE: safeBaseFinancialData.estimatedLE,
                   savings: safeBaseFinancialData.savings,
-                  currency: safeBaseFinancialData.currency,
+                  currency: effectiveBaseCurrency,
                   desiredLE: safeBaseFinancialData.desiredLE,
                 }),
                 [field]: value,

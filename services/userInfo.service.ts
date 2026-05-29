@@ -8,6 +8,7 @@ import type {
   GetFinancialResponse,
   GetStagesResponse,
   PatchAssetsRequest,
+  PatchUserInfoMeRequest,
   PatchStagesRequest,
   UserInfoAssetResponse,
   UserInfoFinancialResource,
@@ -93,74 +94,17 @@ function readRecord(value: unknown): Record<string, unknown> {
     : {};
 }
 
-function getNestedValue(
-  source: Record<string, unknown>,
-  path: string[],
-): unknown {
-  let current: unknown = source;
-  for (const segment of path) {
-    if (current == null || typeof current !== "object") {
-      return undefined;
-    }
-    current = (current as Record<string, unknown>)[segment];
-  }
-  return current;
-}
-
-function pickFirstPresent(values: unknown[]): unknown {
-  for (const value of values) {
-    if (value !== undefined && value !== null && value !== "") {
-      return value;
-    }
-  }
-  return undefined;
-}
-
 function normalizeUserContextData(data: unknown): UserContextData {
-  const root = readRecord(data);
-  const nestedUser = readRecord(root.user ?? root.me);
-  const nestedProfile = readRecord(
-    root.profile ??
-      root.userProfile ??
-      getNestedValue(root, ["user", "profile"]) ??
-      getNestedValue(root, ["userInfo", "profile"]),
-  );
-  const nestedUserInfo = readRecord(root.userInfo ?? root.user_info);
-  const nestedAccount = readRecord(root.account);
-  const source = {
-    ...root,
-    ...nestedAccount,
-    ...nestedUserInfo,
-    ...nestedUser,
-    ...nestedProfile,
-  };
-
-  const birthYearValue = pickFirstPresent([
-    source.birthYear,
-    source.birth_year,
-    source.birthyear,
-    source.yearOfBirth,
-    source.year_of_birth,
-    getNestedValue(source, ["demographics", "birthYear"]),
-    getNestedValue(source, ["demographics", "birth_year"]),
-  ]);
-  const estimatedLifeExpectancyValue = pickFirstPresent([
-    source.estimatedLifeExpectancy,
-    source.estimated_life_expectancy,
-  ]);
-  const preferredCurrencyIdValue = pickFirstPresent([
-    source.preferredCurrencyId,
-    source.preferred_currency_id,
-    source.currencyId,
-    source.currency_id,
-  ]);
+  const source = readRecord(data);
 
   return {
     name: readString(source.name),
     email: readString(source.email),
-    birthYear: readNullableNumber(birthYearValue),
-    estimatedLifeExpectancy: readNullableNumber(estimatedLifeExpectancyValue),
-    preferredCurrencyId: readNullableNumber(preferredCurrencyIdValue),
+    birthYear: readNullableNumber(source.birthYear),
+    countryId: readNullableNumber(source.countryId),
+    sexTypeId: readNullableNumber(source.sexTypeId),
+    estimatedLifeExpectancy: readNullableNumber(source.estimatedLifeExpectancy),
+    preferredCurrencyId: readNullableNumber(source.preferredCurrencyId),
   };
 }
 
@@ -169,6 +113,14 @@ export const userInfoService = {
     const res = await userInfoApi.getMe();
     if (!res.success || !res.data) {
       throw new Error(res.error ?? "Unable to load user context");
+    }
+    return normalizeUserContextData(res.data);
+  },
+
+  async patchMe(payload: PatchUserInfoMeRequest): Promise<UserContextData> {
+    const res = await userInfoApi.patchMe(payload);
+    if (!res.success || !res.data) {
+      throw new Error(res.error ?? "Unable to update personal information");
     }
     return normalizeUserContextData(res.data);
   },

@@ -88,6 +88,15 @@ export interface CreateAssetsRequest {
   assetData: UserInfoAssetData[];
 }
 
+export interface PatchUserInfoMeRequest {
+  userInfo: {
+    name?: string;
+    birthYear?: number;
+    countryId?: number;
+    sexTypeId?: number;
+  };
+}
+
 export type GetAssetsResponse =
   | UserInfoAssetResponse[]
   | {

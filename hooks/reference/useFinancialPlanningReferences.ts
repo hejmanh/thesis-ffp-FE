@@ -2,8 +2,10 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { referenceApi } from "@/api/reference.api";
 import {
+  mapCountriesToOptions,
   mapCurrenciesToOptions,
   mapIdReferencesToOptions,
+  mapSexTypesToOptions,
 } from "@/utils/referenceOptions";
 
 function getErrorMessage(error: unknown): string | null {
@@ -84,6 +86,28 @@ export const useFinancialPlanningReferences = () => {
     },
     staleTime: Infinity,
   });
+  const countriesQuery = useQuery({
+    queryKey: ["reference", "countries"],
+    queryFn: async () => {
+      const res = await referenceApi.getCountries();
+      if (!res.success) {
+        throw new Error(res.error ?? "Failed to load countries");
+      }
+      return res.data ?? [];
+    },
+    staleTime: Infinity,
+  });
+  const sexTypesQuery = useQuery({
+    queryKey: ["reference", "sex-types"],
+    queryFn: async () => {
+      const res = await referenceApi.getSexTypes();
+      if (!res.success) {
+        throw new Error(res.error ?? "Failed to load sex types");
+      }
+      return res.data ?? [];
+    },
+    staleTime: Infinity,
+  });
 
   const error =
     getErrorMessage(currenciesQuery.error) ??
@@ -91,7 +115,9 @@ export const useFinancialPlanningReferences = () => {
     getErrorMessage(physicalActivityTypesQuery.error) ??
     getErrorMessage(dietQualityTypesQuery.error) ??
     getErrorMessage(alcoholConsumptionTypesQuery.error) ??
-    getErrorMessage(assetTypesQuery.error);
+    getErrorMessage(assetTypesQuery.error) ??
+    getErrorMessage(countriesQuery.error) ??
+    getErrorMessage(sexTypesQuery.error);
 
   return useMemo(
     () => ({
@@ -107,6 +133,8 @@ export const useFinancialPlanningReferences = () => {
         alcoholConsumptionTypesQuery.data ?? [],
       ),
       assetTypeOptions: mapIdReferencesToOptions(assetTypesQuery.data ?? []),
+      countryOptions: mapCountriesToOptions(countriesQuery.data ?? []),
+      sexTypeOptions: mapSexTypesToOptions(sexTypesQuery.data ?? []),
       currencies: currenciesQuery.data ?? [],
       isLoading:
         currenciesQuery.isLoading ||
@@ -114,7 +142,9 @@ export const useFinancialPlanningReferences = () => {
         physicalActivityTypesQuery.isLoading ||
         dietQualityTypesQuery.isLoading ||
         alcoholConsumptionTypesQuery.isLoading ||
-        assetTypesQuery.isLoading,
+        assetTypesQuery.isLoading ||
+        countriesQuery.isLoading ||
+        sexTypesQuery.isLoading,
       error,
     }),
     [
@@ -122,6 +152,8 @@ export const useFinancialPlanningReferences = () => {
       alcoholConsumptionTypesQuery.isLoading,
       assetTypesQuery.data,
       assetTypesQuery.isLoading,
+      countriesQuery.data,
+      countriesQuery.isLoading,
       currenciesQuery.data,
       currenciesQuery.isLoading,
       dietQualityTypesQuery.data,
@@ -129,6 +161,8 @@ export const useFinancialPlanningReferences = () => {
       error,
       physicalActivityTypesQuery.data,
       physicalActivityTypesQuery.isLoading,
+      sexTypesQuery.data,
+      sexTypesQuery.isLoading,
       smokingTypesQuery.data,
       smokingTypesQuery.isLoading,
     ],
