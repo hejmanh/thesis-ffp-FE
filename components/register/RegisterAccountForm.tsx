@@ -1,12 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import AnimatedPanel from "@/components/common/AnimatedPanel";
 import Step1AccountForm from "@/components/register/steps/Step1AccountForm";
 import type { Step1AccountData } from "@/types/onboarding";
 import { validateStep1 } from "@/utils/onboardingValidators";
 import { createEmptyOnboardingState } from "@/store/onboardingStorage";
 import { useAuth, usePersonalInfoReferences } from "@/hooks";
+import { useAuthStore } from "@/store/auth.store";
+import { tokenService } from "@/services/token.service";
 import {
   mapCountriesToOptions,
   mapSexTypesToOptions,
@@ -15,6 +18,8 @@ import {
 type SubmissionStage = "registering" | null;
 
 export default function RegisterAccountForm() {
+  const router = useRouter();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [data, setData] = useState<Step1AccountData>(
     () => createEmptyOnboardingState().step1,
   );
@@ -36,6 +41,12 @@ export default function RegisterAccountForm() {
   const sexOptions = useMemo(() => mapSexTypesToOptions(sexTypes), [sexTypes]);
 
   const displayError = error || referenceError || "";
+
+  useEffect(() => {
+    if (isAuthenticated || tokenService.get()) {
+      router.replace("/");
+    }
+  }, [isAuthenticated, router]);
 
   function updateField<K extends keyof Step1AccountData>(
     key: K,
