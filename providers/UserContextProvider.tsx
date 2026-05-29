@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { userInfoService } from "@/services/userInfo.service";
@@ -41,26 +42,53 @@ export default function UserContextProvider({
   const [data, setData] = useState<UserContextData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const refreshPromiseRef = useRef<Promise<void> | null>(null);
+  const refreshSequenceRef = useRef(0);
   const sessionActive = isAuthenticated && Boolean(tokenService.get());
 
   const refresh = useCallback(async () => {
     if (!tokenService.get()) {
       setData(null);
+      setError(null);
+      setIsLoading(false);
       return;
     }
 
-    setIsLoading(true);
-    setError(null);
-    try {
-      const result = await userInfoService.getMe();
-      setData(result);
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Failed to load user info";
-      setError(message);
-    } finally {
-      setIsLoading(false);
+    if (refreshPromiseRef.current) {
+      return refreshPromiseRef.current;
     }
+
+    const refreshSequence = refreshSequenceRef.current + 1;
+    refreshSequenceRef.current = refreshSequence;
+
+    const requestPromise = (async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const result = await userInfoService.getMe();
+        if (refreshSequenceRef.current === refreshSequence) {
+          setData(result);
+        }
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Failed to load user info";
+        if (refreshSequenceRef.current === refreshSequence) {
+          setError(message);
+        }
+      } finally {
+        if (refreshSequenceRef.current === refreshSequence) {
+          setIsLoading(false);
+        }
+      }
+    })();
+
+    refreshPromiseRef.current = requestPromise.finally(() => {
+      if (refreshPromiseRef.current === requestPromise) {
+        refreshPromiseRef.current = null;
+      }
+    });
+
+    return refreshPromiseRef.current;
   }, []);
 
   const clear = useCallback(() => {

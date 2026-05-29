@@ -1,5 +1,6 @@
 import { authApi } from "@/api/auth.api";
 import { queryClient } from "@/lib/queryClient";
+import { tokenRefreshManager } from "@/lib/tokenRefreshManager";
 import { tokenService } from "@/services/token.service";
 import { authUserService } from "@/services/authUser.service";
 import { useAuthStore } from "@/store/auth.store";
@@ -140,10 +141,20 @@ export const authService = {
    * @returns true if session restored, false otherwise
    */
   async restoreSession(): Promise<boolean> {
-    const res = await authApi.refresh();
-    if (!res.success || !res.data?.accessToken) return false;
-    const accessToken = res.data.accessToken;
-    tokenService.set(accessToken);
+    let accessToken: string;
+
+    try {
+      accessToken = await tokenRefreshManager.getValidToken(async () => {
+        const res = await authApi.refresh();
+        if (!res.success || !res.data?.accessToken) {
+          throw new Error("Refresh failed");
+        }
+        tokenService.set(res.data.accessToken);
+        return res.data.accessToken;
+      });
+    } catch {
+      return false;
+    }
 
     const restoredUser =
       authUserService.get() ?? extractUserFromAccessToken(accessToken);
