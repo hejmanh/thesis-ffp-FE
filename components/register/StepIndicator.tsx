@@ -2,7 +2,7 @@
 
 import RegistrationProgressBar from "@/components/register/progress/RegistrationProgressBar";
 
-const STEPS = ["Registration", "Personal Information", "Stages Data", "Asset Data"];
+const STEPS = ["Registration", "General Information", "Life Stages", "Asset"];
 
 interface StepIndicatorProps {
   currentStep: number;

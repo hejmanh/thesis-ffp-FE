@@ -1,9 +1,9 @@
 "use client";
 
-import Button from "@/components/common/Button";
 import StageEditorCard, {
   type StageEditorValue,
 } from "@/components/common/StageEditorCard";
+import StepNavigationActions from "@/components/register/steps/StepNavigationActions";
 import type { StageItem } from "@/types/onboarding";
 import { isStageComplete } from "@/utils/onboardingValidators";
 
@@ -18,8 +18,7 @@ interface Step3StagesCardsProps {
 
 function toStageEditorValue(stage: StageItem): StageEditorValue {
   return {
-    title:
-      stage.title || `Stage ${stage.stageNo}: Age ${stage.ageStart} - ${stage.ageEnd}`,
+    title: stage.title || `Stage ${stage.stageNo}`,
     ageStart: stage.ageStart,
     ageEnd: stage.ageEnd,
     annualSaving: stage.annualSaving,
@@ -48,14 +47,18 @@ export default function Step3StagesCards({
 
   return (
     <div className="mt-8">
-      <h2 className="text-center text-3xl font-bold text-primary">
+      {/* <h2 className="text-center text-3xl font-bold text-primary">
         Your Life Stages
-      </h2>
+      </h2> */}
       <p className="mt-2 text-center text-sm text-muted-foreground">
         Define how your savings change over time
       </p>
       <p className="mt-1 text-center text-xs italic text-slate-600">
         Includes all pre-FFP income sources (e.g. salary, rental income, etc.)
+      </p>
+      <p className="mt-1 text-center text-xs italic text-slate-600">
+        For stages after your desired Financial Freedom age, enter 0 for the
+        Initial Annual Savings and Annual Growth Rate.
       </p>
       <div className="mx-auto mt-8 max-w-5xl">
         <div className="max-h-[34rem] space-y-5 overflow-y-auto pr-2">
@@ -83,23 +86,14 @@ export default function Step3StagesCards({
           {error}
         </p>
       ) : null}
-      <div className="mx-auto mt-8 flex max-w-5xl flex-col gap-3">
-        <Button
-          className="h-12 w-full rounded-full text-base"
-          onClick={onNext}
-          disabled={!canContinue || isSubmitting}
-        >
-          {isSubmitting ? "Saving..." : "Next"}
-        </Button>
-        <Button
-          variant="outline"
-          className="h-12 w-full rounded-full text-base"
-          onClick={onBack}
-          disabled={isSubmitting}
-        >
-          Back
-        </Button>
-      </div>
+      <StepNavigationActions
+        className="max-w-5xl"
+        layout="column"
+        isSubmitting={isSubmitting}
+        nextDisabled={!canContinue}
+        onBack={onBack}
+        onNext={onNext}
+      />
     </div>
   );
 }

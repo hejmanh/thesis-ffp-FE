@@ -58,8 +58,10 @@ export default function RegistrationProgressBar({
           <p
             key={label}
             className={cn(
-              "text-base text-slate-600",
-              index + 1 === currentStep ? "font-semibold text-primary" : "font-medium"
+              "text-base",
+              index + 1 === currentStep
+                ? "font-semibold text-primary"
+                : "font-medium text-slate-600"
             )}
           >
             {label}

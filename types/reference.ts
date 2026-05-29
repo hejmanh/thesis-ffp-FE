@@ -51,5 +51,5 @@ export interface LifeStageRange {
   stageNo: number;
   title: string | null;
   beginningAge: number;
-  endingAge: number;
+  endingAge: number | null;
 }

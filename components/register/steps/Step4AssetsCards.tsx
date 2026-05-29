@@ -1,7 +1,7 @@
 "use client";
 
-import Button from "@/components/common/Button";
 import AssetCardEditor from "@/components/register/cards/AssetCardEditor";
+import StepNavigationActions from "@/components/register/steps/StepNavigationActions";
 import type { AssetItem } from "@/types/onboarding";
 import type { SelectOption } from "@/utils/referenceOptions";
 import { isAssetComplete } from "@/utils/onboardingValidators";
@@ -54,7 +54,7 @@ export default function Step4AssetsCards({
 
   return (
     <div className="mt-8">
-      <h2 className="text-center text-3xl font-bold text-primary">Asset Data</h2>
+      {/* <h2 className="text-center text-3xl font-bold text-primary">Asset Data</h2> */}
       <p className="mt-2 text-center text-sm text-muted-foreground">
         Add and organize your assets with growth assumptions
       </p>
@@ -87,18 +87,15 @@ export default function Step4AssetsCards({
         <p className="mt-4 text-center text-sm font-semibold text-red-600">{referenceError}</p>
       ) : null}
       {error ? <p className="mt-4 text-center text-sm font-semibold text-red-600">{error}</p> : null}
-      <div className="mx-auto mt-8 flex max-w-5xl flex-col gap-3">
-        <Button
-          className="h-12 w-full rounded-full text-base"
-          onClick={onSubmit}
-          disabled={!canSubmit || isSubmitting || isReferenceLoading}
-        >
-          {isSubmitting ? "Saving..." : "Complete Onboarding"}
-        </Button>
-        <Button variant="outline" className="h-12 w-full rounded-full text-base" onClick={onBack}>
-          Back
-        </Button>
-      </div>
+      <StepNavigationActions
+        className="max-w-5xl"
+        layout="column"
+        nextLabel="Complete Onboarding"
+        isSubmitting={isSubmitting}
+        nextDisabled={!canSubmit || isReferenceLoading}
+        onBack={onBack}
+        onNext={onSubmit}
+      />
     </div>
   );
 }

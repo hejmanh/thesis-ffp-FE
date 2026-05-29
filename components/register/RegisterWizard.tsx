@@ -36,7 +36,6 @@ export default function RegisterWizard() {
       isReferenceLoading={
         wizard.onboardingReferences.isLoading || wizard.isUserContextLoading
       }
-      canContinue={wizard.canContinuePersonalStep}
       isSubmitting={wizard.saving}
       onNext={wizard.handlePersonalNext}
       onChange={wizard.updateStep2}

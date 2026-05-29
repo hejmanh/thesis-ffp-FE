@@ -93,26 +93,74 @@ function readRecord(value: unknown): Record<string, unknown> {
     : {};
 }
 
+function getNestedValue(
+  source: Record<string, unknown>,
+  path: string[],
+): unknown {
+  let current: unknown = source;
+  for (const segment of path) {
+    if (current == null || typeof current !== "object") {
+      return undefined;
+    }
+    current = (current as Record<string, unknown>)[segment];
+  }
+  return current;
+}
+
+function pickFirstPresent(values: unknown[]): unknown {
+  for (const value of values) {
+    if (value !== undefined && value !== null && value !== "") {
+      return value;
+    }
+  }
+  return undefined;
+}
+
 function normalizeUserContextData(data: unknown): UserContextData {
   const root = readRecord(data);
-  const nestedUser = readRecord(root.user);
-  const nestedProfile = readRecord(root.profile ?? root.userProfile);
+  const nestedUser = readRecord(root.user ?? root.me);
+  const nestedProfile = readRecord(
+    root.profile ??
+      root.userProfile ??
+      getNestedValue(root, ["user", "profile"]) ??
+      getNestedValue(root, ["userInfo", "profile"]),
+  );
+  const nestedUserInfo = readRecord(root.userInfo ?? root.user_info);
+  const nestedAccount = readRecord(root.account);
   const source = {
+    ...root,
+    ...nestedAccount,
+    ...nestedUserInfo,
     ...nestedUser,
     ...nestedProfile,
-    ...root,
   };
+
+  const birthYearValue = pickFirstPresent([
+    source.birthYear,
+    source.birth_year,
+    source.birthyear,
+    source.yearOfBirth,
+    source.year_of_birth,
+    getNestedValue(source, ["demographics", "birthYear"]),
+    getNestedValue(source, ["demographics", "birth_year"]),
+  ]);
+  const estimatedLifeExpectancyValue = pickFirstPresent([
+    source.estimatedLifeExpectancy,
+    source.estimated_life_expectancy,
+  ]);
+  const preferredCurrencyIdValue = pickFirstPresent([
+    source.preferredCurrencyId,
+    source.preferred_currency_id,
+    source.currencyId,
+    source.currency_id,
+  ]);
 
   return {
     name: readString(source.name),
     email: readString(source.email),
-    birthYear: readNullableNumber(source.birthYear ?? source.birth_year),
-    estimatedLifeExpectancy: readNullableNumber(
-      source.estimatedLifeExpectancy ?? source.estimated_life_expectancy,
-    ),
-    preferredCurrencyId: readNullableNumber(
-      source.preferredCurrencyId ?? source.preferred_currency_id,
-    ),
+    birthYear: readNullableNumber(birthYearValue),
+    estimatedLifeExpectancy: readNullableNumber(estimatedLifeExpectancyValue),
+    preferredCurrencyId: readNullableNumber(preferredCurrencyIdValue),
   };
 }
 

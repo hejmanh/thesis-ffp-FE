@@ -19,10 +19,14 @@ interface StageEditorCardProps {
 }
 
 function formatStageTitle(stage: StageEditorValue, index?: number): string {
-  if (stage.title) {
-    return stage.title;
+  const stageName = stage.title || `Stage ${(index ?? 0) + 1}`;
+  if (stage.ageStart && stage.ageEnd) {
+    return `${stageName}: ${stage.ageStart} - ${stage.ageEnd}`;
   }
-  return `Stage ${(index ?? 0) + 1}: Age ${stage.ageStart} - ${stage.ageEnd}`;
+  if (stage.ageStart) {
+    return `${stageName}: ${stage.ageStart}+`;
+  }
+  return stageName;
 }
 
 const variantConfig = {
@@ -64,7 +68,7 @@ export default function StageEditorCard({
           label="Initial Annual Savings"
           inputClassName="h-11 px-3 pr-14"
           suffix={stage.currency}
-          placeholder="e.g. 100000"
+          placeholder="e.g. 100 000"
           inputProps={{
             value: stage.annualSaving,
             onChange: (event) =>
@@ -81,8 +85,6 @@ export default function StageEditorCard({
             value: stage.annualRate,
             onChange: (event) => updateField("annualRate", event.target.value),
             type: "number",
-            min: 0,
-            max: 100,
             step: "1",
             autoComplete: "off",
           }}

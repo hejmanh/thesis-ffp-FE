@@ -103,8 +103,6 @@ export default function AssetEditorCard<TAsset extends AssetEditorValue>({
             value: asset.growthRate,
             onChange: (event) => updateField("growthRate", event.target.value),
             type: "number",
-            min: 0,
-            max: 100,
             step: "1",
             inputMode: "decimal",
             autoComplete: "off",

@@ -1,6 +1,6 @@
 "use client";
 
-import { Icon } from "@iconify/react";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import Button from "@/components/common/Button";
 
 interface RegisterSkipNoticeProps {
@@ -21,11 +21,11 @@ export default function RegisterSkipNotice({
         disabled={disabled}
         onClick={onSkip}
       >
-        <Icon icon="ic:round-skip-previous" className="h-4 w-4" />
+        <PlayArrowIcon fontSize="small" />
         Skip
       </Button>
       <p className="mt-2 ml-4 text-xs text-muted-foreground">
-        * You can skip this setup for now and complete it later from the account
+        You can skip this setup for now and complete it later from the account
         page.
       </p>
     </div>

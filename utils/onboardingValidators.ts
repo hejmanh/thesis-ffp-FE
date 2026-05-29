@@ -60,7 +60,6 @@ export function isStageComplete(stage: StageItem): boolean {
   return Boolean(
     stage.lifeStageRangeId &&
     isFilled(stage.ageStart) &&
-    isFilled(stage.ageEnd) &&
     isFilled(stage.annualSaving) &&
     isFilled(stage.currency) &&
     isFilled(stage.annualRate),

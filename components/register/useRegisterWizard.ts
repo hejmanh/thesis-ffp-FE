@@ -24,10 +24,22 @@ import {
 import { resolveCurrencyCode } from "@/utils/referenceOptions";
 
 export const ONBOARDING_STEPS = [
-  "Personal Information",
-  "Stages Data",
-  "Asset Data",
+  "General Information",
+  "Life Stages",
+  "Post FFP Assets",
 ];
+
+function didLifestyleChange(
+  current: OnboardingDraft["step2"]["habits"],
+  next: OnboardingDraft["step2"]["habits"],
+): boolean {
+  return (
+    current.smoke !== next.smoke ||
+    current.physical !== next.physical ||
+    current.diet !== next.diet ||
+    current.alcohol !== next.alcohol
+  );
+}
 
 export function useRegisterWizard() {
   const router = useRouter();
@@ -294,16 +306,25 @@ export function useRegisterWizard() {
     toastMessage,
     onboardingReferences,
     isUserContextLoading,
-    canContinuePersonalStep:
-      !isUserContextLoading && !userContextError && hasRegistrationBirthYear,
     step2Data,
     estimatedLifeExpectancy:
       draft.step2.estimatedLifeExpectancy ||
       onboardingReferences.estimatedLifeExpectancy,
     goToAccount: () => router.push("/account"),
     goToStep: setStep,
-    updateStep2: (step2: OnboardingDraft["step2"]) =>
-      setDraft((prev) => ({ ...prev, step2 })),
+    updateStep2: (step2: OnboardingDraft["step2"]) => {
+      const lifestyleChanged = didLifestyleChange(draft.step2.habits, step2.habits);
+      setDraft((prev) => ({
+        ...prev,
+        step2: lifestyleChanged
+          ? { ...step2, estimatedLifeExpectancy: "" }
+          : step2,
+      }));
+
+      if (lifestyleChanged) {
+        void refreshUserContext();
+      }
+    },
     updateStages: (stages: OnboardingDraft["stages"]) =>
       setDraft((prev) => ({ ...prev, stages })),
     updateAssets: (assets: OnboardingDraft["assets"]) =>
