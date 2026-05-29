@@ -50,7 +50,7 @@ export function validateStep2(data: Step2PersonalData): string | null {
     data.habits.alcohol,
   ];
   if (required.some((value) => !isFilledValue(value))) {
-    return "Please complete all fields in Personal Information.";
+    return "Please complete all fields in General Information.";
   }
   return null;
 }

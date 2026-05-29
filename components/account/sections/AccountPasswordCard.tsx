@@ -17,7 +17,7 @@ export default function AccountPasswordCard({
   onChange,
 }: AccountPasswordCardProps) {
   return (
-    <div className="mt-8 rounded-xl border border-border bg-slate-50 p-4">
+    <div className="rounded-xl border border-border bg-slate-50 p-4">
       <h3 className="mb-2 text-lg font-semibold text-slate-900">Password</h3>
       <PersonalInfoFields
         variant="account"

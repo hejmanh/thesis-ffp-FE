@@ -74,13 +74,13 @@ const ALLOCATION_PERIODS: Array<{
 }> = [
   {
     key: "before",
-    label: "Before FFP",
-    hint: "Used for savings and investments only. Rental income and other income sources are already included in life-stage savings.",
+    label: "Before Financial Freedom Point",
+    hint: "Defines how your investments grow before financial freedom. Salary, savings, and other income are managed through life-stage cash flow projections.",
   },
   {
     key: "after",
-    label: "After FFP",
-    hint: "Used for remaining savings after retirement. Rental income and pension are handled separately.",
+    label: "After Financial Freedom Point",
+    hint: "Defines how your remaining investments grow after retirement. Pension and passive income are projected separately.",
   },
 ];
 

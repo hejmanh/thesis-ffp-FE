@@ -4,8 +4,8 @@ import { useMemo, useState } from "react";
 import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 import Button from "@/components/common/Button";
 import Card from "@/components/common/Card";
-import FormField from "@/components/common/FormField";
 import AssetForm from "@/components/account/forms/AssetForm";
+import GeneralInformationForm from "@/components/account/forms/GeneralInformationForm";
 import StageEditorCard, {
   type StageEditorValue,
 } from "@/components/common/StageEditorCard";
@@ -557,7 +557,7 @@ export default function FinancialSection() {
         className="w-full rounded-xl bg-white p-6 shadow-md"
       >
         <h2 className="text-2xl font-bold text-primary">
-          Detailed Information
+          Personal Information
         </h2>
         <p className="mt-4 text-sm text-muted-foreground">
           Loading your detailed information...
@@ -571,101 +571,25 @@ export default function FinancialSection() {
       hoverable={false}
       className="w-full rounded-xl bg-white p-6 shadow-md"
     >
-      <h2 className="text-2xl font-bold text-primary">Detailed Information</h2>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Manage your life expectancy, savings, investment portfolio, lifestyle,
+      <h2 className="text-2xl font-bold text-primary">Personal Information</h2>
+      {/* <p className="mt-1 text-sm text-muted-foreground">
+        Manage your general information life expectancy, savings, investment portfolio, lifestyle,
         life stages, and post-FFP asset profiles.
-      </p>
+      </p> */}
       {pageError ? (
         <p className="mt-4 text-sm font-semibold text-red-600">{pageError}</p>
       ) : null}
 
       <div className="mt-6 space-y-6">
-        <div className="rounded-xl border border-border bg-slate-50 p-4">
-          <h3 className="text-base font-semibold text-slate-900">
-            Personal Details
-          </h3>
-          <p className="mt-1 text-xs text-slate-600">
-            Update your name, birth year, country, and gender.
-          </p>
-          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <FormField
-              id="detailed_name"
-              name="detailed_name"
-              label="Name"
-              inputClassName="h-10"
-              inputProps={{
-                value: currentPersonal.name,
-                onChange: (event) =>
-                  setPersonalDraft((prev) => ({
-                    ...(prev ?? basePersonal),
-                    name: event.target.value,
-                  })),
-              }}
-            />
-            <FormField
-              id="detailed_birth_year"
-              name="detailed_birth_year"
-              label="Birth Year"
-              variant="select"
-              selectClassName="h-11"
-              value={currentPersonal.birthYear}
-              onChange={(value) =>
-                setPersonalDraft((prev) => ({
-                  ...(prev ?? basePersonal),
-                  birthYear: value,
-                }))
-              }
-              options={Array.from(
-                { length: new Date().getFullYear() - 1900 + 1 },
-                (_, index) => {
-                  const year = String(new Date().getFullYear() - index);
-                  return { label: year, value: year };
-                },
-              )}
-            />
-            <FormField
-              id="detailed_country"
-              name="detailed_country"
-              label="Country"
-              variant="select"
-              searchable={true}
-              selectClassName="h-11"
-              value={currentPersonal.countryId}
-              onChange={(value) =>
-                setPersonalDraft((prev) => ({
-                  ...(prev ?? basePersonal),
-                  countryId: value,
-                }))
-              }
-              options={references.countryOptions}
-            />
-            <FormField
-              id="detailed_gender"
-              name="detailed_gender"
-              label="Gender"
-              variant="select"
-              selectClassName="h-11"
-              value={currentPersonal.sexTypeId}
-              onChange={(value) =>
-                setPersonalDraft((prev) => ({
-                  ...(prev ?? basePersonal),
-                  sexTypeId: value,
-                }))
-              }
-              options={references.sexTypeOptions}
-            />
-          </div>
-          <div className="mt-4 flex justify-end">
-            <Button
-              size="sm"
-              onClick={handleSavePersonal}
-              disabled={!canSavePersonal}
-            >
-              {isSavingPersonal ? "Saving..." : "Save changes"}
-            </Button>
-          </div>
-        </div>
+        <GeneralInformationForm
+          value={currentPersonal}
+          countryOptions={references.countryOptions}
+          sexTypeOptions={references.sexTypeOptions}
+          canSave={canSavePersonal}
+          isSaving={isSavingPersonal}
+          onChange={(next) => setPersonalDraft(next)}
+          onSave={handleSavePersonal}
+        />
 
         <div className="space-y-4">
           <FinancialForm
@@ -716,8 +640,8 @@ export default function FinancialSection() {
             Life Stages
           </h3>
           <p className="mt-1 text-xs italic text-slate-600">
-            Includes all pre-FFP income sources (e.g. salary, rental income,
-            etc.)
+            Includes salary, rental income, and other savings contributions
+            before Financial Freedom Point.
           </p>
           <div className="mt-4 max-h-[24rem] space-y-4 overflow-y-auto pr-2">
             {!lifeStageRangesQuery.isLoading && currentStages.length === 0 ? (
@@ -761,8 +685,8 @@ export default function FinancialSection() {
             Post-FFP Assets
           </h3>
           <p className="mt-1 text-xs italic text-slate-600">
-            Add additional income-generating assets such as rental properties,
-            pensions, or investments.
+            Includes passive income sources after Financial Freedom Point, such
+            as rental income and pensions.
           </p>
           <div className="mt-4 flex items-center justify-between">
             <button
