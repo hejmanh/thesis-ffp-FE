@@ -49,7 +49,7 @@ export default function Header({
 
   return (
     <header className="w-full border-b border-border bg-surface/80 backdrop-blur">
-      <div className="mx-auto flex h-16 w-full max-w-300 items-center justify-between px-4 sm:h-18 sm:px-6 lg:px-8 xl:max-w-7xl">
+      <div className="mx-auto flex h-16 w-full max-w-[1200px] items-center justify-between px-4 sm:h-[4.5rem] sm:px-6 lg:px-8 xl:max-w-[1280px]">
         <Link href="/" className="flex items-center gap-3">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-primary to-indigo-500 text-white sm:h-10 sm:w-10">
             $
