@@ -10,11 +10,12 @@ export const queryClient = new QueryClient({
       gcTime: 10 * 60 * 1000, // 10 minutes
 
       refetchOnReconnect: true,
-      throwOnError: true, // bubble errors to the nearest error boundary instead of returning them in the query result
+      // Keep errors in the query result; the UI currently reads `query.error` instead of relying on an error boundary.
+      throwOnError: false,
     },
     mutations: {
       retry: 0, // not retry post, put, delete
-      throwOnError: true,
+      throwOnError: false,
     },
   },
 });
