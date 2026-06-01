@@ -55,7 +55,7 @@ export default function Step3StagesCards({
         Financial Freedom Point.
       </p>
       <div className="mx-auto mt-8 max-w-5xl">
-        <div className="max-h-136 space-y-5 overflow-y-auto pr-2">
+        <div className="max-h-[34rem] space-y-5 overflow-y-auto pr-2">
           {stages.map((stage, index) => (
             <StageEditorCard
               key={stage.id}
