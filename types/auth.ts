@@ -37,4 +37,9 @@ export interface ResetPasswordPayload {
   password: string;
 }
 
+export interface UpdatePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+}
+
 export type EmptyResponseData = null;

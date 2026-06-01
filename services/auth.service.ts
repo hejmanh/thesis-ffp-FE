@@ -1,5 +1,6 @@
 import { authApi } from "@/api/auth.api";
 import { queryClient } from "@/lib/queryClient";
+import { tokenRefreshManager } from "@/lib/tokenRefreshManager";
 import { tokenService } from "@/services/token.service";
 import { authUserService } from "@/services/authUser.service";
 import { useAuthStore } from "@/store/auth.store";
@@ -9,13 +10,11 @@ import type {
   LoginResult,
   RegisterInput,
 } from "@/types/auth";
-import { clearOnboardingState } from "@/utils/onboardingStorage";
 
 function clearClientSessionState() {
   tokenService.clear();
   authUserService.clear();
   useAuthStore.getState().clearUser();
-  clearOnboardingState();
   queryClient.clear();
 }
 
@@ -33,7 +32,10 @@ function decodeJwtPayload(token: string): Record<string, unknown> | null {
         ? window.atob(padded)
         : Buffer.from(padded, "base64").toString("binary");
     const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
-    return JSON.parse(new TextDecoder().decode(bytes)) as Record<string, unknown>;
+    return JSON.parse(new TextDecoder().decode(bytes)) as Record<
+      string,
+      unknown
+    >;
   } catch {
     return null;
   }
@@ -58,11 +60,12 @@ function extractUserFromAccessToken(token: string): AuthUser | null {
 
   return {
     email,
-    id: typeof payload.userId === "string"
-      ? payload.userId
-      : typeof payload.id === "string"
-        ? payload.id
-        : undefined,
+    id:
+      typeof payload.userId === "string"
+        ? payload.userId
+        : typeof payload.id === "string"
+          ? payload.id
+          : undefined,
     name:
       typeof payload.name === "string"
         ? payload.name
@@ -123,8 +126,7 @@ export const authService = {
         logoutError = new Error(res.error ?? "Logout failed");
       }
     } catch (error) {
-      logoutError =
-        error instanceof Error ? error : new Error("Logout failed");
+      logoutError = error instanceof Error ? error : new Error("Logout failed");
     } finally {
       clearClientSessionState();
     }
@@ -139,10 +141,20 @@ export const authService = {
    * @returns true if session restored, false otherwise
    */
   async restoreSession(): Promise<boolean> {
-    const res = await authApi.refresh();
-    if (!res.success || !res.data?.accessToken) return false;
-    const accessToken = res.data.accessToken;
-    tokenService.set(accessToken);
+    let accessToken: string;
+
+    try {
+      accessToken = await tokenRefreshManager.getValidToken(async () => {
+        const res = await authApi.refresh();
+        if (!res.success || !res.data?.accessToken) {
+          throw new Error("Refresh failed");
+        }
+        tokenService.set(res.data.accessToken);
+        return res.data.accessToken;
+      });
+    } catch {
+      return false;
+    }
 
     const restoredUser =
       authUserService.get() ?? extractUserFromAccessToken(accessToken);
@@ -170,17 +182,28 @@ export const authService = {
    * Request password reset email. Throws on failure.
    * @throws Error on request failure
    */
-  async forgotPassword(email: string): Promise<void> {
+  async forgotPassword(email: string): Promise<string> {
     const res = await authApi.forgotPassword(email);
     if (!res.success) throw new Error(res.error ?? "Request failed");
+    return res.message ?? "Check your email to reset your password";
   },
 
   /**
    * Reset password with token. Throws on failure.
    * @throws Error on reset failure
    */
-  async resetPassword(token: string, password: string): Promise<void> {
+  async resetPassword(token: string, password: string): Promise<string> {
     const res = await authApi.resetPassword({ token, password });
     if (!res.success) throw new Error(res.error ?? "Reset failed");
+    return res.message ?? "Password reset successful";
+  },
+
+  async updatePassword(
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<string> {
+    const res = await authApi.updatePassword({ currentPassword, newPassword });
+    if (!res.success) throw new Error(res.error ?? "Update password failed");
+    return res.message ?? "Password updated successfully";
   },
 };

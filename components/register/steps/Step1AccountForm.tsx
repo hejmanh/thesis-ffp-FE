@@ -11,7 +11,8 @@ import type { SelectOption } from "@/utils/referenceOptions";
 interface Step1AccountFormProps {
   data: Step1AccountData;
   error: string;
-  submissionStage: "registering" | "logging-in" | null;
+  successMessage?: string;
+  submissionStage: "registering" | null;
   countryOptions: SelectOption[];
   sexOptions: SelectOption[];
   onFieldChange: <K extends keyof Step1AccountData>(
@@ -24,6 +25,7 @@ interface Step1AccountFormProps {
 export default function Step1AccountForm({
   data,
   error,
+  successMessage,
   submissionStage,
   countryOptions,
   sexOptions,
@@ -34,17 +36,9 @@ export default function Step1AccountForm({
   const router = useRouter();
   const isSubmitting = submissionStage !== null;
   const submitLabel =
-    submissionStage === "logging-in"
-      ? "Signing you in..."
-      : submissionStage === "registering"
-        ? "Creating account..."
-        : "Create account";
-  const loadingMessage =
-    submissionStage === "logging-in"
-      ? "Account created. Logging you in and opening step 1..."
-      : submissionStage === "registering"
-        ? "Creating your account..."
-        : "";
+    submissionStage === "registering"
+      ? "Creating account..."
+      : "Create account";
 
   return (
     <div className="mt-3">
@@ -97,6 +91,11 @@ export default function Step1AccountForm({
           {error}
         </p>
       ) : null}
+      {!error && successMessage ? (
+        <p className="mt-4 text-center text-sm font-semibold text-emerald-600">
+          {successMessage}
+        </p>
+      ) : null}
       {!isReferenceReady ? (
         <p className="mt-4 text-center text-sm text-muted-foreground">
           Loading registration options...
@@ -115,12 +114,6 @@ export default function Step1AccountForm({
             <span>{submitLabel}</span>
           </span>
         </Button>
-        {isSubmitting ? (
-          <div className="mt-4 flex items-center justify-center gap-2 text-sm font-medium text-primary">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-current" />
-            <p>{loadingMessage}</p>
-          </div>
-        ) : null}
       </div>
       <p className="mt-6 text-center text-sm text-muted-foreground">
         Already have an account?{" "}

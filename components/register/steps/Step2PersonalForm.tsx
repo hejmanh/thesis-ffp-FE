@@ -1,7 +1,7 @@
 "use client";
 
-import Button from "@/components/common/Button";
 import FinancialProfileFields from "@/components/common/FinancialProfileFields";
+import StepNavigationActions from "@/components/register/steps/StepNavigationActions";
 import type { Step2PersonalData } from "@/types/onboarding";
 import type { SelectOption } from "@/utils/referenceOptions";
 
@@ -78,9 +78,9 @@ export default function Step2PersonalForm({
 
   return (
     <div className="mt-8">
-      <h2 className="text-center text-3xl font-bold text-primary">
-        Financial Information
-      </h2>
+      {/* <h2 className="text-center text-3xl font-bold text-primary">
+        Personal Information
+      </h2> */}
       <div className="mx-auto mt-8 max-w-4xl space-y-7">
         <FinancialProfileFields
           profile={{
@@ -124,14 +124,14 @@ export default function Step2PersonalForm({
           }
           onHabitChange={updateHabit}
           idPrefix="step2_"
-          cardClassName="rounded-2xl border border-border bg-slate-50 p-5"
+          cardClassName="p-0"
           titleClassName="text-lg font-semibold text-slate-900"
           fieldLabels={{
             estimatedLifeExpectancy: "Estimated Life Expectancy",
             desiredLifeExpectancy: "Desired Life Expectancy",
             preferredCurrency: "Preferred Currency",
           }}
-          currentSavingsPlaceholder="Current savings amount"
+          currentSavingsPlaceholder="e.g. 100 000"
         />
       </div>
       {isReferenceLoading ? (
@@ -149,25 +149,13 @@ export default function Step2PersonalForm({
           {error}
         </p>
       ) : null}
-      <div className="mx-auto mt-8 flex max-w-4xl gap-3">
-        {onBack ? (
-          <Button
-            variant="outline"
-            className="h-12 flex-1 rounded-full text-base"
-            onClick={onBack}
-            disabled={isSubmitting}
-          >
-            Back
-          </Button>
-        ) : null}
-        <Button
-          className="h-12 flex-1 rounded-full text-base"
-          onClick={onNext}
-          disabled={isSubmitting || isReferenceLoading || Boolean(referenceError)}
-        >
-          {isSubmitting ? "Saving..." : "Next"}
-        </Button>
-      </div>
+      <StepNavigationActions
+        className="max-w-4xl"
+        isSubmitting={isSubmitting}
+        nextDisabled={isReferenceLoading || Boolean(referenceError)}
+        onBack={onBack}
+        onNext={onNext}
+      />
     </div>
   );
 }

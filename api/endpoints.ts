@@ -7,9 +7,9 @@ export const API_ENDPOINTS = {
     refresh: "/auth/refresh",
     forgotPassword: "/auth/forgot-password",
     resetPassword: "/auth/reset-password",
+    updatePassword: "/auth/update-password",
   },
   reference: {
-    estimateLifeExpectancy: "/reference/estimate-life-expectancy",
     currencies: "/reference/currencies",
     countries: "/reference/countries",
     sexTypes: "/reference/sex-types",
@@ -22,7 +22,8 @@ export const API_ENDPOINTS = {
   },
   userInfo: {
     financial: "/user-info/financial",
-    stages: "/user-info/stages",
+    me: "/user-info/me",
+    lifeStages: "/user-info/life-stages",
     assets: "/user-info/assets",
     assetByUid: (uid: string) => `/user-info/assets/${uid}`,
   },

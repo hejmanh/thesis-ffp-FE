@@ -51,13 +51,5 @@ export interface LifeStageRange {
   stageNo: number;
   title: string | null;
   beginningAge: number;
-  endingAge: number;
+  endingAge: number | null;
 }
-
-export type EstimateLifeExpectancyData =
-  | number
-  | {
-      estimatedLifeExpectancy?: number | null;
-      lifeExpectancy?: number | null;
-      value?: number | null;
-    };

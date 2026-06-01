@@ -1,19 +1,20 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import {
-  useMutation,
-  useQueries,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 import Button from "@/components/common/Button";
 import Card from "@/components/common/Card";
 import AssetForm from "@/components/account/forms/AssetForm";
+import GeneralInformationForm from "@/components/account/forms/GeneralInformationForm";
 import StageEditorCard, {
   type StageEditorValue,
 } from "@/components/common/StageEditorCard";
 import FinancialForm from "@/components/account/forms/FinancialForm";
-import { useFinancialPlanningReferences, useLifeStageRangesQuery } from "@/hooks";
+import {
+  useFinancialPlanningReferences,
+  useLifeStageRangesQuery,
+} from "@/hooks";
+import { useUserContext } from "@/providers/UserContextProvider";
 import { userInfoService } from "@/services/userInfo.service";
 import type { UserInfoFinancialResource } from "@/types/userInfo";
 import type { SelectOption } from "@/utils/referenceOptions";
@@ -26,7 +27,7 @@ import {
   mapUserInfoResourcesToFinancialData,
 } from "@/utils/userInfoMappers";
 import type { Asset, FinancialData, Habits, Stage } from "@/utils/types";
-import { loadOnboardingState } from "@/utils/onboardingStorage";
+import { resolveCurrencyCode } from "@/utils/referenceOptions";
 
 const EMPTY_FINANCIAL_DATA: FinancialData = {
   estimatedLE: "",
@@ -79,16 +80,22 @@ function fromStageEditorValue(stage: Stage, next: StageEditorValue): Stage {
 }
 
 function isStageComplete(stage: Stage): boolean {
+  const isFilled = (value?: string) => value != null && value.trim() !== "";
   return (
     stage.lifeStageRangeId != null &&
     stage.lifeStageRangeId > 0 &&
-    Boolean(stage.annualSaving && stage.currency && stage.growthRate)
+    isFilled(stage.annualSaving) &&
+    isFilled(stage.currency) &&
+    isFilled(stage.growthRate)
   );
 }
 
 function isAssetComplete(asset: Asset): boolean {
+  const isFilled = (value?: string) => value != null && value.trim() !== "";
   return Boolean(
-    asset.assetTypeId && asset.initialAnnualIncome && asset.growthRate,
+    asset.assetTypeId &&
+    isFilled(asset.initialAnnualIncome) &&
+    isFilled(asset.growthRate),
   );
 }
 
@@ -97,20 +104,22 @@ function areValuesEqual<T>(left: T, right: T): boolean {
 }
 
 function areStagesMeaningfullyEqual(left: Stage[], right: Stage[]): boolean {
-  return JSON.stringify(
-    left.map((stage) => ({
-      lifeStageRangeId: stage.lifeStageRangeId ?? 0,
-      annualSaving: stage.annualSaving,
-      growthRate: stage.growthRate,
-    })),
-  ) ===
+  return (
+    JSON.stringify(
+      left.map((stage) => ({
+        lifeStageRangeId: stage.lifeStageRangeId ?? 0,
+        annualSaving: stage.annualSaving,
+        growthRate: stage.growthRate,
+      })),
+    ) ===
     JSON.stringify(
       right.map((stage) => ({
         lifeStageRangeId: stage.lifeStageRangeId ?? 0,
         annualSaving: stage.annualSaving,
         growthRate: stage.growthRate,
       })),
-    );
+    )
+  );
 }
 
 function hasFinancialResourceData(
@@ -124,9 +133,10 @@ function hasFinancialResourceData(
     financial.financialProfile != null &&
     (financial.financialProfile.currentSavings != null ||
       financial.financialProfile.desiredLifeExpectancy != null ||
-      Boolean(financial.financialProfile.currencyCode));
+      financial.financialProfile.currencyId != null);
 
-  const hasPortfolioAllocations = (financial.portfolioAllocations?.length ?? 0) > 0;
+  const hasPortfolioAllocations =
+    (financial.portfolioAllocations?.length ?? 0) > 0;
 
   const hasLifestyleProfile =
     financial.lifestyleProfile != null &&
@@ -188,10 +198,10 @@ function getAssetOptionsForAsset(
 export default function FinancialSection() {
   const queryClient = useQueryClient();
   const references = useFinancialPlanningReferences();
-  const registrationBirthYear = useMemo(
-    () => loadOnboardingState().step1.birthYear,
-    [],
-  );
+  const { data: userContext, set: setUserContext, refresh: refreshUserContext } =
+    useUserContext();
+  const registrationBirthYear =
+    userContext?.birthYear == null ? "" : String(userContext.birthYear);
   const [profileDraft, setProfileDraft] = useState<{
     estimatedLE: string;
     savings: string;
@@ -205,6 +215,12 @@ export default function FinancialSection() {
   const [stagesDraft, setStagesDraft] = useState<Stage[] | null>(null);
   const [assetsDraft, setAssetsDraft] = useState<Asset[] | null>(null);
   const [sectionError, setSectionError] = useState<string | null>(null);
+  const [personalDraft, setPersonalDraft] = useState<{
+    name: string;
+    birthYear: string;
+    countryId: string;
+    sexTypeId: string;
+  } | null>(null);
 
   const [financialQuery, stagesQuery, assetsQuery] = useQueries({
     queries: [
@@ -245,6 +261,9 @@ export default function FinancialSection() {
   const deleteAssetMutation = useMutation({
     mutationFn: userInfoService.deleteAsset,
   });
+  const patchMeMutation = useMutation({
+    mutationFn: userInfoService.patchMe,
+  });
 
   const baseFinancialData = useMemo(
     () =>
@@ -266,18 +285,27 @@ export default function FinancialSection() {
       ? EMPTY_FINANCIAL_DATA
       : baseFinancialData;
 
+  const preferredCurrencyFallback =
+    userContext?.preferredCurrencyId != null
+      ? String(userContext.preferredCurrencyId)
+      : "";
+  const effectiveBaseCurrency =
+    safeBaseFinancialData.currency || preferredCurrencyFallback;
+
   const currentProfile = profileDraft ?? {
     estimatedLE: safeBaseFinancialData.estimatedLE,
     savings: safeBaseFinancialData.savings,
-    currency: safeBaseFinancialData.currency,
+    currency: effectiveBaseCurrency,
     desiredLE: safeBaseFinancialData.desiredLE,
   };
-  const currentAllocation =
-    allocationDraft ?? safeBaseFinancialData.allocation;
+  const currentAllocation = allocationDraft ?? safeBaseFinancialData.allocation;
   const currentHabits = habitsDraft ?? safeBaseFinancialData.habits;
   const currentStages = useMemo(() => {
     const sourceStages = stagesDraft ?? safeBaseFinancialData.stages;
-    const stageCurrency = currentProfile.currency || safeBaseFinancialData.currency;
+    const stageCurrency = resolveCurrencyCode(
+      references.currencies,
+      currentProfile.currency || effectiveBaseCurrency,
+    );
 
     if (!lifeStageRangesQuery.data?.length) {
       return sourceStages.map((stage) => ({
@@ -294,7 +322,8 @@ export default function FinancialSection() {
   }, [
     currentProfile.currency,
     lifeStageRangesQuery.data,
-    safeBaseFinancialData.currency,
+    references.currencies,
+    effectiveBaseCurrency,
     safeBaseFinancialData.stages,
     stagesDraft,
   ]);
@@ -313,15 +342,39 @@ export default function FinancialSection() {
     createAssetsMutation.isPending ||
     patchAssetsMutation.isPending ||
     deleteAssetMutation.isPending;
+  const isSavingPersonal = patchMeMutation.isPending;
   const pageError =
     sectionError ??
-    (financialQuery.error instanceof Error ? financialQuery.error.message : null) ??
+    (financialQuery.error instanceof Error
+      ? financialQuery.error.message
+      : null) ??
     (stagesQuery.error instanceof Error ? stagesQuery.error.message : null) ??
     (assetsQuery.error instanceof Error ? assetsQuery.error.message : null) ??
     references.error ??
     (lifeStageRangesQuery.error instanceof Error
       ? lifeStageRangesQuery.error.message
       : null);
+
+  const basePersonal = {
+    name: userContext?.name ?? "",
+    birthYear:
+      userContext?.birthYear == null ? "" : String(userContext.birthYear),
+    countryId:
+      userContext?.countryId == null ? "" : String(userContext.countryId),
+    sexTypeId:
+      userContext?.sexTypeId == null ? "" : String(userContext.sexTypeId),
+  };
+  const currentPersonal = personalDraft ?? basePersonal;
+  const hasPersonalChanges = !areValuesEqual(currentPersonal, basePersonal);
+  const canSavePersonal =
+    Boolean(
+      currentPersonal.name.trim() &&
+        currentPersonal.birthYear &&
+        currentPersonal.countryId &&
+        currentPersonal.sexTypeId,
+    ) &&
+    hasPersonalChanges &&
+    !isSavingPersonal;
 
   const hasFinancialChanges =
     !areValuesEqual(currentProfile, {
@@ -336,13 +389,13 @@ export default function FinancialSection() {
   const canSaveFinancial =
     Boolean(
       currentProfile.savings &&
-        currentProfile.currency &&
-        currentProfile.desiredLE &&
-        (["before", "after"] as const).every((period) =>
-          (["u", "mu", "rf"] as const).every((key) =>
-            Boolean(currentAllocation[period][key]),
-          ),
+      currentProfile.currency &&
+      currentProfile.desiredLE &&
+      (["before", "after"] as const).every((period) =>
+        (["u", "mu", "rf"] as const).every((key) =>
+          Boolean(currentAllocation[period][key]),
         ),
+      ),
     ) &&
     (Object.keys(currentHabits) as Array<keyof Habits>).every((key) =>
       Boolean(currentHabits[key]),
@@ -373,6 +426,32 @@ export default function FinancialSection() {
       queryClient.invalidateQueries({ queryKey: ["user-info", "stages"] }),
       queryClient.invalidateQueries({ queryKey: ["user-info", "assets"] }),
     ]);
+  }
+
+  async function handleSavePersonal() {
+    setSectionError(null);
+
+    try {
+      const next = await patchMeMutation.mutateAsync({
+        userInfo: {
+          name: currentPersonal.name.trim(),
+          birthYear: Number(currentPersonal.birthYear),
+          countryId: Number(currentPersonal.countryId),
+          sexTypeId: Number(currentPersonal.sexTypeId),
+        },
+      });
+
+      setUserContext(next);
+      await refreshUserContext();
+      setPersonalDraft(null);
+      await refreshUserInfoData();
+    } catch (error) {
+      setSectionError(
+        error instanceof Error
+          ? error.message
+          : "Unable to update personal information.",
+      );
+    }
   }
 
   async function handleSaveFinancial() {
@@ -473,31 +552,45 @@ export default function FinancialSection() {
 
   if (isLoading) {
     return (
-      <Card hoverable={false} className="w-full rounded-xl bg-white p-6 shadow-md">
+      <Card
+        hoverable={false}
+        className="w-full rounded-xl bg-white p-6 shadow-md"
+      >
         <h2 className="text-2xl font-bold text-primary">
-          Financial Profile and Planning
+          Personal Information
         </h2>
         <p className="mt-4 text-sm text-muted-foreground">
-          Loading your financial profile...
+          Loading your detailed information...
         </p>
       </Card>
     );
   }
 
   return (
-    <Card hoverable={false} className="w-full rounded-xl bg-white p-6 shadow-md">
-      <h2 className="text-2xl font-bold text-primary">
-        Financial Profile and Planning
-      </h2>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Manage your financial background, investment assumptions, lifestyle
-        habits, life stages, and asset information.
-      </p>
+    <Card
+      hoverable={false}
+      className="w-full rounded-xl bg-white p-6 shadow-md"
+    >
+      <h2 className="text-2xl font-bold text-primary">Personal Information</h2>
+      {/* <p className="mt-1 text-sm text-muted-foreground">
+        Manage your general information life expectancy, savings, investment portfolio, lifestyle,
+        life stages, and post-FFP asset profiles.
+      </p> */}
       {pageError ? (
         <p className="mt-4 text-sm font-semibold text-red-600">{pageError}</p>
       ) : null}
 
       <div className="mt-6 space-y-6">
+        <GeneralInformationForm
+          value={currentPersonal}
+          countryOptions={references.countryOptions}
+          sexTypeOptions={references.sexTypeOptions}
+          canSave={canSavePersonal}
+          isSaving={isSavingPersonal}
+          onChange={(next) => setPersonalDraft(next)}
+          onSave={handleSavePersonal}
+        />
+
         <div className="space-y-4">
           <FinancialForm
             profile={currentProfile}
@@ -518,7 +611,7 @@ export default function FinancialSection() {
                 ...(prev ?? {
                   estimatedLE: safeBaseFinancialData.estimatedLE,
                   savings: safeBaseFinancialData.savings,
-                  currency: safeBaseFinancialData.currency,
+                  currency: effectiveBaseCurrency,
                   desiredLE: safeBaseFinancialData.desiredLE,
                 }),
                 [field]: value,
@@ -543,16 +636,18 @@ export default function FinancialSection() {
         </div>
 
         <div className="rounded-xl border border-border bg-slate-50 p-4">
-          <h3 className="text-base font-semibold text-slate-900">Life Stages</h3>
+          <h3 className="text-base font-semibold text-slate-900">
+            Life Stages
+          </h3>
           <p className="mt-1 text-xs italic text-slate-600">
-            Includes all pre-FFP income sources (e.g. salary, rental income,
-            etc.)
+            Includes salary, rental income, and other savings contributions
+            before Financial Freedom Point.
           </p>
-          <div className="mt-4 max-h-[24rem] space-y-4 overflow-y-auto pr-2">
+          <div className="mt-4 max-h-96 space-y-4 overflow-y-auto pr-2">
             {!lifeStageRangesQuery.isLoading && currentStages.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                Life stages will appear here once your registration birth year is
-                available.
+                Life stages will appear here once your registration birth year
+                is available.
               </p>
             ) : null}
             {currentStages.map((stage, index) => (
@@ -586,10 +681,12 @@ export default function FinancialSection() {
         </div>
 
         <div className="rounded-xl border border-border bg-slate-50 p-4">
-          <h3 className="text-base font-semibold text-slate-900">Assets</h3>
+          <h3 className="text-base font-semibold text-slate-900">
+            Post-FFP Assets
+          </h3>
           <p className="mt-1 text-xs italic text-slate-600">
-            Add additional income-generating assets such as rental properties,
-            pensions, or investments.
+            Includes passive income sources after Financial Freedom Point, such
+            as rental income and pensions.
           </p>
           <div className="mt-4 flex items-center justify-between">
             <button

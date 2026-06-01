@@ -38,7 +38,10 @@ export default function AssetEditorCard<TAsset extends AssetEditorValue>({
   assetTypeOptions,
   assetTypeDisabled = false,
 }: AssetEditorCardProps<TAsset>) {
-  function updateField<K extends keyof AssetEditorValue>(key: K, value: AssetEditorValue[K]) {
+  function updateField<K extends keyof AssetEditorValue>(
+    key: K,
+    value: AssetEditorValue[K],
+  ) {
     onChange({
       ...asset,
       [key]: value,
@@ -48,9 +51,15 @@ export default function AssetEditorCard<TAsset extends AssetEditorValue>({
   return (
     <div className={className}>
       <div className="mb-3 flex items-center justify-between">
-        <h3 className={titleClassName}>{getTitle?.(asset, index) ?? `Asset ${index + 1}`}</h3>
+        <h3 className={titleClassName}>
+          {getTitle?.(asset, index) ?? `Asset ${index + 1}`}
+        </h3>
         {onDelete ? (
-          <button type="button" className={deleteActionClassName} onClick={onDelete}>
+          <button
+            type="button"
+            className={deleteActionClassName}
+            onClick={onDelete}
+          >
             {deleteLabel}
           </button>
         ) : null}
@@ -74,10 +83,11 @@ export default function AssetEditorCard<TAsset extends AssetEditorValue>({
           name={`${idPrefix}initialAnnualIncome`}
           label="Initial Annual Income"
           inputClassName="h-11"
-          placeholder="Initial annual income"
+          placeholder="e.g. 100000"
           inputProps={{
             value: asset.initialAnnualIncome,
-            onChange: (event) => updateField("initialAnnualIncome", event.target.value),
+            onChange: (event) =>
+              updateField("initialAnnualIncome", event.target.value),
             inputMode: "decimal",
             autoComplete: "off",
           }}
@@ -92,6 +102,8 @@ export default function AssetEditorCard<TAsset extends AssetEditorValue>({
           inputProps={{
             value: asset.growthRate,
             onChange: (event) => updateField("growthRate", event.target.value),
+            type: "number",
+            step: "1",
             inputMode: "decimal",
             autoComplete: "off",
           }}

@@ -60,8 +60,11 @@ const ALLOCATION_LABELS: Record<
   { description: string; symbol: string }
 > = {
   u: { description: "Proportion of risky asset", symbol: "u" },
-  mu: { description: "Expected annual return rate of risky asset", symbol: "μ" },
-  rf: { description: "Risk-free annual return rate", symbol: "r_f" },
+  mu: {
+    description: "Expected annual return rate of risky asset",
+    symbol: "μ",
+  },
+  rf: { description: "Annual return rate of risk-free asset", symbol: "r_f" },
 };
 
 const ALLOCATION_PERIODS: Array<{
@@ -71,13 +74,13 @@ const ALLOCATION_PERIODS: Array<{
 }> = [
   {
     key: "before",
-    label: "Before FFP",
-    hint: "Used for savings and investments only. Rental income and other income sources are already included in life-stage savings.",
+    label: "Before Financial Freedom Point",
+    hint: "Defines how your investments grow before financial freedom. Salary, savings, and other income are managed through life-stage cash flow projections.",
   },
   {
     key: "after",
-    label: "After FFP",
-    hint: "Used for remaining savings after retirement. Rental income and pension are handled separately.",
+    label: "After Financial Freedom Point",
+    hint: "Defines how your remaining investments grow after retirement. Pension and passive income are projected separately.",
   },
 ];
 
@@ -94,24 +97,37 @@ export default function FinancialProfileFields<HabitKey extends string>({
   titleClassName = "text-base font-semibold text-slate-900",
   hintClassName = "mt-1 text-xs italic text-slate-600",
   fieldLabels,
-  currentSavingsPlaceholder = "100000",
+  currentSavingsPlaceholder = "e.g. 100 000",
   currencyOptions = [],
   disabledRootFields,
   footer,
 }: FinancialProfileFieldsProps<HabitKey>) {
   const labels = { ...ROOT_FIELD_LABELS, ...fieldLabels };
+  const orderedHabits = [...habits].sort((left, right) => {
+    const priority: Record<string, number> = {
+      physical: 0,
+      diet: 1,
+      smoking: 2,
+      alcohol: 3,
+    };
+
+    const leftIndex = priority[String(left.key)] ?? Number.MAX_SAFE_INTEGER;
+    const rightIndex = priority[String(right.key)] ?? Number.MAX_SAFE_INTEGER;
+
+    return leftIndex - rightIndex;
+  });
 
   return (
     <div className={cardClassName}>
       <div className="space-y-6">
         <div className={infoCardClassName}>
-          <h3 className={titleClassName}>Financial Profile</h3>
+          <h3 className={titleClassName}>Life Expectancy and Savings</h3>
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <FormField
               id={`${idPrefix}estimatedLifeExpectancy`}
               name={`${idPrefix}estimatedLifeExpectancy`}
               label={labels.estimatedLifeExpectancy}
-              hint="Estimated using your profile information and lifestyle habits."
+              hint="Estimated based on your birthplace, gender, and lifestyle habits"
               inputClassName="h-11"
               placeholder="90"
               inputProps={{
@@ -126,9 +142,9 @@ export default function FinancialProfileFields<HabitKey extends string>({
               id={`${idPrefix}desiredLifeExpectancy`}
               name={`${idPrefix}desiredLifeExpectancy`}
               label={labels.desiredLifeExpectancy}
-              hint="Your personal target lifespan"
+              hint="Your target lifespan"
               inputClassName="h-11"
-              placeholder="90"
+              placeholder="e.g. 90"
               inputProps={{
                 value: profile.desiredLifeExpectancy,
                 onChange: (event) =>
@@ -165,7 +181,7 @@ export default function FinancialProfileFields<HabitKey extends string>({
         </div>
 
         <div className={infoCardClassName}>
-          <h3 className={titleClassName}>Asset Allocation</h3>
+          <h3 className={titleClassName}>Investment Portfolio</h3>
           <div className="mt-4 space-y-6">
             {ALLOCATION_PERIODS.map((period) => (
               <div key={period.key}>
@@ -198,7 +214,11 @@ export default function FinancialProfileFields<HabitKey extends string>({
                           "aria-label": `${period.label} ${ALLOCATION_LABELS[key].description} (${ALLOCATION_LABELS[key].symbol})`,
                           value: allocations[period.key][key],
                           onChange: (event) =>
-                            onAllocationChange(period.key, key, event.target.value),
+                            onAllocationChange(
+                              period.key,
+                              key,
+                              event.target.value,
+                            ),
                           autoComplete: "off",
                         }}
                       />
@@ -211,9 +231,9 @@ export default function FinancialProfileFields<HabitKey extends string>({
         </div>
 
         <div className={infoCardClassName}>
-          <h3 className={titleClassName}>Habits</h3>
+          <h3 className={titleClassName}>Lifestyle</h3>
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {habits.map((habit) => (
+            {orderedHabits.map((habit) => (
               <FormField
                 key={habit.key}
                 id={`${idPrefix}habit_${habit.key}`}

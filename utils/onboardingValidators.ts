@@ -1,14 +1,28 @@
-import type { AssetItem, StageItem, Step1AccountData, Step2PersonalData } from "@/types/onboarding";
+import type {
+  AssetItem,
+  StageItem,
+  Step1AccountData,
+  Step2PersonalData,
+} from "@/types/onboarding";
+
+// avoid falsy values like "0" or "false" to be considered as empty
+function isFilledValue(value: unknown): boolean {
+  if (value == null) {
+    return false;
+  }
+
+  return String(value).trim() !== "";
+}
 
 export function validateStep1(data: Step1AccountData): string | null {
   if (
-    !data.name ||
-    !data.email ||
-    !data.password ||
-    !data.confirmPassword ||
-    !data.birthYear ||
-    !data.country ||
-    !data.sex
+    !isFilledValue(data.name) ||
+    !isFilledValue(data.email) ||
+    !isFilledValue(data.password) ||
+    !isFilledValue(data.confirmPassword) ||
+    !isFilledValue(data.birthYear) ||
+    !isFilledValue(data.country) ||
+    !isFilledValue(data.sex)
   ) {
     return "Please fill all required fields.";
   }
@@ -35,23 +49,28 @@ export function validateStep2(data: Step2PersonalData): string | null {
     data.habits.diet,
     data.habits.alcohol,
   ];
-  if (required.some((value) => !value)) {
-    return "Please complete all fields in Personal Information.";
+  if (required.some((value) => !isFilledValue(value))) {
+    return "Please complete all fields in General Information.";
   }
   return null;
 }
 
 export function isStageComplete(stage: StageItem): boolean {
+  const isFilled = (value?: string) => value != null && value.trim() !== "";
   return Boolean(
     stage.lifeStageRangeId &&
-      stage.ageStart &&
-      stage.ageEnd &&
-      stage.annualSaving &&
-      stage.currency &&
-      stage.annualRate,
+    isFilled(stage.ageStart) &&
+    isFilled(stage.annualSaving) &&
+    isFilled(stage.currency) &&
+    isFilled(stage.annualRate),
   );
 }
 
 export function isAssetComplete(asset: AssetItem): boolean {
-  return Boolean(asset.assetTypeId && asset.initialAnnualIncome && asset.growthRate);
+  const isFilled = (value?: string) => value != null && value.trim() !== "";
+  return Boolean(
+    asset.assetTypeId &&
+    isFilled(asset.initialAnnualIncome) &&
+    isFilled(asset.growthRate),
+  );
 }

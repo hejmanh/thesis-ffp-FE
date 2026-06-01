@@ -8,18 +8,30 @@ import type {
   GetFinancialResponse,
   GetStagesResponse,
   PatchAssetsRequest,
+  PatchUserInfoMeRequest,
   PatchStagesRequest,
   UserInfoAssetResponse,
   UserInfoFinancialResource,
   UserInfoStageData,
 } from "@/types/userInfo";
+import type { UserContextData } from "@/types/userContext";
 
-const USER_INFO_NOT_FOUND_MESSAGE = "user info not found";
+const MISSING_RESOURCE_PATTERNS = [
+  "not found",
+  "does not exist yet",
+  "does not exist",
+];
 
-function isNotFoundResponse(message?: string | null, error?: string | null): boolean {
-  return [message, error].some((value) =>
-    value?.toLowerCase().includes(USER_INFO_NOT_FOUND_MESSAGE),
-  );
+function isNotFoundResponse(
+  message?: string | null,
+  error?: string | null,
+): boolean {
+  return [message, error].some((value) => {
+    const normalized = value?.toLowerCase() ?? "";
+    return MISSING_RESOURCE_PATTERNS.some((pattern) =>
+      normalized.includes(pattern),
+    );
+  });
 }
 
 function isGetFinancialResponse(
@@ -70,7 +82,56 @@ function normalizeAssetsResponse(
   return data.assets ?? data.assetData ?? [];
 }
 
+function readString(value: unknown): string {
+  return typeof value === "string" ? value : "";
+}
+
+function readNullableNumber(value: unknown): number | null {
+  if (value == null || value === "") {
+    return null;
+  }
+
+  const parsedValue = Number(value);
+  return Number.isFinite(parsedValue) ? parsedValue : null;
+}
+
+function readRecord(value: unknown): Record<string, unknown> {
+  return value != null && typeof value === "object"
+    ? (value as Record<string, unknown>)
+    : {};
+}
+
+function normalizeUserContextData(data: unknown): UserContextData {
+  const source = readRecord(data);
+
+  return {
+    name: readString(source.name),
+    email: readString(source.email),
+    birthYear: readNullableNumber(source.birthYear),
+    countryId: readNullableNumber(source.countryId),
+    sexTypeId: readNullableNumber(source.sexTypeId),
+    estimatedLifeExpectancy: readNullableNumber(source.estimatedLifeExpectancy),
+    preferredCurrencyId: readNullableNumber(source.preferredCurrencyId),
+  };
+}
+
 export const userInfoService = {
+  async getMe(): Promise<UserContextData> {
+    const res = await userInfoApi.getMe();
+    if (!res.success || !res.data) {
+      throw new Error(res.error ?? "Unable to load user context");
+    }
+    return normalizeUserContextData(res.data);
+  },
+
+  async patchMe(payload: PatchUserInfoMeRequest): Promise<UserContextData> {
+    const res = await userInfoApi.patchMe(payload);
+    if (!res.success || !res.data) {
+      throw new Error(res.error ?? "Unable to update personal information");
+    }
+    return normalizeUserContextData(res.data);
+  },
+
   async getFinancial(): Promise<UserInfoFinancialResource | null> {
     const res = await userInfoApi.getFinancial();
     if (isNotFoundResponse(res.message, res.error)) {
@@ -102,12 +163,16 @@ export const userInfoService = {
     if (isNotFoundResponse(patchRes.message, patchRes.error)) {
       const createRes = await userInfoApi.createFinancial(payload);
       if (!createRes.success) {
-        throw new Error(createRes.error ?? "Unable to create financial information");
+        throw new Error(
+          createRes.error ?? "Unable to create financial information",
+        );
       }
       return;
     }
     if (!patchRes.success) {
-      throw new Error(patchRes.error ?? "Unable to update financial information");
+      throw new Error(
+        patchRes.error ?? "Unable to update financial information",
+      );
     }
   },
 
@@ -162,7 +227,9 @@ export const userInfoService = {
     return normalizeAssetsResponse(res.data);
   },
 
-  async createAssets(payload: CreateAssetsRequest): Promise<CreateAssetsResponse> {
+  async createAssets(
+    payload: CreateAssetsRequest,
+  ): Promise<CreateAssetsResponse> {
     const res = await userInfoApi.createAssets(payload);
     if (!res.success) {
       throw new Error(res.error ?? "Unable to create assets");

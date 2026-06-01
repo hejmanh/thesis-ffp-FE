@@ -32,13 +32,21 @@ export function mapCurrenciesToOptions(currencies: Currency[]): SelectOption[] {
     label:
       currency.code && currency.name
         ? `${currency.code} - ${currency.name}`
-        : currency.code ?? currency.name ?? `Currency ${currency.id}`,
-    value: currency.code ?? String(currency.id),
+        : (currency.code ?? currency.name ?? `Currency ${currency.id}`),
+    value: String(currency.id),
   }));
 }
 
-function getReferenceOptionLabel(option: ReferenceOption, fallbackPrefix: string): string {
-  return option.title ?? option.name ?? option.code ?? `${fallbackPrefix} ${option.id}`;
+function getReferenceOptionLabel(
+  option: ReferenceOption,
+  fallbackPrefix: string,
+): string {
+  return (
+    option.title ??
+    option.name ??
+    option.code ??
+    `${fallbackPrefix} ${option.id}`
+  );
 }
 
 export function mapCodeReferencesToOptions<T extends ReferenceOption>(
@@ -59,4 +67,18 @@ export function mapIdReferencesToOptions<T extends ReferenceOption>(
     label: getReferenceOptionLabel(option, "Reference"),
     value: String(option.id),
   }));
+}
+
+export function resolveCurrencyCode(
+  currencies: Currency[],
+  currencyId: string | number | null | undefined,
+): string {
+  if (currencyId == null || currencyId === "") {
+    return "";
+  }
+
+  const match = currencies.find(
+    (currency) => String(currency.id) === String(currencyId),
+  );
+  return match?.code ?? String(currencyId);
 }

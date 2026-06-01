@@ -19,10 +19,14 @@ interface StageEditorCardProps {
 }
 
 function formatStageTitle(stage: StageEditorValue, index?: number): string {
-  if (stage.title) {
-    return stage.title;
+  const stageName = stage.title || `Stage ${(index ?? 0) + 1}`;
+  if (stage.ageStart && stage.ageEnd) {
+    return `${stageName}: ${stage.ageStart} - ${stage.ageEnd}`;
   }
-  return `Stage ${(index ?? 0) + 1}: Age ${stage.ageStart} - ${stage.ageEnd}`;
+  if (stage.ageStart) {
+    return `${stageName}: ${stage.ageStart}+`;
+  }
+  return stageName;
 }
 
 const variantConfig = {
@@ -32,31 +36,43 @@ const variantConfig = {
     inputRateLabel: "Annual Rate",
   },
   register: {
-    containerClassName: "rounded-2xl border border-border bg-white p-5 shadow-sm",
+    containerClassName:
+      "rounded-2xl border border-border bg-white p-5 shadow-sm",
     headerClassName: "text-xl font-semibold text-slate-900",
-    inputRateLabel: "Annual Rate",
+    inputRateLabel: "Annual Growth Rate",
   },
 };
 
-export default function StageEditorCard({ stage, onChange, variant, index }: StageEditorCardProps) {
+export default function StageEditorCard({
+  stage,
+  onChange,
+  variant,
+  index,
+}: StageEditorCardProps) {
   const config = variantConfig[variant];
 
-  function updateField<K extends keyof StageEditorValue>(key: K, value: StageEditorValue[K]) {
+  function updateField<K extends keyof StageEditorValue>(
+    key: K,
+    value: StageEditorValue[K],
+  ) {
     onChange({ ...stage, [key]: value });
   }
 
   return (
     <div className={config.containerClassName}>
-      <h3 className={config.headerClassName}>{formatStageTitle(stage, index)}</h3>
+      <h3 className={config.headerClassName}>
+        {formatStageTitle(stage, index)}
+      </h3>
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <FormField
-          label="Annual Savings"
+          label="Initial Annual Savings"
           inputClassName="h-11 px-3 pr-14"
           suffix={stage.currency}
-          placeholder="Enter annual savings"
+          placeholder="e.g. 100 000"
           inputProps={{
             value: stage.annualSaving,
-            onChange: (event) => updateField("annualSaving", event.target.value),
+            onChange: (event) =>
+              updateField("annualSaving", event.target.value),
             autoComplete: "off",
           }}
         />
@@ -64,10 +80,12 @@ export default function StageEditorCard({ stage, onChange, variant, index }: Sta
           label={config.inputRateLabel}
           inputClassName="h-11 px-3 pr-8"
           suffix="%"
-          placeholder="8"
+          placeholder="e.g. 15"
           inputProps={{
             value: stage.annualRate,
             onChange: (event) => updateField("annualRate", event.target.value),
+            type: "number",
+            step: "1",
             autoComplete: "off",
           }}
         />

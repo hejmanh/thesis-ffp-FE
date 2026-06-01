@@ -1,32 +1,37 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import AnimatedPanel from "@/components/common/AnimatedPanel";
 import Step1AccountForm from "@/components/register/steps/Step1AccountForm";
 import type { Step1AccountData } from "@/types/onboarding";
 import { validateStep1 } from "@/utils/onboardingValidators";
-import {
-  createEmptyOnboardingState,
-  saveOnboardingState,
-} from "@/utils/onboardingStorage";
+import { createEmptyOnboardingState } from "@/store/onboardingStorage";
 import { useAuth, usePersonalInfoReferences } from "@/hooks";
+import { useAuthStore } from "@/store/auth.store";
+import { tokenService } from "@/services/token.service";
 import {
   mapCountriesToOptions,
   mapSexTypesToOptions,
 } from "@/utils/referenceOptions";
 
-type SubmissionStage = "registering" | "logging-in" | null;
+type SubmissionStage = "registering" | null;
 
 export default function RegisterAccountForm() {
   const router = useRouter();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [data, setData] = useState<Step1AccountData>(
     () => createEmptyOnboardingState().step1,
   );
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [submissionStage, setSubmissionStage] = useState<SubmissionStage>(null);
-  const { login, register } = useAuth();
-  const { countries, sexTypes, error: referenceError } = usePersonalInfoReferences();
+  const { register } = useAuth();
+  const {
+    countries,
+    sexTypes,
+    error: referenceError,
+  } = usePersonalInfoReferences();
 
   const countryOptions = useMemo(
     () => mapCountriesToOptions(countries),
@@ -37,6 +42,12 @@ export default function RegisterAccountForm() {
 
   const displayError = error || referenceError || "";
 
+  useEffect(() => {
+    if (isAuthenticated || tokenService.get()) {
+      router.replace("/");
+    }
+  }, [isAuthenticated, router]);
+
   function updateField<K extends keyof Step1AccountData>(
     key: K,
     value: Step1AccountData[K],
@@ -46,6 +57,7 @@ export default function RegisterAccountForm() {
 
   async function handleCreateAccount() {
     setError("");
+    setSuccessMessage("");
     const validation = validateStep1(data);
     if (validation) {
       setError(validation);
@@ -70,18 +82,9 @@ export default function RegisterAccountForm() {
         sexTypeId,
       });
 
-      saveOnboardingState({
-        ...createEmptyOnboardingState(),
-        step1: data,
-      });
-
-      setSubmissionStage("logging-in");
-      await login({
-        email: data.email,
-        password: data.password,
-      });
-
-      router.replace("/onboarding");
+      setSuccessMessage(
+        "Account created. Please check your email to verify it.",
+      );
     } catch (submitError) {
       setError(
         submitError instanceof Error
@@ -99,6 +102,7 @@ export default function RegisterAccountForm() {
         <Step1AccountForm
           data={data}
           error={displayError}
+          successMessage={successMessage}
           submissionStage={submissionStage}
           countryOptions={countryOptions}
           sexOptions={sexOptions}
