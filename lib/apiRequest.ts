@@ -130,8 +130,8 @@ class ApiRequest {
         } catch (refreshError) {
           tokenService.clear();
           if (typeof window !== "undefined") {
-             const params = new URLSearchParams(window.location.search);
-             if (params.get("login") !== "1") {
+             const isAlreadyOnLoginPage = window.location.pathname === "/" && new URLSearchParams(window.location.search).get("login") === "1";
+             if (!isAlreadyOnLoginPage) {
                window.location.href = "/?login=1";
              }
            }
