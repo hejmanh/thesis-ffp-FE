@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
 import Card from "@/components/common/Card";
@@ -12,7 +13,7 @@ interface ResultCard {
   id: string;
   title: string;
   icon: string;
-  widget: React.ReactNode;
+  widget: ReactNode;
 }
 
 const RESULT_CARDS: ResultCard[] = [

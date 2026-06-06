@@ -65,14 +65,18 @@ export default function Home() {
 
       <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
 
-      {isAuthenticated && (
-        <>
-          <Scenario1Modal isOpen={activeScenario === "01"} onClose={closeScenario} />
-          <Scenario2Modal isOpen={activeScenario === "02"} onClose={closeScenario} />
-          <Scenario3Modal isOpen={activeScenario === "03"} onClose={closeScenario} />
-          <Scenario4Modal isOpen={activeScenario === "04"} onClose={closeScenario} />
-        </>
-      )}
+      {isAuthenticated && activeScenario === "01" && (
+         <Scenario1Modal isOpen onClose={closeScenario} />
+       )}
+       {isAuthenticated && activeScenario === "02" && (
+         <Scenario2Modal isOpen onClose={closeScenario} />
+       )}
+       {isAuthenticated && activeScenario === "03" && (
+         <Scenario3Modal isOpen onClose={closeScenario} />
+       )}
+       {isAuthenticated && activeScenario === "04" && (
+         <Scenario4Modal isOpen onClose={closeScenario} />
+       )}
     </>
   );
 }
