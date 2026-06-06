@@ -27,4 +27,20 @@ export const API_ENDPOINTS = {
     assets: "/user-info/assets",
     assetByUid: (uid: string) => `/user-info/assets/${uid}`,
   },
+  scenario1: {
+    input: "/scenario-1/input",
+    output: "/scenario-1/output",
+  },
+  scenario2: {
+    input: "/scenario-2/input",
+    output: "/scenario-2/output",
+  },
+  scenario3: {
+    input: "/scenario-3/input",
+    output: "/scenario-3/output",
+  },
+  scenario4: {
+    input: "/scenario-4/input",
+    output: "/scenario-4/output",
+  },
 } as const;
