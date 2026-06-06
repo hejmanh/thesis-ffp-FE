@@ -129,7 +129,10 @@ class ApiRequest {
           return this.instance(original);
         } catch (refreshError) {
           tokenService.clear();
-          if (typeof window !== "undefined") {
+          if (
+            typeof window !== "undefined" &&
+            !window.location.search.includes("login=1")
+          ) {
             window.location.href = "/?login=1";
           }
           return Promise.reject(refreshError);

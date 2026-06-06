@@ -1,6 +1,7 @@
 import PersonalInfoSection from "@/components/account/sections/PersonalInfoSection";
 import FinancialSection from "@/components/account/sections/FinancialSection";
 import PreferencesSection from "@/components/account/sections/PreferencesSection";
+import ResultsSection from "@/components/account/sections/ResultsSection";
 import type { AccountTab } from "@/utils/types";
 
 interface AccountContentProps {
@@ -15,6 +16,8 @@ export default function AccountContent({ tab }: AccountContentProps) {
       return <FinancialSection />;
     case "preferences":
       return <PreferencesSection />;
+    case "results":
+      return <ResultsSection />;
     default:
       return null;
   }

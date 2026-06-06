@@ -15,6 +15,7 @@ interface AccountSidebarProps {
 const TABS: Array<{ label: string; value: AccountTab }> = [
   { label: "Account", value: "personal" },
   { label: "Personal Information", value: "financial" },
+  { label: "Results", value: "results" },
   { label: "Preferences", value: "preferences" },
 ];
 
