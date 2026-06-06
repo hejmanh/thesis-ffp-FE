@@ -23,20 +23,21 @@ export default function Home() {
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
-    if (query.get("login") !== "1") {
+    if (query.get("login") !== "1" || isAuthenticated) {
       return;
     }
 
     const timer = window.setTimeout(() => setShowLoginModal(true), 0);
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [isAuthenticated]);
 
   function handleCardClick(id: string) {
     if (!isAuthenticated) {
       setShowLoginModal(true);
       return;
     }
-    setActiveScenario(id as ScenarioId);
+    if (id !== "01" && id !== "02" && id !== "03" && id !== "04") return;
+    setActiveScenario(id);
   }
 
   function closeScenario() {

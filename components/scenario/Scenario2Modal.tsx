@@ -94,7 +94,7 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
     };
 
     const mutation = inputQuery.data ? updateMutation : createMutation;
-    const result = await mutation.mutateAsync(payload).catch((err: unknown) => {
+    await mutation.mutateAsync(payload).catch((err: unknown) => {
       setSubmitError(err instanceof Error ? err.message : "Something went wrong");
       return null;
     });

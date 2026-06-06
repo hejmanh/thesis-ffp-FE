@@ -10,6 +10,7 @@ import {
   Tooltip,
   Legend,
   Title,
+  SubTitle,
   type ChartOptions,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
@@ -24,6 +25,7 @@ ChartJS.register(
   Tooltip,
   Legend,
   Title,
+  SubTitle,
 );
 
 const OPTIONS: ChartOptions<"line"> = {

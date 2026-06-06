@@ -26,7 +26,7 @@ export const FEATURES: FeatureItem[] = [
     title: "How much can I spend at FFP?",
     description:
       "Estimate the maximum sustainable spending you can enjoy each year after reaching Financial Freedom",
-    placeholder: "Example: Monthly budget after FFP",
+    placeholder: "Example: Annually budget after FFP",
     ctaText: "Explore Scenario",
     href: "/scenario/spending",
   },
