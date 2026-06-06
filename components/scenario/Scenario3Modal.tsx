@@ -82,7 +82,6 @@ export default function Scenario3Modal({ isOpen, onClose }: Scenario3ModalProps)
   const [inputFfpAge, setInputFfpAge] = useState("");
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const hasExistingInput = !!inputQuery.data;
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
   useEffect(() => {
@@ -105,15 +104,11 @@ export default function Scenario3Modal({ isOpen, onClose }: Scenario3ModalProps)
       inputFfpAge: Number(inputFfpAge),
     };
 
-    const mutation = hasExistingInput ? updateMutation : createMutation;
+    const mutation = inputQuery.data ? updateMutation : createMutation;
     const result = await mutation.mutateAsync(payload).catch((err: unknown) => {
       setSubmitError(err instanceof Error ? err.message : "Something went wrong");
       return null;
     });
-
-    if (result?.success) {
-      outputQuery.refetch();
-    }
   }
 
   const output = outputQuery.data;
@@ -155,13 +150,13 @@ export default function Scenario3Modal({ isOpen, onClose }: Scenario3ModalProps)
           <p className="text-sm text-red-600">{submitError}</p>
         )}
 
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
+        <Button type="submit" className="w-full" disabled={isSubmitting || inputQuery.isLoading}>
           {isSubmitting ? (
             <span className="inline-flex items-center gap-2">
               <Icon icon="mdi:loading" className="h-4 w-4 animate-spin" aria-hidden="true" />
               Calculating…
             </span>
-          ) : hasExistingInput ? (
+          ) : inputQuery.data ? (
             "Recalculate"
           ) : (
             "Calculate"
