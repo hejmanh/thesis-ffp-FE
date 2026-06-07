@@ -79,7 +79,8 @@ export default function ScenarioInputModal({
     <div
       className={cn(
         "fixed inset-0 z-50 flex items-center justify-center bg-slate-950/35 p-4",
-        "transition-opacity duration-200 ease-out motion-reduce:transition-none",
+        "transition-all duration-300 ease-out motion-reduce:transition-none",
+        "animate-in fade-in",
         "opacity-100",
       )}
       onClick={onClose}
@@ -90,7 +91,8 @@ export default function ScenarioInputModal({
         ref={modalRef}
         className={cn(
           "relative w-full max-w-lg rounded-3xl bg-white p-5 shadow-xl",
-          "transition-all duration-200 ease-out motion-reduce:transform-none motion-reduce:transition-none",
+          "transition-all duration-300 ease-out motion-reduce:transform-none motion-reduce:transition-none",
+          "animate-in slide-in-from-bottom-4 zoom-in-95",
           "translate-y-0 scale-100 opacity-100",
           "max-h-[90vh] overflow-y-auto sm:p-6",
         )}

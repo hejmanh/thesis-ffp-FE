@@ -19,7 +19,9 @@ import { formatCompact } from "@/utils/formatCompact";
 import Button from "@/components/common/Button";
 import Link from "next/link";
 import FormField from "@/components/common/FormField";
+import LifeExpectancyField from "@/components/scenario/LifeExpectancyField";
 import ScenarioInputModal from "@/components/scenario/ScenarioInputModal";
+import { useLifeExpectancyOptions } from "@/hooks/scenario/useLifeExpectancyOptions";
 import {
   useGetScenario3Input,
   useGetScenario3Output,
@@ -77,6 +79,7 @@ export default function Scenario3Modal({ isOpen, onClose }: Scenario3ModalProps)
   const outputQuery = useGetScenario3Output();
   const createMutation = useCreateScenario3Input();
   const updateMutation = useUpdateScenario3Input();
+  const { defaultValue: defaultLifeExpectancy } = useLifeExpectancyOptions();
 
   const [lifeExpectancy, setLifeExpectancy] = useState("");
   const [inputFfpAge, setInputFfpAge] = useState("");
@@ -88,8 +91,10 @@ export default function Scenario3Modal({ isOpen, onClose }: Scenario3ModalProps)
     if (inputQuery.data) {
       setLifeExpectancy(String(inputQuery.data.lifeExpectancy));
       setInputFfpAge(String(inputQuery.data.inputFfpAge));
+    } else if (defaultLifeExpectancy) {
+      setLifeExpectancy(defaultLifeExpectancy);
     }
-  }, [inputQuery.data]);
+  }, [inputQuery.data, defaultLifeExpectancy]);
 
   useEffect(() => {
     if (isOpen) setSubmitError(null);
@@ -121,17 +126,9 @@ export default function Scenario3Modal({ isOpen, onClose }: Scenario3ModalProps)
       scenarioId="03"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
-        <FormField
-          label="Life Expectancy (years)"
-          isRequired
-          inputProps={{
-            type: "number",
-            min: 1,
-            placeholder: "e.g. 85",
-            value: lifeExpectancy,
-            onChange: (e) => setLifeExpectancy(e.target.value),
-            required: true,
-          }}
+        <LifeExpectancyField
+          value={lifeExpectancy}
+          onChange={setLifeExpectancy}
         />
         <FormField
           label="Target FFP Age"
@@ -150,7 +147,11 @@ export default function Scenario3Modal({ isOpen, onClose }: Scenario3ModalProps)
           <p className="text-sm text-red-600">{submitError}</p>
         )}
 
-        <Button type="submit" className="w-full" disabled={isSubmitting || inputQuery.isLoading}>
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={isSubmitting || inputQuery.isLoading || !lifeExpectancy}
+        >
           {isSubmitting ? (
             <span className="inline-flex items-center gap-2">
               <Icon icon="mdi:loading" className="h-4 w-4 animate-spin" aria-hidden="true" />

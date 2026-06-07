@@ -10,14 +10,18 @@ import {
   LineElement,
   Tooltip,
   Legend,
+  SubTitle,
   type ChartOptions,
+  Title,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 import { formatCompact } from "@/utils/formatCompact";
 import Button from "@/components/common/Button";
 import Link from "next/link";
 import FormField from "@/components/common/FormField";
+import LifeExpectancyField from "@/components/scenario/LifeExpectancyField";
 import ScenarioInputModal from "@/components/scenario/ScenarioInputModal";
+import { useLifeExpectancyOptions } from "@/hooks/scenario/useLifeExpectancyOptions";
 import {
   useGetScenario1Input,
   useGetScenario1Output,
@@ -32,6 +36,8 @@ ChartJS.register(
   LineElement,
   Tooltip,
   Legend,
+  Title,
+  SubTitle,
 );
 
 const CHART_OPTIONS: ChartOptions<"line"> = {
@@ -40,6 +46,20 @@ const CHART_OPTIONS: ChartOptions<"line"> = {
   interaction: { mode: "index", intersect: false },
   plugins: {
     legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 8 } },
+    title: {
+        display: true,
+        text: "FFP Goal Achievement Projection",
+        color: "#374151",
+        font: { size: 16, weight: "bold" },
+        padding: { bottom: 10 },
+    },
+    subtitle: {
+        display: true,
+        text: "Compare projected wealth against the required wealth target at your selected FFP age.",
+        color: "#6b7280",
+        font: { size: 12 },
+        padding: { bottom: 20 },
+    },
     tooltip: {
       callbacks: {
         label: (ctx) =>
@@ -66,6 +86,7 @@ export default function Scenario1Modal({ isOpen, onClose }: Scenario1ModalProps)
   const outputQuery = useGetScenario1Output();
   const createMutation = useCreateScenario1Input();
   const updateMutation = useUpdateScenario1Input();
+  const { defaultValue: defaultLifeExpectancy } = useLifeExpectancyOptions();
 
   const [lifeExpectancy, setLifeExpectancy] = useState("");
   const [inputFfpAge, setInputFfpAge] = useState("");
@@ -74,14 +95,16 @@ export default function Scenario1Modal({ isOpen, onClose }: Scenario1ModalProps)
 
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
-  // Pre-populate fields when existing input loads
+  // Pre-populate fields when existing input loads or default from profile
   useEffect(() => {
     if (inputQuery.data) {
       setLifeExpectancy(String(inputQuery.data.lifeExpectancy));
       setInputFfpAge(String(inputQuery.data.inputFfpAge));
       setInputFfpAnnualSpending(String(inputQuery.data.inputFfpAnnualSpending));
+    } else if (defaultLifeExpectancy) {
+      setLifeExpectancy(defaultLifeExpectancy);
     }
-  }, [inputQuery.data]);
+  }, [inputQuery.data, defaultLifeExpectancy]);
 
   // Reset on modal open
   useEffect(() => {
@@ -117,17 +140,9 @@ export default function Scenario1Modal({ isOpen, onClose }: Scenario1ModalProps)
       scenarioId="01"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
-        <FormField
-          label="Life Expectancy (years)"
-          isRequired
-          inputProps={{
-            type: "number",
-            min: 1,
-            placeholder: "e.g. 85",
-            value: lifeExpectancy,
-            onChange: (e) => setLifeExpectancy(e.target.value),
-            required: true,
-          }}
+        <LifeExpectancyField
+          value={lifeExpectancy}
+          onChange={setLifeExpectancy}
         />
         <FormField
           label="Target FFP Age"
@@ -158,7 +173,11 @@ export default function Scenario1Modal({ isOpen, onClose }: Scenario1ModalProps)
           <p className="text-sm text-red-600">{submitError}</p>
         )}
 
-        <Button type="submit" className="w-full" disabled={isSubmitting || inputQuery.isLoading}>
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={isSubmitting || inputQuery.isLoading || !lifeExpectancy}
+        >
           {isSubmitting ? (
             <span className="inline-flex items-center gap-2">
               <Icon icon="mdi:loading" className="h-4 w-4 animate-spin" aria-hidden="true" />

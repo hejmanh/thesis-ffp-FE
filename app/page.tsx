@@ -50,7 +50,7 @@ export default function Home() {
         <HeroSection />
         <FeatureGrid features={FEATURES} onCardClick={handleCardClick}>
           {isAuthenticated && (
-            <div className="mx-auto mt-6 flex justify-center md:max-w-266">
+            <div className="mx-auto mt-4 flex justify-center md:max-w-266">
               <Link
                 href="/profile?tab=results"
                 className="inline-flex items-center gap-2 rounded-full bg-transparent px-5 py-2 text-sm font-medium text-primary hover:underline"
@@ -77,6 +77,10 @@ export default function Home() {
        {isAuthenticated && activeScenario === "04" && (
          <Scenario4Modal isOpen onClose={closeScenario} />
        )}
+
+      <footer className="border-t border-border bg-white px-4 py-4 text-center text-sm text-muted-foreground sm:px-6 sm:py-5 lg:px-8">
+        <p>© 2026 Thesis sha und manh. All rights reserved.</p>
+      </footer>
     </>
   );
 }

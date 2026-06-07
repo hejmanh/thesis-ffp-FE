@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import Button from "@/components/common/Button";
 import { useAuthStore } from "@/store/auth.store";
 import { useAuth } from "@/hooks";
+import Image from "next/image";
 import { useUserContext } from "@/providers/UserContextProvider";
 
 interface HeaderProps {
@@ -51,14 +52,18 @@ export default function Header({
     <header className="w-full border-b border-border bg-surface/80 backdrop-blur">
       <div className="mx-auto flex h-16 w-full max-w-[1200px] items-center justify-between px-4 sm:h-[4.5rem] sm:px-6 lg:px-8 xl:max-w-[1280px]">
         <Link href="/" className="flex items-center gap-3">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-primary to-indigo-500 text-white sm:h-10 sm:w-10">
-            $
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary to-indigo-90 shadow-sm sm:h-10 sm:w-10">
+            <img
+              src="/CoinfusedLogo.png"
+              alt="Coinfused Logo"
+              className="h-6 w-6 object-contain sm:h-7 sm:w-7"
+            />
           </span>
-          <span className="text-xl font-bold tracking-tight text-primary sm:text-2xl">
+          <span className="bg-gradient-to-r from-blue-600 via-primary to-indigo-400 bg-clip-text text-xl font-extrabold tracking-tight text-transparent sm:text-2xl">
             Coinfused
           </span>
         </Link>
-        <nav className="flex items-center gap-3">
+        <nav className="flex items-center gap-2 sm:gap-3">
           {!authReady ? (
             <div
               className="h-9 w-28 animate-pulse rounded-full bg-slate-200/70"
@@ -68,7 +73,7 @@ export default function Header({
             <>
               <Link
                 href="/profile"
-                className="hidden text-sm text-muted-foreground underline-offset-4 hover:text-primary hover:underline sm:inline"
+                className="max-w-[6.5rem] truncate text-sm text-muted-foreground underline-offset-4 hover:text-primary hover:underline sm:max-w-none"
               >
                 {displayName}
               </Link>
@@ -78,7 +83,7 @@ export default function Header({
                 onClick={handleLogout}
                 disabled={logoutPending}
                 aria-busy={logoutPending}
-                className="min-w-28"
+                className="shrink-0 min-w-0 px-3 sm:min-w-28 sm:px-5"
               >
                 <span className="inline-flex items-center gap-2 transition-opacity duration-200">
                   {logoutPending ? (

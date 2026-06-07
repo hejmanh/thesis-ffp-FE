@@ -179,7 +179,7 @@ export default function DropdownField({
             {filteredOptions.length > 0 ? (
               filteredOptions.map((option, index) => (
                 <button
-                  key={option.value}
+                  key={`${option.value}-${option.label}`}
                   ref={(el) => {
                     if (el) optionsRef.current[index] = el;
                   }}
