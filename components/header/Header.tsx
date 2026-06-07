@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import Button from "@/components/common/Button";
 import { useAuthStore } from "@/store/auth.store";
 import { useAuth } from "@/hooks";
+import Image from "next/image";
 import { useUserContext } from "@/providers/UserContextProvider";
 
 interface HeaderProps {
@@ -51,10 +52,14 @@ export default function Header({
     <header className="w-full border-b border-border bg-surface/80 backdrop-blur">
       <div className="mx-auto flex h-16 w-full max-w-[1200px] items-center justify-between px-4 sm:h-[4.5rem] sm:px-6 lg:px-8 xl:max-w-[1280px]">
         <Link href="/" className="flex items-center gap-3">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-primary to-indigo-500 text-white sm:h-10 sm:w-10">
-            $
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary to-indigo-90 shadow-sm sm:h-10 sm:w-10">
+            <img
+              src="/CoinfusedLogo.png"
+              alt="Coinfused Logo"
+              className="h-6 w-6 object-contain sm:h-7 sm:w-7"
+            />
           </span>
-          <span className="text-xl font-bold tracking-tight text-primary sm:text-2xl">
+          <span className="bg-gradient-to-r from-blue-600 via-primary to-indigo-400 bg-clip-text text-xl font-extrabold tracking-tight text-transparent sm:text-2xl">
             Coinfused
           </span>
         </Link>
