@@ -58,7 +58,7 @@ export default function Header({
             Coinfused
           </span>
         </Link>
-        <nav className="flex items-center gap-3">
+        <nav className="flex items-center gap-2 sm:gap-3">
           {!authReady ? (
             <div
               className="h-9 w-28 animate-pulse rounded-full bg-slate-200/70"
@@ -68,7 +68,7 @@ export default function Header({
             <>
               <Link
                 href="/profile"
-                className="hidden text-sm text-muted-foreground underline-offset-4 hover:text-primary hover:underline sm:inline"
+                className="max-w-[6.5rem] truncate text-sm text-muted-foreground underline-offset-4 hover:text-primary hover:underline sm:max-w-none"
               >
                 {displayName}
               </Link>
@@ -78,7 +78,7 @@ export default function Header({
                 onClick={handleLogout}
                 disabled={logoutPending}
                 aria-busy={logoutPending}
-                className="min-w-28"
+                className="shrink-0 min-w-0 px-3 sm:min-w-28 sm:px-5"
               >
                 <span className="inline-flex items-center gap-2 transition-opacity duration-200">
                   {logoutPending ? (
