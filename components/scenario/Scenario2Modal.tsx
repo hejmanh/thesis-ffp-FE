@@ -19,7 +19,9 @@ import { formatCompact } from "@/utils/formatCompact";
 import Button from "@/components/common/Button";
 import Link from "next/link";
 import FormField from "@/components/common/FormField";
+import LifeExpectancyField from "@/components/scenario/LifeExpectancyField";
 import ScenarioInputModal from "@/components/scenario/ScenarioInputModal";
+import { useLifeExpectancyOptions } from "@/hooks/scenario/useLifeExpectancyOptions";
 import {
   useGetScenario2Input,
   useGetScenario2Output,
@@ -77,6 +79,7 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
   const outputQuery = useGetScenario2Output();
   const createMutation = useCreateScenario2Input();
   const updateMutation = useUpdateScenario2Input();
+  const { defaultValue: defaultLifeExpectancy } = useLifeExpectancyOptions();
 
   const [lifeExpectancy, setLifeExpectancy] = useState("");
   const [inputFfpAnnualSpending, setInputFfpAnnualSpending] = useState("");
@@ -88,8 +91,10 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
     if (inputQuery.data) {
       setLifeExpectancy(String(inputQuery.data.lifeExpectancy));
       setInputFfpAnnualSpending(String(inputQuery.data.inputFfpAnnualSpending));
+    } else if (defaultLifeExpectancy) {
+      setLifeExpectancy(defaultLifeExpectancy);
     }
-  }, [inputQuery.data]);
+  }, [inputQuery.data, defaultLifeExpectancy]);
 
   useEffect(() => {
     if (isOpen) setSubmitError(null);
@@ -121,17 +126,9 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
       scenarioId="02"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
-        <FormField
-          label="Life Expectancy"
-          isRequired
-          inputProps={{
-            type: "number",
-            min: 1,
-            placeholder: "e.g. 85",
-            value: lifeExpectancy,
-            onChange: (e) => setLifeExpectancy(e.target.value),
-            required: true,
-          }}
+        <LifeExpectancyField
+          value={lifeExpectancy}
+          onChange={setLifeExpectancy}
         />
         <FormField
           label="Annual Spending at FFP"
@@ -150,7 +147,11 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
           <p className="text-sm text-red-600">{submitError}</p>
         )}
 
-        <Button type="submit" className="w-full" disabled={isSubmitting || inputQuery.isLoading}>
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={isSubmitting || inputQuery.isLoading || !lifeExpectancy}
+        >
           {isSubmitting ? (
             <span className="inline-flex items-center gap-2">
               <Icon icon="mdi:loading" className="h-4 w-4 animate-spin" aria-hidden="true" />

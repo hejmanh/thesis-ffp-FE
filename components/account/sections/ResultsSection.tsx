@@ -45,20 +45,20 @@ const RESULT_CARDS: ResultCard[] = [
 
 export default function ResultsSection() {
   return (
-    <div className="flex-1 space-y-5">
-    <div className="rounded-xl border border-border bg-white p-4">
-        <h2 className="text-2xl font-semibold text-primary">Your Results</h2>
-        <p className="mt-0.5 mb-2 text-sm text-muted-foreground">
-            Your scenario results will be displayed here. You can view detailed insights for each scenario.
-        </p>
-        <Link
-            href="/"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary-600"
-        >
-            <Icon icon="mingcute:back-line" className="h-4 w-4" aria-hidden="true" />
-            Back to scenarios explorer
-        </Link>
-    </div>
+    <div className="w-full space-y-5">
+      <div className="rounded-xl border border-border bg-white p-4 shadow-sm">
+          <h2 className="text-2xl font-semibold text-primary">Your Results</h2>
+          <p className="mt-0.5 mb-2 text-sm text-muted-foreground">
+              Your scenario results will be displayed here. You can view detailed insights for each scenario.
+          </p>
+          <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary-600"
+          >
+              <Icon icon="mingcute:back-line" className="h-4 w-4" aria-hidden="true" />
+              Back to scenarios explorer
+          </Link>
+      </div>
       
 
       <div className="flex flex-col gap-4">

@@ -49,7 +49,9 @@ export default function AccountLayout() {
         onLogout={handleLogout}
         isLoggingOut={logoutPending}
       />
-      <AccountContent tab={activeTab} />
+      <div className="min-w-0 flex-1">
+        <AccountContent tab={activeTab} />
+      </div>
     </div>
   );
 }
