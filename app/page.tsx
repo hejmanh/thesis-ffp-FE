@@ -77,6 +77,10 @@ export default function Home() {
        {isAuthenticated && activeScenario === "04" && (
          <Scenario4Modal isOpen onClose={closeScenario} />
        )}
+
+      <footer className="border-t border-border bg-white py-8 px-4 sm:px-6 lg:px-8 text-center text-sm text-muted-foreground">
+        <p>© 2026 Thesis sha und manh. All rights reserved.</p>
+      </footer>
     </>
   );
 }

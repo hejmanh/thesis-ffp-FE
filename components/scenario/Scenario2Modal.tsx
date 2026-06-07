@@ -10,6 +10,8 @@ import {
   LineElement,
   Tooltip,
   Legend,
+  Title,
+  SubTitle,
   type ChartOptions,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
@@ -32,6 +34,8 @@ ChartJS.register(
   LineElement,
   Tooltip,
   Legend,
+  Title,
+  SubTitle,
 );
 
 const CHART_OPTIONS: ChartOptions<"line"> = {
@@ -40,6 +44,13 @@ const CHART_OPTIONS: ChartOptions<"line"> = {
   interaction: { mode: "index", intersect: false },
   plugins: {
     legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 8 } },
+    title: {
+        display: true,
+        text: "Financial Freedom Point (FFP) Age Projection",
+        color: "#374151",
+        font: { size: 16, weight: "bold" },
+        padding: { bottom: 10 },
+    },
     tooltip: {
       callbacks: {
         label: (ctx) =>
@@ -111,7 +122,7 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <FormField
-          label="Life Expectancy (years)"
+          label="Life Expectancy"
           isRequired
           inputProps={{
             type: "number",

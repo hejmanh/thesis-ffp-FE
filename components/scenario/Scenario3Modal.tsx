@@ -122,7 +122,7 @@ export default function Scenario3Modal({ isOpen, onClose }: Scenario3ModalProps)
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <FormField
-          label="Life Expectancy (years)"
+          label="Life Expectancy"
           isRequired
           inputProps={{
             type: "number",
