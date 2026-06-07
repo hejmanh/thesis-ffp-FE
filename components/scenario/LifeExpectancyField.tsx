@@ -27,9 +27,11 @@ export default function LifeExpectancyField({
       onChange={onChange}
       disabled={disabled || !isReady || isLoading}
       hint={
-        !isReady && !isLoading
-          ? "Complete Personal Information on your profile to enable this field."
-          : undefined
+          <>
+        Select either your <strong>estimated life expectancy</strong>,
+        calculated from your country, gender, and lifestyle habits, or your{" "}
+        <strong>desired target lifespan</strong>.
+      </>
       }
     />
   );
