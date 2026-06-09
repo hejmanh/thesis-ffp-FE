@@ -3,12 +3,11 @@
 import { useState, useTransition } from "react";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import Button from "@/components/common/Button";
 import { useAuthStore } from "@/store/auth.store";
 import { useAuth } from "@/hooks";
-import Image from "next/image";
 import { useUserContext } from "@/providers/UserContextProvider";
+import { useLocaleRouter, useLocalizedPath, useTranslations } from "@/i18n/client";
 
 interface HeaderProps {
   authReady?: boolean;
@@ -23,14 +22,17 @@ export default function Header({
   hideLoginButton = false,
   hideRegisterButton = false,
 }: HeaderProps) {
-  const router = useRouter();
+  const router = useLocaleRouter();
+  const toLocalizedPath = useLocalizedPath();
+  const t = useTranslations("Header");
+  const common = useTranslations("Common");
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isNavigating, startTransition] = useTransition();
   const user = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { data: userContext } = useUserContext();
   const { logout } = useAuth();
-  const displayName = userContext?.name ?? user?.email ?? "Account";
+  const displayName = userContext?.name ?? user?.email ?? t("accountFallback");
   const logoutPending = isLoggingOut || isNavigating;
 
   async function handleLogout() {
@@ -51,7 +53,7 @@ export default function Header({
   return (
     <header className="w-full border-b border-border bg-surface/80 backdrop-blur">
       <div className="mx-auto flex h-16 w-full max-w-[1200px] items-center justify-between px-4 sm:h-[4.5rem] sm:px-6 lg:px-8 xl:max-w-[1280px]">
-        <Link href="/" className="flex items-center gap-3">
+        <Link href={toLocalizedPath("/")} className="flex items-center gap-3">
           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary to-indigo-90 shadow-sm sm:h-10 sm:w-10">
             <img
               src="/CoinfusedLogo.png"
@@ -72,7 +74,7 @@ export default function Header({
           ) : isAuthenticated ? (
             <>
               <Link
-                href="/profile"
+                href={toLocalizedPath("/profile")}
                 className="max-w-[6.5rem] truncate text-sm text-muted-foreground underline-offset-4 hover:text-primary hover:underline sm:max-w-none"
               >
                 {displayName}
@@ -89,7 +91,7 @@ export default function Header({
                   {logoutPending ? (
                     <Icon icon="mdi:loading" className="h-4 w-4 animate-spin" />
                   ) : null}
-                  <span>{logoutPending ? "Logging out..." : "Logout"}</span>
+                  <span>{logoutPending ? common("loggingOut") : common("logout")}</span>
                 </span>
               </Button>
             </>
@@ -98,19 +100,19 @@ export default function Header({
               {!hideLoginButton ? (
                 onLoginClick ? (
                   <Button variant="outline" size="sm" onClick={onLoginClick}>
-                    Log In
+                    {t("login")}
                   </Button>
                 ) : (
-                  <Link href="/?login=1">
+                  <Link href={toLocalizedPath("/?login=1")}>
                     <Button variant="outline" size="sm">
-                      Log In
+                      {t("login")}
                     </Button>
                   </Link>
                 )
               ) : null}
               {!hideRegisterButton ? (
-                <Link href="/register">
-                  <Button size="sm">Register</Button>
+                <Link href={toLocalizedPath("/register")}>
+                  <Button size="sm">{t("register")}</Button>
                 </Link>
               ) : null}
             </>

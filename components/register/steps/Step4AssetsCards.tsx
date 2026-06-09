@@ -5,6 +5,7 @@ import StepNavigationActions from "@/components/register/steps/StepNavigationAct
 import type { AssetItem } from "@/types/onboarding";
 import type { SelectOption } from "@/utils/referenceOptions";
 import { isAssetComplete } from "@/utils/onboardingValidators";
+import { useTranslations } from "@/i18n/client";
 
 interface Step4AssetsCardsProps {
   assets: AssetItem[];
@@ -38,6 +39,9 @@ export default function Step4AssetsCards({
   onSubmit,
   onChange,
 }: Step4AssetsCardsProps) {
+  const t = useTranslations("Register.assets");
+  const steps = useTranslations("Register.steps");
+
   function handleAssetChange(updated: AssetItem) {
     onChange(assets.map((asset) => (asset.id === updated.id ? updated : asset)));
   }
@@ -56,8 +60,7 @@ export default function Step4AssetsCards({
     <div className="mt-8">
       {/* <h2 className="text-center text-3xl font-bold text-primary">Asset Data</h2> */}
       <p className="mt-2 text-center text-sm text-muted-foreground">
-        Includes passive income sources after Financial Freedom Point, such as
-        rental income and pensions.
+        {t("description")}
       </p>
       <div className="mx-auto mt-8 flex max-w-5xl flex-col gap-5">
         {assets.map((asset, index) => (
@@ -78,12 +81,12 @@ export default function Step4AssetsCards({
           className="text-sm font-semibold text-primary disabled:cursor-not-allowed disabled:text-slate-400"
           disabled={isReferenceLoading || assetTypeOptions.length === 0}
         >
-          + Add another asset
+          {t("addAnother")}
         </button>
       </div>
       {isReferenceLoading ? (
         <p className="mt-4 text-center text-sm text-muted-foreground">
-          Loading asset types...
+          {t("loadingTypes")}
         </p>
       ) : null}
       {referenceError ? (
@@ -99,7 +102,7 @@ export default function Step4AssetsCards({
       <StepNavigationActions
         className="max-w-5xl"
         layout="column"
-        nextLabel="Complete Onboarding"
+        nextLabel={steps("completeOnboarding")}
         isSubmitting={isSubmitting}
         nextDisabled={!canSubmit || isReferenceLoading}
         onBack={onBack}

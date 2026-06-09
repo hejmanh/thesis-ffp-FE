@@ -2,6 +2,7 @@
 
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import Button from "@/components/common/Button";
+import { useTranslations } from "@/i18n/client";
 
 interface RegisterSkipNoticeProps {
   disabled: boolean;
@@ -12,6 +13,8 @@ export default function RegisterSkipNotice({
   disabled,
   onSkip,
 }: RegisterSkipNoticeProps) {
+  const t = useTranslations("Register.skip");
+
   return (
     <div className="mb-8">
       <Button
@@ -22,11 +25,10 @@ export default function RegisterSkipNotice({
         onClick={onSkip}
       >
         <PlayArrowIcon fontSize="small" />
-        Skip
+        {t("action")}
       </Button>
       <p className="mt-2 ml-4 text-xs text-muted-foreground">
-        You can skip this setup for now and complete it later from the account
-        page.
+        {t("description")}
       </p>
     </div>
   );

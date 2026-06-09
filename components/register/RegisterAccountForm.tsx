@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import AnimatedPanel from "@/components/common/AnimatedPanel";
 import Step1AccountForm from "@/components/register/steps/Step1AccountForm";
 import type { Step1AccountData } from "@/types/onboarding";
@@ -9,16 +8,18 @@ import { validateStep1 } from "@/utils/onboardingValidators";
 import { createEmptyOnboardingState } from "@/store/onboardingStorage";
 import { useAuth, usePersonalInfoReferences } from "@/hooks";
 import { useAuthStore } from "@/store/auth.store";
-import { tokenService } from "@/services/token.service";
 import {
   mapCountriesToOptions,
   mapSexTypesToOptions,
 } from "@/utils/referenceOptions";
+import { useLocaleRouter, useTranslations } from "@/i18n/client";
 
 type SubmissionStage = "registering" | null;
 
 export default function RegisterAccountForm() {
-  const router = useRouter();
+  const router = useLocaleRouter();
+  const t = useTranslations("Register.account");
+  const validationT = useTranslations("Validation");
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [data, setData] = useState<Step1AccountData>(
     () => createEmptyOnboardingState().step1,
@@ -43,7 +44,7 @@ export default function RegisterAccountForm() {
   const displayError = error || referenceError || "";
 
   useEffect(() => {
-    if (isAuthenticated || tokenService.get()) {
+    if (isAuthenticated) {
       router.replace("/");
     }
   }, [isAuthenticated, router]);
@@ -60,14 +61,18 @@ export default function RegisterAccountForm() {
     setSuccessMessage("");
     const validation = validateStep1(data);
     if (validation) {
-      setError(validation);
+      setError(
+        validation === "Password and confirm password must match."
+          ? validationT("passwordMismatch")
+          : validationT("requiredFields"),
+      );
       return;
     }
 
     const countryId = Number(data.country);
     const sexTypeId = Number(data.sex);
     if (!Number.isInteger(countryId) || !Number.isInteger(sexTypeId)) {
-      setError("Please select valid registration options.");
+      setError(t("invalidOptions"));
       return;
     }
 
@@ -82,14 +87,12 @@ export default function RegisterAccountForm() {
         sexTypeId,
       });
 
-      setSuccessMessage(
-        "Account created. Please check your email to verify it.",
-      );
+      setSuccessMessage(t("success"));
     } catch (submitError) {
       setError(
         submitError instanceof Error
           ? submitError.message
-          : "Unable to create your account.",
+          : t("fallbackError"),
       );
     } finally {
       setSubmissionStage(null);

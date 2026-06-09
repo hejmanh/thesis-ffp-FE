@@ -3,8 +3,10 @@
 import { Icon } from "@iconify/react";
 import { formatCompact } from "@/utils/formatCompact";
 import { useGetScenario4Output } from "@/hooks/scenario/useScenario4";
+import { useTranslations } from "@/i18n/client";
 
 export default function Scenario4Widget() {
+  const t = useTranslations("Scenario");
   const { data, isLoading } = useGetScenario4Output();
 
   if (isLoading) {
@@ -19,24 +21,24 @@ export default function Scenario4Widget() {
     return (
       <div className="flex h-40 flex-col items-center justify-center gap-2 text-center text-muted-foreground">
         <Icon icon="mingcute:pig-money-line" className="h-8 w-8 opacity-30" aria-hidden="true" />
-        <p className="text-sm">No result yet — try Scenario 04 on the home page.</p>
+        <p className="text-sm">{t("outputs.empty", { id: "04" })}</p>
       </div>
     );
   }
 
   const stats = [
     {
-      label: "Required annual saving",
+      label: t("outputs.requiredAnnualSaving"),
       value: formatCompact(data.requiredAnnualSaving),
       icon: "mingcute:pig-money-line",
     },
     {
-      label: "FFP age",
+      label: t("outputs.ffpAge"),
       value: String(data.ffpAge),
       icon: "mdi:calendar-check-outline",
     },
     {
-      label: "Required wealth at FFP",
+      label: t("outputs.requiredWealthAtFfp"),
       value: formatCompact(data.requiredWealthAtFFPAge),
       icon: "mdi:bank-outline",
     },

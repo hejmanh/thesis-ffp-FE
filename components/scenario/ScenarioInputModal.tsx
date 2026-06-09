@@ -3,6 +3,7 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { Icon } from "@iconify/react";
 import { cn } from "@/utils/cn";
+import { useTranslations } from "@/i18n/client";
 
 interface ScenarioInputModalProps {
   isOpen: boolean;
@@ -19,6 +20,7 @@ export default function ScenarioInputModal({
   scenarioId,
   children,
 }: ScenarioInputModalProps) {
+  const t = useTranslations("Scenario");
   const modalRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const previouslyFocusedElement = useRef<HTMLElement | null>(null);
@@ -105,7 +107,7 @@ export default function ScenarioInputModal({
         <div className="mb-4 flex items-start justify-between gap-3">
           <div>
             <span className="inline-flex rounded-full bg-primary-soft px-2 py-0.5 text-xs font-semibold text-primary">
-              Scenario {scenarioId}
+              {t("label", { id: scenarioId })}
             </span>
             <h2
               id={labelId}
@@ -118,7 +120,7 @@ export default function ScenarioInputModal({
             ref={closeButtonRef}
             type="button"
             onClick={onClose}
-            aria-label="Close scenario modal"
+            aria-label={t("closeModal")}
             className="mt-0.5 flex-shrink-0 rounded-full p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
           >
             <Icon icon="mdi:close" className="h-5 w-5" aria-hidden="true" />

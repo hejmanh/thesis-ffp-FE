@@ -2,16 +2,18 @@
 
 import { useState } from "react";
 import { authService } from "@/services/auth.service";
+import { useTranslations } from "@/i18n/client";
 
 export function useResetPassword() {
+  const t = useTranslations("Auth.resetPassword");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const submit = async (password: string): Promise<string> => {
     const token = new URLSearchParams(window.location.search).get("token");
     if (!token) {
-      setError("Invalid reset link");
-      throw new Error("Invalid reset link");
+      setError(t("invalidLink"));
+      throw new Error(t("invalidLink"));
     }
 
     setLoading(true);
@@ -20,7 +22,7 @@ export function useResetPassword() {
     try {
       return await authService.resetPassword(token, password);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Reset failed");
+      setError(err instanceof Error ? err.message : t("failed"));
       throw err;
     } finally {
       setLoading(false);

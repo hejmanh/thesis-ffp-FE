@@ -16,6 +16,7 @@ import {
 import { Line } from "react-chartjs-2";
 import { formatCompact } from "@/utils/formatCompact";
 import { useGetScenario1Output } from "@/hooks/scenario/useScenario1";
+import { useTranslations } from "@/i18n/client";
 
 ChartJS.register(
   CategoryScale,
@@ -65,6 +66,7 @@ const OPTIONS: ChartOptions<"line"> = {
 };
 
 export default function Scenario1Widget() {
+  const t = useTranslations("Scenario");
   const { data, isLoading } = useGetScenario1Output();
 
   if (isLoading) {
@@ -79,7 +81,7 @@ export default function Scenario1Widget() {
     return (
       <div className="flex h-40 flex-col items-center justify-center gap-2 text-center text-muted-foreground">
         <Icon icon="mingcute:target-line" className="h-8 w-8 opacity-30" aria-hidden="true" />
-        <p className="text-sm">No result yet — try Scenario 01 on the home page.</p>
+        <p className="text-sm">{t("outputs.empty", { id: "01" })}</p>
       </div>
     );
   }
@@ -105,7 +107,7 @@ export default function Scenario1Widget() {
     labels,
     datasets: [
       {
-        label: "Projected Wealth",
+        label: t("charts.projectedWealth"),
         data: wealthData,
         borderColor: "#6366f1",
         backgroundColor: "#6366f120",
@@ -114,7 +116,7 @@ export default function Scenario1Widget() {
         tension: 0.3,
       },
       {
-        label: "FFP Target Wealth",
+        label: t("charts.ffpTargetWealth"),
         data: requiredData,
         borderColor: "#f59e0b",
         backgroundColor: "#f59e0b20",
@@ -139,7 +141,7 @@ export default function Scenario1Widget() {
           className="h-4 w-4"
           aria-hidden="true"
         />
-        {achievable ? "Yes, the goal is achievable" : "Not yet — adjust your plan"}
+        {achievable ? t("outputs.yesAchievable") : t("outputs.notYet")}
       </div>
       <Line data={chartData} options={OPTIONS} />
     </div>

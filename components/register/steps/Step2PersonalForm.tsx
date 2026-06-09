@@ -4,6 +4,7 @@ import FinancialProfileFields from "@/components/common/FinancialProfileFields";
 import StepNavigationActions from "@/components/register/steps/StepNavigationActions";
 import type { Step2PersonalData } from "@/types/onboarding";
 import type { SelectOption } from "@/utils/referenceOptions";
+import { useTranslations } from "@/i18n/client";
 
 interface Step2PersonalFormProps {
   data: Step2PersonalData;
@@ -22,13 +23,6 @@ interface Step2PersonalFormProps {
   onChange: (next: Step2PersonalData) => void;
 }
 
-const HABIT_LABELS: Record<keyof Step2PersonalData["habits"], string> = {
-  smoke: "Smoking",
-  physical: "Physical Activity",
-  diet: "Healthy Diet",
-  alcohol: "Alcohol Consumption",
-};
-
 export default function Step2PersonalForm({
   data,
   estimatedLifeExpectancy,
@@ -45,6 +39,16 @@ export default function Step2PersonalForm({
   onNext,
   onChange,
 }: Step2PersonalFormProps) {
+  const fields = useTranslations("Fields");
+  const financial = useTranslations("FinancialProfile");
+  const register = useTranslations("Register.personal");
+  const habitLabels: Record<keyof Step2PersonalData["habits"], string> = {
+    smoke: financial("habits.smoking"),
+    physical: financial("habits.physical"),
+    diet: financial("habits.diet"),
+    alcohol: financial("habits.alcohol"),
+  };
+
   function updateRoot<K extends keyof Step2PersonalData>(
     key: K,
     value: Step2PersonalData[K],
@@ -97,7 +101,7 @@ export default function Step2PersonalForm({
             Object.keys(data.habits) as Array<keyof Step2PersonalData["habits"]>
           ).map((habit) => ({
             key: habit,
-            label: HABIT_LABELS[habit],
+            label: habitLabels[habit],
             value: data.habits[habit],
             options:
               habit === "smoke"
@@ -127,16 +131,16 @@ export default function Step2PersonalForm({
           cardClassName="p-0"
           titleClassName="text-lg font-semibold text-slate-900"
           fieldLabels={{
-            estimatedLifeExpectancy: "Estimated Life Expectancy",
-            desiredLifeExpectancy: "Desired Life Expectancy",
-            preferredCurrency: "Preferred Currency",
+            estimatedLifeExpectancy: fields("estimatedLifeExpectancy"),
+            desiredLifeExpectancy: fields("desiredLifeExpectancy"),
+            preferredCurrency: fields("preferredCurrency"),
           }}
-          currentSavingsPlaceholder="e.g. 100 000"
+          currentSavingsPlaceholder={fields("placeholderMoney")}
         />
       </div>
       {isReferenceLoading ? (
         <p className="mt-4 text-center text-sm text-muted-foreground">
-          Loading onboarding references...
+          {register("loadingReferences")}
         </p>
       ) : null}
       {referenceError ? (

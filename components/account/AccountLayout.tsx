@@ -1,30 +1,27 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useTransition } from "react";
+import { useSearchParams } from "next/navigation";
 import AccountContent from "@/components/account/AccountContent";
 import AccountSidebar from "@/components/account/AccountSidebar";
 import { useAuth } from "@/hooks";
 import type { AccountTab } from "@/utils/types";
+import { useLocaleRouter } from "@/i18n/client";
 
 const VALID_TABS: AccountTab[] = ["personal", "financial", "preferences", "results"];
 
+function getValidTab(tab: string | null): AccountTab {
+  return tab && VALID_TABS.includes(tab as AccountTab) ? (tab as AccountTab) : "financial";
+}
+
 export default function AccountLayout() {
-  const router = useRouter();
+  const router = useLocaleRouter();
   const searchParams = useSearchParams();
-  const [activeTab, setActiveTab] = useState<AccountTab>("financial");
+  const [activeTab, setActiveTab] = useState<AccountTab>(() => getValidTab(searchParams.get("tab")));
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isNavigating, startTransition] = useTransition();
   const logoutPending = isLoggingOut || isNavigating;
   const { logout } = useAuth();
-
-  // Honour ?tab= deep-link on mount
-  useEffect(() => {
-    const tabParam = searchParams.get("tab") as AccountTab | null;
-    if (tabParam && VALID_TABS.includes(tabParam)) {
-      setActiveTab(tabParam);
-    }
-  }, [searchParams]);
 
   async function handleLogout() {
     if (logoutPending) return;

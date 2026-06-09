@@ -1,12 +1,12 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { useRouter } from "next/navigation";
 import Button from "@/components/common/Button";
 import FormField from "@/components/common/FormField";
 import PersonalInfoFields from "@/components/common/PersonalInfoFields";
 import type { Step1AccountData } from "@/types/onboarding";
 import type { SelectOption } from "@/utils/referenceOptions";
+import { useLocaleRouter, useTranslations } from "@/i18n/client";
 
 interface Step1AccountFormProps {
   data: Step1AccountData;
@@ -32,18 +32,20 @@ export default function Step1AccountForm({
   onFieldChange,
   onNext,
 }: Step1AccountFormProps) {
+  const t = useTranslations("Register.account");
+  const fields = useTranslations("Fields");
   const isReferenceReady = countryOptions.length > 0 && sexOptions.length > 0;
-  const router = useRouter();
+  const router = useLocaleRouter();
   const isSubmitting = submissionStage !== null;
   const submitLabel =
     submissionStage === "registering"
-      ? "Creating account..."
-      : "Create account";
+      ? t("submitting")
+      : t("submit");
 
   return (
     <div className="mt-3">
       <h2 className="text-center text-3xl font-bold text-primary">
-        Registration
+        {t("title")}
       </h2>
       <div className="mx-auto mt-8 max-w-md space-y-6">
         <PersonalInfoFields
@@ -73,10 +75,10 @@ export default function Step1AccountForm({
             <FormField
               id="name"
               name="name"
-              label="Name"
+              label={fields("name")}
               isRequired
               inputClassName="h-10 border-primary/60"
-              placeholder="Enter your name"
+              placeholder={fields("enterName")}
               inputProps={{
                 value: data.name,
                 onChange: (event) => onFieldChange("name", event.target.value),
@@ -98,7 +100,7 @@ export default function Step1AccountForm({
       ) : null}
       {!isReferenceReady ? (
         <p className="mt-4 text-center text-sm text-muted-foreground">
-          Loading registration options...
+          {t("loadingOptions")}
         </p>
       ) : null}
       <div className="mx-auto mt-8 max-w-md">
@@ -116,13 +118,13 @@ export default function Step1AccountForm({
         </Button>
       </div>
       <p className="mt-6 text-center text-sm text-muted-foreground">
-        Already have an account?{" "}
+        {t("alreadyHaveAccount")}{" "}
         <button
           type="button"
           onClick={() => router.push("/?login=1")}
           className="font-semibold text-primary underline hover:text-primary-600 transition"
         >
-          Sign in
+          {t("signIn")}
         </button>
       </p>
     </div>

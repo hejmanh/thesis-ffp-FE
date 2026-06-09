@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import FormField from "@/components/common/FormField";
 import type { SelectOption } from "@/utils/referenceOptions";
+import { useTranslations } from "@/i18n/client";
 
 type PersonalInfoVariant = "register" | "account";
 
@@ -49,6 +50,7 @@ export default function PersonalInfoFields({
   showPersonalFields = true,
   passwordFields,
 }: PersonalInfoFieldsProps) {
+  const fields = useTranslations("Fields");
   const currentYear = new Date().getFullYear();
   const birthYearOptions = Array.from(
     { length: currentYear - 1940 + 1 },
@@ -79,7 +81,7 @@ export default function PersonalInfoFields({
         <FormField
           id="account_current_password"
           name="account_current_password"
-          label="Current password"
+          label={fields("currentPassword")}
           className={
             passwordFields.mode === "account"
               ? accountFieldWidthClassName
@@ -87,7 +89,7 @@ export default function PersonalInfoFields({
           }
           variant="password"
           inputClassName={inputClassName}
-          placeholder="Enter current password"
+          placeholder={fields("enterCurrentPassword")}
           inputProps={{
             value: passwordFields.data.currentPassword ?? "",
             onChange: (event) =>
@@ -111,7 +113,7 @@ export default function PersonalInfoFields({
             ? "password"
             : "account_new_password"
         }
-        label={passwordFields.mode === "register" ? "Password" : "New password"}
+        label={passwordFields.mode === "register" ? fields("password") : fields("newPassword")}
         isRequired={passwordFields.mode === "register"}
         className={
           passwordFields.mode === "account"
@@ -122,8 +124,8 @@ export default function PersonalInfoFields({
         inputClassName={inputClassName}
         placeholder={
           passwordFields.mode === "register"
-            ? "Enter your password"
-            : "Enter new password"
+            ? fields("enterPassword")
+            : fields("enterNewPassword")
         }
         inputProps={{
           value: passwordFields.data.password,
@@ -144,7 +146,7 @@ export default function PersonalInfoFields({
             ? "confirmPassword"
             : "account_confirm_password"
         }
-        label="Confirm password"
+        label={fields("confirmPassword")}
         isRequired={passwordFields.mode === "register"}
         className={
           passwordFields.mode === "account"
@@ -155,8 +157,8 @@ export default function PersonalInfoFields({
         inputClassName={inputClassName}
         placeholder={
           passwordFields.mode === "register"
-            ? "Confirm your password"
-            : "Confirm new password"
+            ? fields("confirmYourPassword")
+            : fields("confirmNewPassword")
         }
         inputProps={{
           value: passwordFields.data.confirmPassword,
@@ -179,11 +181,11 @@ export default function PersonalInfoFields({
           <FormField
             id="email"
             name="email"
-            label="Email"
+            label={fields("email")}
             isRequired={true}
             className={accountFieldWidthClassName}
             inputClassName={inputClassName}
-            placeholder="Enter your email"
+            placeholder={fields("enterEmail")}
             inputProps={{
               value: resolvedData.email,
               type: "email",
@@ -200,11 +202,11 @@ export default function PersonalInfoFields({
             <FormField
               id="sex"
               name="sex"
-              label="Gender"
+              label={fields("gender")}
               isRequired={true}
               variant="select"
               selectClassName={selectClassName}
-              placeholder="Select gender"
+              placeholder={fields("selectGender")}
               value={resolvedData.sex}
               onChange={(value) => onFieldChange("sex", value)}
               options={sexOptions}
@@ -213,11 +215,11 @@ export default function PersonalInfoFields({
             <FormField
               id="birthYear"
               name="birthYear"
-              label="Birth Year"
+              label={fields("birthYear")}
               isRequired={true}
               variant="select"
               selectClassName={selectClassName}
-              placeholder="Select year"
+              placeholder={fields("selectYear")}
               value={resolvedData.birthYear}
               onChange={(value) => onFieldChange("birthYear", value)}
               options={birthYearOptions}
@@ -226,11 +228,11 @@ export default function PersonalInfoFields({
             <FormField
               id="country"
               name="country"
-              label="Country"
+              label={fields("country")}
               isRequired={true}
               variant="select"
               selectClassName={selectClassName}
-              placeholder="Select country"
+              placeholder={fields("selectCountry")}
               value={resolvedData.country}
               onChange={(value) => onFieldChange("country", value)}
               options={countryOptions}
@@ -244,9 +246,9 @@ export default function PersonalInfoFields({
             <FormField
               id="account_email"
               name="account_email"
-              label="Email"
+              label={fields("email")}
               inputClassName={inputClassName}
-              placeholder="Enter your email"
+              placeholder={fields("enterEmail")}
               inputProps={{
                 value: resolvedData.email,
                 type: "email",
@@ -258,10 +260,10 @@ export default function PersonalInfoFields({
             <FormField
               id="account_country"
               name="account_country"
-              label="Country"
+              label={fields("country")}
               variant="select"
               selectClassName={selectClassName}
-              placeholder="Select country"
+              placeholder={fields("selectCountry")}
               value={resolvedData.country}
               onChange={(value) => onFieldChange("country", value)}
               options={countryOptions}
@@ -273,10 +275,10 @@ export default function PersonalInfoFields({
             <FormField
               id="account_gender"
               name="account_gender"
-              label="Gender"
+              label={fields("gender")}
               variant="select"
               selectClassName={selectClassName}
-              placeholder="Select gender"
+              placeholder={fields("selectGender")}
               value={resolvedData.sex}
               onChange={(value) => onFieldChange("sex", value)}
               options={sexOptions}
@@ -285,10 +287,10 @@ export default function PersonalInfoFields({
             <FormField
               id="account_birth_year"
               name="account_birth_year"
-              label="Birth Year"
+              label={fields("birthYear")}
               variant="select"
               selectClassName={selectClassName}
-              placeholder="Select year"
+              placeholder={fields("selectYear")}
               value={resolvedData.birthYear}
               onChange={(value) => onFieldChange("birthYear", value)}
               options={birthYearOptions}

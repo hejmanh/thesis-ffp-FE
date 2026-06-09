@@ -3,6 +3,7 @@
 import Button from "@/components/common/Button";
 import FormField from "@/components/common/FormField";
 import type { SelectOption } from "@/utils/referenceOptions";
+import { useTranslations } from "@/i18n/client";
 
 interface GeneralInformationValue {
   name: string;
@@ -30,16 +31,20 @@ export default function GeneralInformationForm({
   onChange,
   onSave,
 }: GeneralInformationFormProps) {
+  const fields = useTranslations("Fields");
+  const common = useTranslations("Common");
+  const account = useTranslations("Account.financial");
+
   return (
     <div className="rounded-xl border border-border bg-slate-50 p-4">
       <h3 className="text-base font-semibold text-slate-900">
-        General Information
+        {account("generalInformation")}
       </h3>
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <FormField
           id="detailed_name"
           name="detailed_name"
-          label="Name"
+          label={fields("name")}
           inputClassName="h-10"
           inputProps={{
             value: value.name,
@@ -53,7 +58,7 @@ export default function GeneralInformationForm({
         <FormField
           id="detailed_birth_year"
           name="detailed_birth_year"
-          label="Birth Year"
+          label={fields("birthYear")}
           variant="select"
           selectClassName="h-11"
           value={value.birthYear}
@@ -74,7 +79,7 @@ export default function GeneralInformationForm({
         <FormField
           id="detailed_country"
           name="detailed_country"
-          label="Country"
+          label={fields("country")}
           variant="select"
           searchable={true}
           selectClassName="h-11"
@@ -90,7 +95,7 @@ export default function GeneralInformationForm({
         <FormField
           id="detailed_gender"
           name="detailed_gender"
-          label="Gender"
+          label={fields("gender")}
           variant="select"
           selectClassName="h-11"
           value={value.sexTypeId}
@@ -105,7 +110,7 @@ export default function GeneralInformationForm({
       </div>
       <div className="mt-4 flex justify-end">
         <Button size="sm" onClick={onSave} disabled={!canSave}>
-          {isSaving ? "Saving..." : "Save changes"}
+          {isSaving ? common("saving") : common("saveChanges")}
         </Button>
       </div>
     </div>

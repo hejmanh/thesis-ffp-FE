@@ -28,6 +28,7 @@ import {
   useCreateScenario1Input,
   useUpdateScenario1Input,
 } from "@/hooks/scenario/useScenario1";
+import { useLocalizedPath, useTranslations } from "@/i18n/client";
 
 ChartJS.register(
   CategoryScale,
@@ -82,6 +83,11 @@ interface Scenario1ModalProps {
 }
 
 export default function Scenario1Modal({ isOpen, onClose }: Scenario1ModalProps) {
+  const t = useTranslations("Scenario");
+  const fields = useTranslations("Fields");
+  const common = useTranslations("Common");
+  const home = useTranslations("Home.features");
+  const toLocalizedPath = useLocalizedPath();
   const inputQuery = useGetScenario1Input();
   const outputQuery = useGetScenario1Output();
   const createMutation = useCreateScenario1Input();
@@ -98,6 +104,7 @@ export default function Scenario1Modal({ isOpen, onClose }: Scenario1ModalProps)
   // Pre-populate fields when existing input loads or default from profile
   useEffect(() => {
     if (inputQuery.data) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLifeExpectancy(String(inputQuery.data.lifeExpectancy));
       setInputFfpAge(String(inputQuery.data.inputFfpAge));
       setInputFfpAnnualSpending(String(inputQuery.data.inputFfpAnnualSpending));
@@ -109,6 +116,7 @@ export default function Scenario1Modal({ isOpen, onClose }: Scenario1ModalProps)
   // Reset on modal open
   useEffect(() => {
     if (isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSubmitError(null);
     }
   }, [isOpen]);
@@ -125,7 +133,7 @@ export default function Scenario1Modal({ isOpen, onClose }: Scenario1ModalProps)
 
     const mutation = inputQuery.data ? updateMutation : createMutation;
     await mutation.mutateAsync(payload).catch((err: unknown) => {
-      setSubmitError(err instanceof Error ? err.message : "Something went wrong");
+      setSubmitError(err instanceof Error ? err.message : t("fallbackError"));
       return null;
     });
   }
@@ -136,7 +144,7 @@ export default function Scenario1Modal({ isOpen, onClose }: Scenario1ModalProps)
     <ScenarioInputModal
       isOpen={isOpen}
       onClose={onClose}
-      title="Can I reach my FFP goal?"
+      title={home("reachGoal.title")}
       scenarioId="01"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -145,24 +153,24 @@ export default function Scenario1Modal({ isOpen, onClose }: Scenario1ModalProps)
           onChange={setLifeExpectancy}
         />
         <FormField
-          label="Target FFP Age"
+          label={fields("targetFfpAge")}
           isRequired
           inputProps={{
             type: "number",
             min: 1,
-            placeholder: "e.g. 55",
+            placeholder: fields("placeholderAge55"),
             value: inputFfpAge,
             onChange: (e) => setInputFfpAge(e.target.value),
             required: true,
           }}
         />
         <FormField
-          label="Annual Spending at FFP"
+          label={fields("annualSpendingAtFfp")}
           isRequired
           inputProps={{
             type: "number",
             min: 0,
-            placeholder: "e.g. 24000",
+            placeholder: fields("placeholderAnnualSpending"),
             value: inputFfpAnnualSpending,
             onChange: (e) => setInputFfpAnnualSpending(e.target.value),
             required: true,
@@ -181,12 +189,12 @@ export default function Scenario1Modal({ isOpen, onClose }: Scenario1ModalProps)
           {isSubmitting ? (
             <span className="inline-flex items-center gap-2">
               <Icon icon="mdi:loading" className="h-4 w-4 animate-spin" aria-hidden="true" />
-              Calculating…
+              {common("calculating")}
             </span>
           ) : inputQuery.data ? (
-            "Recalculate"
+            common("recalculate")
           ) : (
-            "Calculate"
+            common("calculate")
           )}
         </Button>
       </form>
@@ -194,7 +202,7 @@ export default function Scenario1Modal({ isOpen, onClose }: Scenario1ModalProps)
       {/* Inline result */}
       {output !== null && output !== undefined && (
         <div className="mt-5 border-t border-border pt-5">
-          <p className="mb-3 text-sm font-medium text-slate-500">Result</p>
+          <p className="mb-3 text-sm font-medium text-slate-500">{t("result")}</p>
 
           {/* Yes / No badge */}
           <div
@@ -210,8 +218,8 @@ export default function Scenario1Modal({ isOpen, onClose }: Scenario1ModalProps)
               aria-hidden="true"
             />
             {output.outputIsAchievable
-              ? "Yes — goal is achievable!"
-              : "Not yet — adjust your plan"}
+              ? t("outputs.yesAchievableModal")
+              : t("outputs.notYet")}
           </div>
 
           {/* Wealth vs Required wealth chart */}
@@ -234,7 +242,7 @@ export default function Scenario1Modal({ isOpen, onClose }: Scenario1ModalProps)
               labels,
               datasets: [
                 {
-                  label: "Projected Wealth",
+                  label: t("charts.projectedWealth"),
                   data: wealthData,
                   borderColor: "#6366f1",
                   backgroundColor: "#6366f120",
@@ -243,7 +251,7 @@ export default function Scenario1Modal({ isOpen, onClose }: Scenario1ModalProps)
                   tension: 0.3,
                 },
                 {
-                  label: "Required Wealth",
+                  label: t("charts.requiredWealth"),
                   data: requiredData,
                   borderColor: "#f59e0b",
                   borderDash: [6, 3],
@@ -255,13 +263,13 @@ export default function Scenario1Modal({ isOpen, onClose }: Scenario1ModalProps)
             return <Line data={chartData} options={CHART_OPTIONS} />;
           })()}
           <p className="mt-3 text-xs text-muted-foreground">
-            See detailed stats in your{" "}
-            <Link href="/profile?tab=results" className="text-primary hover:underline">
-            Results</Link> tab on the profile page.
+            <Link href={toLocalizedPath("/profile?tab=results")} className="text-primary hover:underline">
+              {t("detailsLink", { tab: common("results") })}
+            </Link>
           </p>
 
           {outputQuery.isFetching && (
-            <p className="mt-2 text-xs text-muted-foreground">Updating…</p>
+            <p className="mt-2 text-xs text-muted-foreground">{t("updating")}</p>
           )}
         </div>
       )}

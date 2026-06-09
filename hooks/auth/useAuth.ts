@@ -5,8 +5,10 @@ import { authService } from "@/services/auth.service";
 import { useAuthStore } from "@/store/auth.store";
 import { useUserContext } from "@/providers/UserContextProvider";
 import type { LoginPayload, LoginResult, RegisterInput } from "@/types/auth";
+import { useTranslations } from "@/i18n/client";
 
 export function useAuth() {
+  const t = useTranslations("Auth.errors");
   const { user, isAuthenticated } = useAuthStore();
   const { refresh, clear } = useUserContext();
   const [loading, setLoading] = useState(false);
@@ -19,13 +21,13 @@ export function useAuth() {
       return await fn();
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : "Something went wrong";
+        err instanceof Error ? err.message : t("fallback");
       setError(message);
       throw err;
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   const login = useCallback(
     (payload: LoginPayload) =>

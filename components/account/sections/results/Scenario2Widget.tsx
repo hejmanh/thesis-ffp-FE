@@ -16,6 +16,7 @@ import {
 import { Line } from "react-chartjs-2";
 import { formatCompact } from "@/utils/formatCompact";
 import { useGetScenario2Output } from "@/hooks/scenario/useScenario2";
+import { useTranslations } from "@/i18n/client";
 
 ChartJS.register(
   CategoryScale,
@@ -65,6 +66,7 @@ const OPTIONS: ChartOptions<"line"> = {
 };
 
 export default function Scenario2Widget() {
+  const t = useTranslations("Scenario");
   const { data, isLoading } = useGetScenario2Output();
 
   if (isLoading) {
@@ -79,7 +81,7 @@ export default function Scenario2Widget() {
     return (
       <div className="flex h-40 flex-col items-center justify-center gap-2 text-center text-muted-foreground">
         <Icon icon="mingcute:calendar-2-line" className="h-8 w-8 opacity-30" aria-hidden="true" />
-        <p className="text-sm">No result yet — try Scenario 02 on the home page.</p>
+        <p className="text-sm">{t("outputs.empty", { id: "02" })}</p>
       </div>
     );
   }
@@ -107,7 +109,7 @@ export default function Scenario2Widget() {
     labels,
     datasets: [
       {
-        label: "Projected Wealth",
+        label: t("charts.projectedWealth"),
         data: wealthData,
         borderColor: "#6366f1",
         backgroundColor: "#6366f120",
@@ -116,7 +118,7 @@ export default function Scenario2Widget() {
         tension: 0.3,
       },
       {
-        label: "Age-Specific Required Wealth",
+        label: t("charts.ageSpecificRequiredWealth"),
         data: requiredData,
         borderColor: "#f59e0b",
         backgroundColor: "#f59e0b20",
@@ -132,7 +134,7 @@ export default function Scenario2Widget() {
       {ffpAge > 0 && (
         <div className="inline-flex items-center gap-2 rounded-full bg-green-50 px-3 py-1 text-sm font-semibold text-green-700">
           <Icon icon="mdi:flag-checkered" className="h-4 w-4" aria-hidden="true" />
-          FFP achieved at age {ffpAge}
+          {t("outputs.ffpAchievedAtAge", { age: ffpAge })}
         </div>
       )}
       <Line data={chartData} options={OPTIONS} />

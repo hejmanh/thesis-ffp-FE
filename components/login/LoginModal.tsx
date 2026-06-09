@@ -2,12 +2,12 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import Button from "@/components/common/Button";
 import FormField from "@/components/common/FormField";
 import { useAuth } from "@/hooks";
 import { cn } from "@/utils/cn";
+import { useLocaleRouter, useLocalizedPath, useTranslations } from "@/i18n/client";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -15,7 +15,9 @@ interface LoginModalProps {
 }
 
 export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
-  const router = useRouter();
+  const router = useLocaleRouter();
+  const toLocalizedPath = useLocalizedPath();
+  const t = useTranslations("Auth.login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const modalRef = useRef<HTMLDivElement>(null);
@@ -121,17 +123,17 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 text-center">
             <h2 id="login-modal-title" className="text-4xl font-bold text-primary">
-              Welcome back
+              {t("title")}
             </h2>
             <p id="login-modal-description" className="mt-2 text-sm text-muted-foreground">
-              Let&apos;s explore the app again with us.
+              {t("description")}
             </p>
           </div>
           <button
             ref={closeButtonRef}
             type="button"
             onClick={onClose}
-            aria-label="Close login modal"
+            aria-label={t("close")}
             className="flex h-8 w-8 items-center justify-center rounded transition hover:bg-gray-100"
           >
             <Icon icon="mdi:close" className="h-6 w-6 text-slate-500" />
@@ -141,9 +143,9 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
           <FormField
             id="email"
             name="email"
-            label="Username"
+            label={t("username")}
             inputClassName="h-10 border-primary/60"
-            placeholder="Enter your username"
+            placeholder={t("usernamePlaceholder")}
             inputProps={{
               type: "email",
               value: email,
@@ -155,10 +157,10 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
           <FormField
             id="login-password"
             name="password"
-            label="Password"
+            label={t("password")}
             variant="password"
             inputClassName="h-10 border-primary/60"
-            placeholder="Enter your password"
+            placeholder={t("passwordPlaceholder")}
             inputProps={{
               value: password,
               onChange: (event) => setPassword(event.target.value),
@@ -178,7 +180,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
               router.push(`/forgot-password${query}`);
             }}
           >
-            Forgot password?
+            {t("forgotPassword")}
           </button>
           <Button
             type="submit"
@@ -190,13 +192,13 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
               {loading ? (
                 <Icon icon="mdi:loading" className="h-4 w-4 animate-spin" />
               ) : null}
-              <span>{loading ? "Logging in..." : "Log in"}</span>
+              <span>{loading ? t("submitting") : t("submit")}</span>
             </span>
           </Button>
           <p className="text-center text-sm text-muted-foreground">
-            Don&apos;t have an account?{" "}
-            <Link href="/register" className="font-semibold text-primary underline">
-              Sign up
+            {t("noAccount")}{" "}
+            <Link href={toLocalizedPath("/register")} className="font-semibold text-primary underline">
+              {t("signUp")}
             </Link>
           </p>
         </form>

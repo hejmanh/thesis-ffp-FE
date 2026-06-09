@@ -8,10 +8,7 @@ import RegisterToast from "@/components/register/RegisterToast";
 import Step2PersonalForm from "@/components/register/steps/Step2PersonalForm";
 import Step3StagesCards from "@/components/register/steps/Step3StagesCards";
 import Step4AssetsCards from "@/components/register/steps/Step4AssetsCards";
-import {
-  ONBOARDING_STEPS,
-  useRegisterWizard,
-} from "@/components/register/useRegisterWizard";
+import { useRegisterWizard } from "@/components/register/useRegisterWizard";
 
 export default function RegisterWizard() {
   const wizard = useRegisterWizard();
@@ -74,7 +71,7 @@ export default function RegisterWizard() {
         />
       ) : null}
       <RegistrationProgressBar
-        steps={ONBOARDING_STEPS}
+        steps={wizard.onboardingSteps}
         currentStep={wizard.step}
       />
       <AnimatedPanel key={transitionKey}>{stepContent}</AnimatedPanel>

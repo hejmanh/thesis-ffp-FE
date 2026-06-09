@@ -6,6 +6,7 @@ import StageEditorCard, {
 import StepNavigationActions from "@/components/register/steps/StepNavigationActions";
 import type { StageItem } from "@/types/onboarding";
 import { isStageComplete } from "@/utils/onboardingValidators";
+import { useTranslations } from "@/i18n/client";
 
 interface Step3StagesCardsProps {
   stages: StageItem[];
@@ -43,6 +44,7 @@ export default function Step3StagesCards({
   onNext,
   onChange,
 }: Step3StagesCardsProps) {
+  const t = useTranslations("Register.stages");
   const canContinue = stages.length > 0 && stages.every(isStageComplete);
 
   return (
@@ -51,8 +53,7 @@ export default function Step3StagesCards({
         Your Life Stages
       </h2> */}
       <p className="mt-2 text-center text-sm text-muted-foreground">
-        Includes salary, rental income, and other savings contributions before
-        Financial Freedom Point.
+        {t("description")}
       </p>
       <div className="mx-auto mt-8 max-w-5xl">
         <div className="max-h-[34rem] space-y-5 overflow-y-auto pr-2">

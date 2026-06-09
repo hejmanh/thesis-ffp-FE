@@ -12,14 +12,55 @@ import Scenario3Modal from "@/components/scenario/Scenario3Modal";
 import Scenario4Modal from "@/components/scenario/Scenario4Modal";
 import MainLayout from "@/layouts/MainLayout";
 import { useAuthStore } from "@/store/auth.store";
-import { FEATURES } from "@/utils/constants";
+import { useLocalizedPath, useTranslations } from "@/i18n/client";
+import type { FeatureItem } from "@/types/feature";
 
 type ScenarioId = "01" | "02" | "03" | "04";
 
 export default function Home() {
+  const t = useTranslations("Home.features");
+  const toLocalizedPath = useLocalizedPath();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [activeScenario, setActiveScenario] = useState<ScenarioId | null>(null);
+  const features: FeatureItem[] = [
+    {
+      id: "01",
+      icon: "mingcute:target-line",
+      title: t("reachGoal.title"),
+      description: t("reachGoal.description"),
+      placeholder: t("reachGoal.placeholder"),
+      ctaText: t("cta"),
+      href: "/scenario/reach-goal",
+    },
+    {
+      id: "02",
+      icon: "mingcute:calendar-2-line",
+      title: t("timeline.title"),
+      description: t("timeline.description"),
+      placeholder: t("timeline.placeholder"),
+      ctaText: t("cta"),
+      href: "/scenario/timeline",
+    },
+    {
+      id: "03",
+      icon: "icon-park-outline:calculator",
+      title: t("spending.title"),
+      description: t("spending.description"),
+      placeholder: t("spending.placeholder"),
+      ctaText: t("cta"),
+      href: "/scenario/spending",
+    },
+    {
+      id: "04",
+      icon: "mingcute:pig-money-line",
+      title: t("savings.title"),
+      description: t("savings.description"),
+      placeholder: t("savings.placeholder"),
+      ctaText: t("cta"),
+      href: "/scenario/savings",
+    },
+  ];
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
@@ -48,15 +89,15 @@ export default function Home() {
     <>
       <MainLayout onLoginClick={() => setShowLoginModal(true)}>
         <HeroSection />
-        <FeatureGrid features={FEATURES} onCardClick={handleCardClick}>
+        <FeatureGrid features={features} onCardClick={handleCardClick}>
           {isAuthenticated && (
             <div className="mx-auto mt-4 flex justify-center md:max-w-266">
               <Link
-                href="/profile?tab=results"
+                href={toLocalizedPath("/profile?tab=results")}
                 className="inline-flex items-center gap-2 rounded-full bg-transparent px-5 py-2 text-sm font-medium text-primary hover:underline"
               >
                 <Icon icon="mdi:chart-line" className="h-4 w-4" aria-hidden="true" />
-                View my results
+                {t("viewResults")}
               </Link>
             </div>
           )}
@@ -79,7 +120,7 @@ export default function Home() {
        )}
 
       <footer className="border-t border-border bg-white px-4 py-4 text-center text-sm text-muted-foreground sm:px-6 sm:py-5 lg:px-8">
-        <p>© 2026 Thesis sha und manh. All rights reserved.</p>
+        <p>{t("footer")}</p>
       </footer>
     </>
   );

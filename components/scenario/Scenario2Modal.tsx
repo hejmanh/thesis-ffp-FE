@@ -28,6 +28,7 @@ import {
   useCreateScenario2Input,
   useUpdateScenario2Input,
 } from "@/hooks/scenario/useScenario2";
+import { useLocalizedPath, useTranslations } from "@/i18n/client";
 
 ChartJS.register(
   CategoryScale,
@@ -75,6 +76,11 @@ interface Scenario2ModalProps {
 }
 
 export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps) {
+  const t = useTranslations("Scenario");
+  const fields = useTranslations("Fields");
+  const common = useTranslations("Common");
+  const home = useTranslations("Home.features");
+  const toLocalizedPath = useLocalizedPath();
   const inputQuery = useGetScenario2Input();
   const outputQuery = useGetScenario2Output();
   const createMutation = useCreateScenario2Input();
@@ -89,6 +95,7 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
 
   useEffect(() => {
     if (inputQuery.data) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLifeExpectancy(String(inputQuery.data.lifeExpectancy));
       setInputFfpAnnualSpending(String(inputQuery.data.inputFfpAnnualSpending));
     } else if (defaultLifeExpectancy) {
@@ -97,6 +104,7 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
   }, [inputQuery.data, defaultLifeExpectancy]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (isOpen) setSubmitError(null);
   }, [isOpen]);
 
@@ -111,7 +119,7 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
 
     const mutation = inputQuery.data ? updateMutation : createMutation;
     await mutation.mutateAsync(payload).catch((err: unknown) => {
-      setSubmitError(err instanceof Error ? err.message : "Something went wrong");
+      setSubmitError(err instanceof Error ? err.message : t("fallbackError"));
       return null;
     });
   }
@@ -122,7 +130,7 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
     <ScenarioInputModal
       isOpen={isOpen}
       onClose={onClose}
-      title="When will I reach FFP?"
+      title={home("timeline.title")}
       scenarioId="02"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -131,12 +139,12 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
           onChange={setLifeExpectancy}
         />
         <FormField
-          label="Annual Spending at FFP"
+          label={fields("annualSpendingAtFfp")}
           isRequired
           inputProps={{
             type: "number",
             min: 0,
-            placeholder: "e.g. 24000",
+            placeholder: fields("placeholderAnnualSpending"),
             value: inputFfpAnnualSpending,
             onChange: (e) => setInputFfpAnnualSpending(e.target.value),
             required: true,
@@ -155,12 +163,12 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
           {isSubmitting ? (
             <span className="inline-flex items-center gap-2">
               <Icon icon="mdi:loading" className="h-4 w-4 animate-spin" aria-hidden="true" />
-              Calculating…
+              {common("calculating")}
             </span>
           ) : inputQuery.data ? (
-            "Recalculate"
+            common("recalculate")
           ) : (
-            "Calculate"
+            common("calculate")
           )}
         </Button>
       </form>
@@ -168,13 +176,13 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
       {/* Inline result */}
       {output !== null && output !== undefined && (
         <div className="mt-5 border-t border-border pt-5">
-          <p className="mb-3 text-sm font-medium text-slate-500">Result</p>
+          <p className="mb-3 text-sm font-medium text-slate-500">{t("result")}</p>
 
           {/* FFP age badge */}
           {output.outputFfpAge > 0 && (
             <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-green-50 px-3 py-1 text-sm font-semibold text-green-700">
               <Icon icon="mdi:flag-checkered" className="h-4 w-4" aria-hidden="true" />
-              FFP achieved at age {output.outputFfpAge}
+              {t("outputs.ffpAchievedAtAge", { age: output.outputFfpAge })}
             </div>
           )}
 
@@ -194,7 +202,7 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
               labels,
               datasets: [
                 {
-                  label: "Projected Wealth",
+                  label: t("charts.projectedWealth"),
                   data: output.wealthProjection.map((p) => p.wealth),
                   borderColor: "#6366f1",
                   backgroundColor: "#6366f120",
@@ -203,7 +211,7 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
                   tension: 0.3,
                 },
                 {
-                  label: "Required Wealth",
+                  label: t("charts.requiredWealth"),
                   data: output.wealthProjection.map((p) => p.requiredWealth),
                   borderColor: "#f59e0b",
                   backgroundColor: "#f59e0b20",
@@ -216,13 +224,13 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
             return <Line data={chartData} options={CHART_OPTIONS} />;
           })()}
           <p className="mt-3 text-xs text-muted-foreground">
-            See detailed stats in your{" "}
-            <Link href="/profile?tab=results" className="text-primary hover:underline">
-            Results</Link> tab on the profile page.
+            <Link href={toLocalizedPath("/profile?tab=results")} className="text-primary hover:underline">
+              {t("detailsLink", { tab: common("results") })}
+            </Link>
           </p>
 
           {outputQuery.isFetching && (
-            <p className="mt-2 text-xs text-muted-foreground">Updating…</p>
+            <p className="mt-2 text-xs text-muted-foreground">{t("updating")}</p>
           )}
         </div>
       )}

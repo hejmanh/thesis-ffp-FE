@@ -3,12 +3,14 @@
 import { useState, type InputHTMLAttributes } from "react";
 import { Icon } from "@iconify/react";
 import { cn } from "@/utils/cn";
+import { useTranslations } from "@/i18n/client";
 
 export default function PasswordInput({
   className,
   ...props
 }: InputHTMLAttributes<HTMLInputElement>) {
   const [isVisible, setIsVisible] = useState(false);
+  const t = useTranslations("Auth.password");
 
   return (
     <div className="relative w-full">
@@ -23,7 +25,7 @@ export default function PasswordInput({
       <button
         type="button"
         onClick={() => setIsVisible(!isVisible)}
-        aria-label={isVisible ? "Hide password" : "Show password"}
+        aria-label={isVisible ? t("hide") : t("show")}
         className="absolute right-3 top-1/2 -translate-y-1/2 flex h-5 w-5 items-center justify-center text-slate-500 transition hover:text-slate-700"
       >
         <Icon

@@ -3,15 +3,18 @@
 import Link from "next/link";
 import MainLayout from "@/layouts/MainLayout";
 import { useVerifyEmail } from "@/hooks";
+import { useLocalizedPath, useTranslations } from "@/i18n/client";
 
 export default function VerifyEmailPage() {
+  const toLocalizedPath = useLocalizedPath();
+  const t = useTranslations("Auth.verifyEmail");
   const { status, error } = useVerifyEmail();
   const message =
     status === "pending"
-      ? "Verifying your email..."
+      ? t("pending")
       : status === "success"
-        ? "Your email has been verified. You can now log in."
-        : (error ?? "Verification failed.");
+        ? t("success")
+        : (error ?? t("failed"));
 
   return (
     <MainLayout hideLoginButton hideRegisterButton>
@@ -23,10 +26,10 @@ export default function VerifyEmailPage() {
           <p className="mt-3 text-sm text-muted-foreground">{message}</p>
           <div className="mt-6 flex justify-center gap-3">
             <Link
-              href={status === "success" ? "/?login=1" : "/"}
+              href={toLocalizedPath(status === "success" ? "/?login=1" : "/")}
               className="text-sm font-semibold text-primary underline"
             >
-              {status === "success" ? "Go to login" : "Back to home"}
+              {status === "success" ? t("goToLogin") : t("backToHome")}
             </Link>
           </div>
         </div>

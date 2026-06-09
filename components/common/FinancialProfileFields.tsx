@@ -2,6 +2,7 @@
 
 import FormField from "@/components/common/FormField";
 import type { SelectOption } from "@/utils/referenceOptions";
+import { useTranslations } from "@/i18n/client";
 
 type RootFieldKey =
   | "estimatedLifeExpectancy"
@@ -48,42 +49,6 @@ interface FinancialProfileFieldsProps<HabitKey extends string> {
   footer?: React.ReactNode;
 }
 
-const ROOT_FIELD_LABELS: Record<RootFieldKey, string> = {
-  estimatedLifeExpectancy: "Estimated Life Expectancy",
-  desiredLifeExpectancy: "Desired Life Expectancy",
-  currentSavings: "Current Savings",
-  preferredCurrency: "Currency",
-};
-
-const ALLOCATION_LABELS: Record<
-  AllocationKey,
-  { description: string; symbol: string }
-> = {
-  u: { description: "Proportion of risky asset", symbol: "u" },
-  mu: {
-    description: "Expected annual return rate of risky asset",
-    symbol: "μ",
-  },
-  rf: { description: "Annual return rate of risk-free asset", symbol: "r_f" },
-};
-
-const ALLOCATION_PERIODS: Array<{
-  key: AllocationPeriod;
-  label: string;
-  hint: string;
-}> = [
-  {
-    key: "before",
-    label: "Before Financial Freedom Point",
-    hint: "Defines how your investments grow before financial freedom. Salary, savings, and other income are managed through life-stage cash flow projections.",
-  },
-  {
-    key: "after",
-    label: "After Financial Freedom Point",
-    hint: "Defines how your remaining investments grow after retirement. Pension and passive income are projected separately.",
-  },
-];
-
 export default function FinancialProfileFields<HabitKey extends string>({
   profile,
   allocations,
@@ -102,7 +67,42 @@ export default function FinancialProfileFields<HabitKey extends string>({
   disabledRootFields,
   footer,
 }: FinancialProfileFieldsProps<HabitKey>) {
-  const labels = { ...ROOT_FIELD_LABELS, ...fieldLabels };
+  const fields = useTranslations("Fields");
+  const t = useTranslations("FinancialProfile");
+  const labels = {
+    estimatedLifeExpectancy: fields("estimatedLifeExpectancy"),
+    desiredLifeExpectancy: fields("desiredLifeExpectancy"),
+    currentSavings: fields("currentSavings"),
+    preferredCurrency: fields("currency"),
+    ...fieldLabels,
+  };
+  const allocationLabels: Record<
+    AllocationKey,
+    { description: string; symbol: string }
+  > = {
+    u: { description: t("allocation.riskyAsset"), symbol: "u" },
+    mu: {
+      description: t("allocation.expectedReturn"),
+      symbol: "mu",
+    },
+    rf: { description: t("allocation.riskFreeRate"), symbol: "r_f" },
+  };
+  const allocationPeriods: Array<{
+    key: AllocationPeriod;
+    label: string;
+    hint: string;
+  }> = [
+    {
+      key: "before",
+      label: t("allocation.beforeLabel"),
+      hint: t("allocation.beforeHint"),
+    },
+    {
+      key: "after",
+      label: t("allocation.afterLabel"),
+      hint: t("allocation.afterHint"),
+    },
+  ];
   const orderedHabits = [...habits].sort((left, right) => {
     const priority: Record<string, number> = {
       physical: 0,
@@ -121,13 +121,13 @@ export default function FinancialProfileFields<HabitKey extends string>({
     <div className={cardClassName}>
       <div className="space-y-6">
         <div className={infoCardClassName}>
-          <h3 className={titleClassName}>Life Expectancy and Savings</h3>
+          <h3 className={titleClassName}>{t("lifeExpectancyAndSavings")}</h3>
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <FormField
               id={`${idPrefix}estimatedLifeExpectancy`}
               name={`${idPrefix}estimatedLifeExpectancy`}
               label={labels.estimatedLifeExpectancy}
-              hint="Estimated based on your birthplace, gender, and lifestyle habits"
+              hint={t("estimatedHint")}
               inputClassName="h-11"
               placeholder="90"
               inputProps={{
@@ -142,9 +142,9 @@ export default function FinancialProfileFields<HabitKey extends string>({
               id={`${idPrefix}desiredLifeExpectancy`}
               name={`${idPrefix}desiredLifeExpectancy`}
               label={labels.desiredLifeExpectancy}
-              hint="Your target lifespan"
+              hint={t("desiredHint")}
               inputClassName="h-11"
-              placeholder="e.g. 90"
+              placeholder={fields("placeholderLifeExpectancy")}
               inputProps={{
                 value: profile.desiredLifeExpectancy,
                 onChange: (event) =>
@@ -181,9 +181,9 @@ export default function FinancialProfileFields<HabitKey extends string>({
         </div>
 
         <div className={infoCardClassName}>
-          <h3 className={titleClassName}>Investment Portfolio</h3>
+          <h3 className={titleClassName}>{t("investmentPortfolio")}</h3>
           <div className="mt-4 space-y-6">
-            {ALLOCATION_PERIODS.map((period) => (
+            {allocationPeriods.map((period) => (
               <div key={period.key}>
                 <p className="text-sm font-semibold text-slate-700">
                   {period.label}
@@ -197,10 +197,10 @@ export default function FinancialProfileFields<HabitKey extends string>({
                     >
                       <div>
                         <p className="text-sm text-slate-700">
-                          {ALLOCATION_LABELS[key].description}
+                          {allocationLabels[key].description}
                         </p>
                         <p className="text-xs italic text-slate-500">
-                          {ALLOCATION_LABELS[key].symbol}
+                          {allocationLabels[key].symbol}
                         </p>
                       </div>
                       <FormField
@@ -211,7 +211,7 @@ export default function FinancialProfileFields<HabitKey extends string>({
                         inputClassName="h-11 px-2 pr-5"
                         suffix="%"
                         inputProps={{
-                          "aria-label": `${period.label} ${ALLOCATION_LABELS[key].description} (${ALLOCATION_LABELS[key].symbol})`,
+                          "aria-label": `${period.label} ${allocationLabels[key].description} (${allocationLabels[key].symbol})`,
                           value: allocations[period.key][key],
                           onChange: (event) =>
                             onAllocationChange(
@@ -231,7 +231,7 @@ export default function FinancialProfileFields<HabitKey extends string>({
         </div>
 
         <div className={infoCardClassName}>
-          <h3 className={titleClassName}>Lifestyle</h3>
+          <h3 className={titleClassName}>{t("lifestyle")}</h3>
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
             {orderedHabits.map((habit) => (
               <FormField
@@ -241,7 +241,7 @@ export default function FinancialProfileFields<HabitKey extends string>({
                 label={habit.label}
                 variant="select"
                 selectClassName="h-11"
-                placeholder="Select level"
+                placeholder={fields("selectLevel")}
                 value={habit.value}
                 onChange={(value) => onHabitChange(habit.key, value)}
                 options={habit.options}

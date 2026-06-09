@@ -28,6 +28,7 @@ import {
 } from "@/utils/userInfoMappers";
 import type { Asset, FinancialData, Habits, Stage } from "@/utils/types";
 import { resolveCurrencyCode } from "@/utils/referenceOptions";
+import { useTranslations } from "@/i18n/client";
 
 const EMPTY_FINANCIAL_DATA: FinancialData = {
   estimatedLE: "",
@@ -196,6 +197,10 @@ function getAssetOptionsForAsset(
 }
 
 export default function FinancialSection() {
+  const t = useTranslations("Account.financial");
+  const common = useTranslations("Common");
+  const registerStages = useTranslations("Register.stages");
+  const registerAssets = useTranslations("Register.assets");
   const queryClient = useQueryClient();
   const references = useFinancialPlanningReferences();
   const { data: userContext, set: setUserContext, refresh: refreshUserContext } =
@@ -449,7 +454,7 @@ export default function FinancialSection() {
       setSectionError(
         error instanceof Error
           ? error.message
-          : "Unable to update personal information.",
+          : t("updatePersonal"),
       );
     }
   }
@@ -475,7 +480,7 @@ export default function FinancialSection() {
       setSectionError(
         error instanceof Error
           ? error.message
-          : "Unable to update financial information.",
+          : t("updateFinancial"),
       );
     }
   }
@@ -493,7 +498,7 @@ export default function FinancialSection() {
       await refreshUserInfoData();
     } catch (error) {
       setSectionError(
-        error instanceof Error ? error.message : "Unable to update stages.",
+        error instanceof Error ? error.message : t("updateStages"),
       );
     }
   }
@@ -517,7 +522,7 @@ export default function FinancialSection() {
       await refreshUserInfoData();
     } catch (error) {
       setSectionError(
-        error instanceof Error ? error.message : "Unable to update assets.",
+        error instanceof Error ? error.message : t("updateAssets"),
       );
     }
   }
@@ -545,7 +550,7 @@ export default function FinancialSection() {
       await refreshUserInfoData();
     } catch (error) {
       setSectionError(
-        error instanceof Error ? error.message : "Unable to delete asset.",
+        error instanceof Error ? error.message : t("deleteAsset"),
       );
     }
   }
@@ -557,10 +562,10 @@ export default function FinancialSection() {
         className="w-full rounded-xl bg-white p-6 shadow-md"
       >
         <h2 className="text-2xl font-bold text-primary">
-          Personal Information
+          {t("title")}
         </h2>
         <p className="mt-4 text-sm text-muted-foreground">
-          Loading your detailed information...
+          {t("loadingDetails")}
         </p>
       </Card>
     );
@@ -571,7 +576,7 @@ export default function FinancialSection() {
       hoverable={false}
       className="w-full rounded-xl bg-white p-6 shadow-md"
     >
-      <h2 className="text-2xl font-bold text-primary">Personal Information</h2>
+      <h2 className="text-2xl font-bold text-primary">{t("title")}</h2>
       {/* <p className="mt-1 text-sm text-muted-foreground">
         Manage your general information life expectancy, savings, investment portfolio, lifestyle,
         life stages, and post-FFP asset profiles.
@@ -637,17 +642,15 @@ export default function FinancialSection() {
 
         <div className="rounded-xl border border-border bg-slate-50 p-4">
           <h3 className="text-base font-semibold text-slate-900">
-            Life Stages
+            {t("lifeStages")}
           </h3>
           <p className="mt-1 text-xs italic text-slate-600">
-            Includes salary, rental income, and other savings contributions
-            before Financial Freedom Point.
+            {registerStages("description")}
           </p>
           <div className="mt-4 max-h-96 space-y-4 overflow-y-auto pr-2">
             {!lifeStageRangesQuery.isLoading && currentStages.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                Life stages will appear here once your registration birth year
-                is available.
+                {t("lifeStagesEmpty")}
               </p>
             ) : null}
             {currentStages.map((stage, index) => (
@@ -675,18 +678,17 @@ export default function FinancialSection() {
               onClick={handleSaveStages}
               disabled={!canSaveStages}
             >
-              {isSavingStages ? "Saving..." : "Save changes"}
+              {isSavingStages ? common("saving") : common("saveChanges")}
             </Button>
           </div>
         </div>
 
         <div className="rounded-xl border border-border bg-slate-50 p-4">
           <h3 className="text-base font-semibold text-slate-900">
-            Post-FFP Assets
+            {t("postFfpAssets")}
           </h3>
           <p className="mt-1 text-xs italic text-slate-600">
-            Includes passive income sources after Financial Freedom Point, such
-            as rental income and pensions.
+            {registerAssets("description")}
           </p>
           <div className="mt-4 flex items-center justify-between">
             <button
@@ -702,12 +704,12 @@ export default function FinancialSection() {
                 references.isLoading || references.assetTypeOptions.length === 0
               }
             >
-              + Add asset
+              {t("addAsset")}
             </button>
           </div>
           <div className="mt-4 space-y-4">
             {currentAssets.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No assets yet.</p>
+              <p className="text-sm text-muted-foreground">{t("noAssets")}</p>
             ) : (
               currentAssets.map((asset, index) => (
                 <AssetForm
@@ -737,7 +739,7 @@ export default function FinancialSection() {
               onClick={handleSaveAssets}
               disabled={!canSaveAssets}
             >
-              {isSavingAssets ? "Saving..." : "Save changes"}
+              {isSavingAssets ? common("saving") : common("saveChanges")}
             </Button>
           </div>
         </div>

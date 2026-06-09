@@ -15,6 +15,7 @@ import {
   useCreateScenario4Input,
   useUpdateScenario4Input,
 } from "@/hooks/scenario/useScenario4";
+import { useLocalizedPath, useTranslations } from "@/i18n/client";
 
 interface Scenario4ModalProps {
   isOpen: boolean;
@@ -22,6 +23,11 @@ interface Scenario4ModalProps {
 }
 
 export default function Scenario4Modal({ isOpen, onClose }: Scenario4ModalProps) {
+  const t = useTranslations("Scenario");
+  const fields = useTranslations("Fields");
+  const common = useTranslations("Common");
+  const home = useTranslations("Home.features");
+  const toLocalizedPath = useLocalizedPath();
   const inputQuery = useGetScenario4Input();
   const outputQuery = useGetScenario4Output();
   const createMutation = useCreateScenario4Input();
@@ -37,6 +43,7 @@ export default function Scenario4Modal({ isOpen, onClose }: Scenario4ModalProps)
 
   useEffect(() => {
     if (inputQuery.data) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLifeExpectancy(String(inputQuery.data.lifeExpectancy));
       setInputFfpAge(String(inputQuery.data.inputFfpAge));
       setInputFfpAnnualSpending(String(inputQuery.data.inputFfpAnnualSpending));
@@ -46,6 +53,7 @@ export default function Scenario4Modal({ isOpen, onClose }: Scenario4ModalProps)
   }, [inputQuery.data, defaultLifeExpectancy]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (isOpen) setSubmitError(null);
   }, [isOpen]);
 
@@ -61,7 +69,7 @@ export default function Scenario4Modal({ isOpen, onClose }: Scenario4ModalProps)
 
     const mutation = inputQuery.data ? updateMutation : createMutation;
     await mutation.mutateAsync(payload).catch((err: unknown) => {
-      setSubmitError(err instanceof Error ? err.message : "Something went wrong");
+      setSubmitError(err instanceof Error ? err.message : t("fallbackError"));
       return null;
     });
   }
@@ -72,7 +80,7 @@ export default function Scenario4Modal({ isOpen, onClose }: Scenario4ModalProps)
     <ScenarioInputModal
       isOpen={isOpen}
       onClose={onClose}
-      title="How much should I save?"
+      title={home("savings.title")}
       scenarioId="04"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -81,24 +89,24 @@ export default function Scenario4Modal({ isOpen, onClose }: Scenario4ModalProps)
           onChange={setLifeExpectancy}
         />
         <FormField
-          label="Target FFP Age"
+          label={fields("targetFfpAge")}
           isRequired
           inputProps={{
             type: "number",
             min: 1,
-            placeholder: "e.g. 60",
+            placeholder: fields("placeholderAge60"),
             value: inputFfpAge,
             onChange: (e) => setInputFfpAge(e.target.value),
             required: true,
           }}
         />
         <FormField
-          label="Annual Spending at FFP"
+          label={fields("annualSpendingAtFfp")}
           isRequired
           inputProps={{
             type: "number",
             min: 0,
-            placeholder: "e.g. 12000",
+            placeholder: fields("placeholderAnnualSpendingSmall"),
             value: inputFfpAnnualSpending,
             onChange: (e) => setInputFfpAnnualSpending(e.target.value),
             required: true,
@@ -117,12 +125,12 @@ export default function Scenario4Modal({ isOpen, onClose }: Scenario4ModalProps)
           {isSubmitting ? (
             <span className="inline-flex items-center gap-2">
               <Icon icon="mdi:loading" className="h-4 w-4 animate-spin" aria-hidden="true" />
-              Calculating…
+              {common("calculating")}
             </span>
           ) : inputQuery.data ? (
-            "Recalculate"
+            common("recalculate")
           ) : (
-            "Calculate"
+            common("calculate")
           )}
         </Button>
       </form>
@@ -130,32 +138,32 @@ export default function Scenario4Modal({ isOpen, onClose }: Scenario4ModalProps)
       {/* Inline result */}
       {output !== null && output !== undefined && (
         <div className="mt-5 border-t border-border pt-5">
-          <p className="mb-3 text-sm font-medium text-slate-500">Result</p>
+          <p className="mb-3 text-sm font-medium text-slate-500">{t("result")}</p>
           <div className="grid grid-cols-1 gap-3">
             <div className="flex items-center justify-between rounded-2xl bg-primary-soft px-5 py-3">
-              <span className="text-sm text-muted-foreground">Required annual saving</span>
+              <span className="text-sm text-muted-foreground">{t("outputs.requiredAnnualSaving")}</span>
               <span className="text-xl font-bold text-primary">
                 {formatCompact(output.requiredAnnualSaving)}
               </span>
             </div>
             <div className="flex items-center justify-between rounded-2xl bg-primary-soft px-5 py-3">
-              <span className="text-sm text-muted-foreground">FFP age</span>
+              <span className="text-sm text-muted-foreground">{t("outputs.ffpAge")}</span>
               <span className="text-xl font-bold text-primary">{output.ffpAge}</span>
             </div>
             <div className="flex items-center justify-between rounded-2xl bg-primary-soft px-5 py-3">
-              <span className="text-sm text-muted-foreground">Required wealth at FFP</span>
+              <span className="text-sm text-muted-foreground">{t("outputs.requiredWealthAtFfp")}</span>
               <span className="text-xl font-bold text-primary">
                 {formatCompact(output.requiredWealthAtFFPAge)}
               </span>
             </div>
           </div>
           <p className="mt-3 text-xs text-muted-foreground">
-            See detailed stats in your{" "}
-            <Link href="/profile?tab=results" className="text-primary hover:underline">
-            Results</Link> tab on the profile page.
+            <Link href={toLocalizedPath("/profile?tab=results")} className="text-primary hover:underline">
+              {t("detailsLink", { tab: common("results") })}
+            </Link>
           </p>
           {outputQuery.isFetching && (
-            <p className="mt-1 text-xs text-muted-foreground">Updating…</p>
+            <p className="mt-1 text-xs text-muted-foreground">{t("updating")}</p>
           )}
         </div>
       )}

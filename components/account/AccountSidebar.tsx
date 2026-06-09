@@ -4,6 +4,7 @@ import { Icon } from "@iconify/react";
 import Card from "@/components/common/Card";
 import { cn } from "@/utils/cn";
 import type { AccountTab } from "@/utils/types";
+import { useTranslations } from "@/i18n/client";
 
 interface AccountSidebarProps {
   activeTab: AccountTab;
@@ -12,23 +13,25 @@ interface AccountSidebarProps {
   isLoggingOut?: boolean;
 }
 
-const TABS: Array<{ label: string; value: AccountTab }> = [
-  { label: "Account", value: "personal" },
-  { label: "Personal Information", value: "financial" },
-  { label: "Results", value: "results" },
-  { label: "Preferences", value: "preferences" },
-];
-
 export default function AccountSidebar({
   activeTab,
   onTabChange,
   onLogout,
   isLoggingOut = false,
 }: AccountSidebarProps) {
+  const t = useTranslations("Account.tabs");
+  const common = useTranslations("Common");
+  const tabs: Array<{ label: string; value: AccountTab }> = [
+    { label: t("account"), value: "personal" },
+    { label: t("personalInformation"), value: "financial" },
+    { label: t("results"), value: "results" },
+    { label: t("preferences"), value: "preferences" },
+  ];
+
   return (
     <Card hoverable={false} className="h-fit w-full rounded-xl bg-white p-3 shadow-md lg:w-[21.25rem] lg:flex-shrink-0">
       <nav className="space-y-1">
-        {TABS.map((tab) => (
+        {tabs.map((tab) => (
           <button
             key={tab.value}
             type="button"
@@ -55,7 +58,7 @@ export default function AccountSidebar({
             {isLoggingOut ? (
               <Icon icon="mdi:loading" className="h-4 w-4 animate-spin" />
             ) : null}
-            <span>{isLoggingOut ? "Logging out..." : "Logout"}</span>
+            <span>{isLoggingOut ? common("loggingOut") : common("logout")}</span>
           </span>
         </button>
       </nav>
