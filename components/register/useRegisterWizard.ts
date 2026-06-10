@@ -22,6 +22,7 @@ import {
 } from "@/utils/onboardingValidators";
 import { resolveCurrencyCode } from "@/utils/referenceOptions";
 import { useLocaleRouter, useTranslations } from "@/i18n/client";
+import { useApiErrorMessage } from "@/hooks/useApiErrorMessage";
 
 function didLifestyleChange(
   current: OnboardingDraft["step2"]["habits"],
@@ -41,6 +42,7 @@ export function useRegisterWizard() {
   const toast = useTranslations("Register.toast");
   const errors = useTranslations("Register.errors");
   const validationT = useTranslations("Validation");
+  const getApiErrorMessage = useApiErrorMessage();
   const onboardingSteps = [
     steps("generalInformation"),
     steps("lifeStages"),
@@ -193,7 +195,7 @@ export function useRegisterWizard() {
       return;
     }
     if (lifeStageRangesQuery.error instanceof Error) {
-      setError(lifeStageRangesQuery.error.message);
+      setError(getApiErrorMessage(lifeStageRangesQuery.error, errors("loadingLifeStages")));
       return;
     }
     if (!lifeStageRangesQuery.data?.length) {
@@ -225,11 +227,7 @@ export function useRegisterWizard() {
       setDraft({ ...nextDraft, stages: generatedStages });
       setStep(2);
     } catch (submitError) {
-      setError(
-        submitError instanceof Error
-          ? submitError.message
-          : errors("saveFinancial"),
-      );
+      setError(getApiErrorMessage(submitError, errors("saveFinancial")));
     } finally {
       setToastMessage("");
       setSaving(false);
@@ -250,11 +248,7 @@ export function useRegisterWizard() {
       await userInfoService.upsertStages(payload);
       setStep(3);
     } catch (submitError) {
-      setError(
-        submitError instanceof Error
-          ? submitError.message
-          : errors("saveStages"),
-      );
+      setError(getApiErrorMessage(submitError, errors("saveStages")));
     } finally {
       setToastMessage("");
       setSaving(false);
@@ -289,11 +283,7 @@ export function useRegisterWizard() {
       }
       setCompleted(true);
     } catch (submitError) {
-      setError(
-        submitError instanceof Error
-          ? submitError.message
-          : errors("completeOnboarding"),
-      );
+      setError(getApiErrorMessage(submitError, errors("completeOnboarding")));
     } finally {
       setToastMessage("");
       setSaving(false);

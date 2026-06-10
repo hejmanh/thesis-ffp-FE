@@ -13,6 +13,7 @@ import {
   mapSexTypesToOptions,
 } from "@/utils/referenceOptions";
 import { useLocaleRouter, useTranslations } from "@/i18n/client";
+import { useApiErrorMessage } from "@/hooks/useApiErrorMessage";
 
 type SubmissionStage = "registering" | null;
 
@@ -20,6 +21,7 @@ export default function RegisterAccountForm() {
   const router = useLocaleRouter();
   const t = useTranslations("Register.account");
   const validationT = useTranslations("Validation");
+  const getApiErrorMessage = useApiErrorMessage();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [data, setData] = useState<Step1AccountData>(
     () => createEmptyOnboardingState().step1,
@@ -89,11 +91,7 @@ export default function RegisterAccountForm() {
 
       setSuccessMessage(t("success"));
     } catch (submitError) {
-      setError(
-        submitError instanceof Error
-          ? submitError.message
-          : t("fallbackError"),
-      );
+      setError(getApiErrorMessage(submitError, t("fallbackError")));
     } finally {
       setSubmissionStage(null);
     }

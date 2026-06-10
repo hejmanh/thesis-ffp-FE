@@ -26,7 +26,8 @@
       "badge": "SMART PLANNING, FREER FUTURE",
       "title": "Plan Your Financial Freedom",
       "line1": "Confused about your financial planning? Don't worry.",
-      "line2": "Answer a few simple questions and get clear insights to take control of your future."
+      "line2": "Answer a few simple questions and get clear insights to take control of your future.",
+      "ffpNote": "*FFP: Financial Freedom Point"
     },
     "features": {
       "cta": "Explore Scenario",
@@ -101,6 +102,41 @@
     },
     "errors": {
       "fallback": "Something went wrong"
+    }
+  },
+  "Errors": {
+    "AUTH": {
+      "NO_TOKEN": "Please log in to continue.",
+      "UNAUTHORIZED": "Please log in to continue.",
+      "FORBIDDEN": "You do not have permission to perform this action.",
+      "INVALID_TOKEN": "Your session is invalid. Please log in again.",
+      "INVALID_CSRF_TOKEN": "Your session security token is invalid. Please refresh and try again.",
+      "MISSING_REFRESH_TOKEN": "Your session has expired. Please log in again.",
+      "INVALID_REFRESH_TOKEN": "Your session has expired. Please log in again.",
+      "INVALID_CREDENTIALS": "Invalid email or password.",
+      "EMAIL_EXISTS": "An account with this email already exists.",
+      "EMAIL_NOT_VERIFIED": "Please verify your email before logging in.",
+      "INVALID_OR_EXPIRED_TOKEN": "This link is invalid or has expired.",
+      "CURRENT_PASSWORD_INCORRECT": "Your current password is incorrect.",
+      "NEW_PASSWORD_REUSED": "Your new password must be different from your current password."
+    },
+    "VALIDATION": {
+      "BAD_REQUEST": "Please check your input and try again.",
+      "INVALID_INPUT": "Please check your input and try again.",
+      "INVALID_JSON": "The request could not be processed.",
+      "FIELD_INVALID": "Please check the highlighted field and try again."
+    },
+    "RATE_LIMIT": {
+      "AUTH": "Too many requests. Please try again later.",
+      "EMAIL_VERIFICATION": "Too many email verification attempts. Please try again later.",
+      "PASSWORD_RESET": "Too many password reset attempts. Please try again later."
+    },
+    "SYSTEM": {
+      "UNKNOWN": "Something went wrong.",
+      "ERROR": "Something went wrong.",
+      "INTERNAL_ERROR": "Something went wrong.",
+      "NOT_FOUND": "The requested resource was not found.",
+      "ROUTE_NOT_FOUND": "The requested page or API route was not found."
     }
   },
   "Header": {
@@ -276,7 +312,8 @@
     "passwordMismatch": "Password and confirm password must match.",
     "generalInformationIncomplete": "Please complete all fields in General Information.",
     "allPasswordFieldsRequired": "All password fields are required.",
-    "newPasswordMismatch": "New password and confirm password do not match."
+    "newPasswordMismatch": "New password and confirm password do not match.",
+    "fieldRange": "{field} must be between {min} and {max}."
   },
   "Account": {
     "tabs": {

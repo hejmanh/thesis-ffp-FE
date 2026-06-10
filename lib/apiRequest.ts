@@ -245,6 +245,7 @@ class ApiRequest {
     return {
       success: ok,
       data: data.data as T,
+      code: ok ? undefined : data.code,
       message,
       error: ok ? undefined : message,
       errors: data.errors,
@@ -263,6 +264,7 @@ class ApiRequest {
       return {
         success: false,
         data: data.data as T,
+        code: data.code,
         message,
         error: message,
         errors: data.errors,

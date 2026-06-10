@@ -29,6 +29,7 @@ import {
 import type { Asset, FinancialData, Habits, Stage } from "@/utils/types";
 import { resolveCurrencyCode } from "@/utils/referenceOptions";
 import { useTranslations } from "@/i18n/client";
+import { useApiErrorMessage } from "@/hooks/useApiErrorMessage";
 
 const EMPTY_FINANCIAL_DATA: FinancialData = {
   estimatedLE: "",
@@ -201,6 +202,7 @@ export default function FinancialSection() {
   const common = useTranslations("Common");
   const registerStages = useTranslations("Register.stages");
   const registerAssets = useTranslations("Register.assets");
+  const getApiErrorMessage = useApiErrorMessage();
   const queryClient = useQueryClient();
   const references = useFinancialPlanningReferences();
   const { data: userContext, set: setUserContext, refresh: refreshUserContext } =
@@ -350,14 +352,18 @@ export default function FinancialSection() {
   const isSavingPersonal = patchMeMutation.isPending;
   const pageError =
     sectionError ??
-    (financialQuery.error instanceof Error
-      ? financialQuery.error.message
+    (financialQuery.error
+      ? getApiErrorMessage(financialQuery.error, t("updateFinancial"))
       : null) ??
-    (stagesQuery.error instanceof Error ? stagesQuery.error.message : null) ??
-    (assetsQuery.error instanceof Error ? assetsQuery.error.message : null) ??
+    (stagesQuery.error
+      ? getApiErrorMessage(stagesQuery.error, t("updateStages"))
+      : null) ??
+    (assetsQuery.error
+      ? getApiErrorMessage(assetsQuery.error, t("updateAssets"))
+      : null) ??
     references.error ??
-    (lifeStageRangesQuery.error instanceof Error
-      ? lifeStageRangesQuery.error.message
+    (lifeStageRangesQuery.error
+      ? getApiErrorMessage(lifeStageRangesQuery.error, t("updateStages"))
       : null);
 
   const basePersonal = {
@@ -451,11 +457,7 @@ export default function FinancialSection() {
       setPersonalDraft(null);
       await refreshUserInfoData();
     } catch (error) {
-      setSectionError(
-        error instanceof Error
-          ? error.message
-          : t("updatePersonal"),
-      );
+      setSectionError(getApiErrorMessage(error, t("updatePersonal")));
     }
   }
 
@@ -477,11 +479,7 @@ export default function FinancialSection() {
       setHabitsDraft(null);
       await refreshUserInfoData();
     } catch (error) {
-      setSectionError(
-        error instanceof Error
-          ? error.message
-          : t("updateFinancial"),
-      );
+      setSectionError(getApiErrorMessage(error, t("updateFinancial")));
     }
   }
 
@@ -497,9 +495,7 @@ export default function FinancialSection() {
       setStagesDraft(null);
       await refreshUserInfoData();
     } catch (error) {
-      setSectionError(
-        error instanceof Error ? error.message : t("updateStages"),
-      );
+      setSectionError(getApiErrorMessage(error, t("updateStages")));
     }
   }
 
@@ -521,9 +517,7 @@ export default function FinancialSection() {
       setAssetsDraft(null);
       await refreshUserInfoData();
     } catch (error) {
-      setSectionError(
-        error instanceof Error ? error.message : t("updateAssets"),
-      );
+      setSectionError(getApiErrorMessage(error, t("updateAssets")));
     }
   }
 
@@ -549,9 +543,7 @@ export default function FinancialSection() {
       });
       await refreshUserInfoData();
     } catch (error) {
-      setSectionError(
-        error instanceof Error ? error.message : t("deleteAsset"),
-      );
+      setSectionError(getApiErrorMessage(error, t("deleteAsset")));
     }
   }
 

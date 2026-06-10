@@ -9,6 +9,7 @@ import { useUserContext } from "@/providers/UserContextProvider";
 import { authService } from "@/services/auth.service";
 import type { SecurityData } from "@/utils/types";
 import { useTranslations } from "@/i18n/client";
+import { useApiErrorMessage } from "@/hooks/useApiErrorMessage";
 
 const ACCOUNT_FIELD_WIDTH_CLASS = "max-w-sm";
 
@@ -24,6 +25,7 @@ export default function PersonalInfoSection() {
   const account = useTranslations("Account.tabs");
   const security = useTranslations("Account.security");
   const validation = useTranslations("Validation");
+  const getApiErrorMessage = useApiErrorMessage();
   const { data: userContext } = useUserContext();
   const [securityData, setSecurityData] = useState<SecurityData>(
     INITIAL_SECURITY_DATA,
@@ -67,9 +69,7 @@ export default function PersonalInfoSection() {
       setPasswordMessage(message);
       setSecurityData(INITIAL_SECURITY_DATA);
     } catch (error) {
-      setPasswordError(
-        error instanceof Error ? error.message : security("fallbackError"),
-      );
+      setPasswordError(getApiErrorMessage(error, security("fallbackError")));
     } finally {
       setIsSubmitting(false);
     }

@@ -23,6 +23,7 @@
   },
   "Home": {
     "hero": {
+      "ffpNote": "*FFP: Tuổi tự do tài chính",
       "badge": "LÊN KẾ HOẠCH THÔNG MINH, TƯƠNG LAI TỰ DO HƠN",
       "title": "Lập Kế Hoạch Tự Do Tài Chính",
       "line1": "Bạn đang rối với kế hoạch tài chính? Đừng lo.",
@@ -103,6 +104,41 @@
       "fallback": "Đã có lỗi xảy ra"
     }
   },
+  "Errors": {
+    "AUTH": {
+      "NO_TOKEN": "Vui lòng đăng nhập để tiếp tục.",
+      "UNAUTHORIZED": "Vui lòng đăng nhập để tiếp tục.",
+      "FORBIDDEN": "Bạn không có quyền thực hiện hành động này.",
+      "INVALID_TOKEN": "Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại.",
+      "INVALID_CSRF_TOKEN": "Mã bảo mật phiên không hợp lệ. Vui lòng tải lại trang và thử lại.",
+      "MISSING_REFRESH_TOKEN": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+      "INVALID_REFRESH_TOKEN": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+      "INVALID_CREDENTIALS": "Email hoặc mật khẩu không hợp lệ.",
+      "EMAIL_EXISTS": "Email này đã được dùng để tạo tài khoản.",
+      "EMAIL_NOT_VERIFIED": "Vui lòng xác thực email trước khi đăng nhập.",
+      "INVALID_OR_EXPIRED_TOKEN": "Liên kết này không hợp lệ hoặc đã hết hạn.",
+      "CURRENT_PASSWORD_INCORRECT": "Mật khẩu hiện tại không đúng.",
+      "NEW_PASSWORD_REUSED": "Mật khẩu mới phải khác mật khẩu hiện tại."
+    },
+    "VALIDATION": {
+      "BAD_REQUEST": "Vui lòng kiểm tra thông tin và thử lại.",
+      "INVALID_INPUT": "Vui lòng kiểm tra thông tin và thử lại.",
+      "INVALID_JSON": "Không thể xử lý yêu cầu.",
+      "FIELD_INVALID": "Vui lòng kiểm tra trường thông tin và thử lại."
+    },
+    "RATE_LIMIT": {
+      "AUTH": "Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau.",
+      "EMAIL_VERIFICATION": "Bạn đã thử xác thực email quá nhiều lần. Vui lòng thử lại sau.",
+      "PASSWORD_RESET": "Bạn đã yêu cầu đặt lại mật khẩu quá nhiều lần. Vui lòng thử lại sau."
+    },
+    "SYSTEM": {
+      "UNKNOWN": "Đã có lỗi xảy ra.",
+      "ERROR": "Đã có lỗi xảy ra.",
+      "INTERNAL_ERROR": "Đã có lỗi xảy ra.",
+      "NOT_FOUND": "Không tìm thấy tài nguyên được yêu cầu.",
+      "ROUTE_NOT_FOUND": "Không tìm thấy trang hoặc API được yêu cầu."
+    }
+  },
   "Header": {
     "accountFallback": "Tài khoản",
     "login": "Đăng Nhập",
@@ -163,9 +199,9 @@
       "riskyAsset": "Tỷ trọng tài sản rủi ro",
       "expectedReturn": "Tỷ suất sinh lời hằng năm kỳ vọng của tài sản rủi ro",
       "riskFreeRate": "Tỷ suất sinh lời hằng năm của tài sản phi rủi ro",
-      "beforeLabel": "Trước Điểm Tự Do Tài Chính",
+      "beforeLabel": "Trước Tuổi Tự Do Tài Chính",
       "beforeHint": "Mô tả các khoản đầu tư tăng trưởng trước tuổi tự do tài chính. Lương, tiết kiệm và thu nhập khác được quản lý trong dòng tiền theo giai đoạn.",
-      "afterLabel": "Sau Điểm Tự Do Tài Chính",
+      "afterLabel": "Sau Tuổi Tự Do Tài Chính",
       "afterHint": "Mô tả các phần đầu tư còn lại tăng trưởng sau nghỉ hưu. Lương hưu và thu nhập thụ động được quản lý riêng."
     },
     "habits": {
@@ -196,7 +232,7 @@
       "datasetLabel": "{label}: {value}",
       "goalTitle": "Dự phóng khả năng đạt mục tiêu FFP",
       "goalSubtitle": "So sánh tài sản dự phóng với mức tài sản cần thiết tại tuổi FFP đã chọn.",
-      "timelineTitle": "Dự phóng tuổi đạt Điểm Tự Do Tài Chính (FFP)",
+      "timelineTitle": "Dự phóng tuổi đạt Tuổi Tự Do Tài Chính (FFP)",
       "timelineSubtitle": "So sánh tài sản dự phóng với mức tài sản cần thiết theo từng tuổi để xác định khi nào đạt tự do tài chính.",
       "cashflowTitle": "Dự phóng dòng tiền nghỉ hưu",
       "cashflowSubtitle": "Dự phóng mức giảm tài sản nghỉ hưu theo thời gian dựa trên kế hoạch chi tiêu."
@@ -236,10 +272,10 @@
       "loadingReferences": "Đang tải dữ liệu thiết lập..."
     },
     "stages": {
-      "description": "Bao gồm lương, thu nhập cho thuê và các khoản tiết kiệm khác trước Điểm Tự Do Tài Chính."
+      "description": "Bao gồm lương, thu nhập cho thuê và các khoản tiết kiệm khác trước Tuổi Tự Do Tài Chính."
     },
     "assets": {
-      "description": "Bao gồm nguồn thu nhập thụ động sau Điểm Tự Do Tài Chính, như thu nhập cho thuê và lương hưu.",
+      "description": "Bao gồm nguồn thu nhập thụ động sau Tuổi Tự Do Tài Chính, như thu nhập cho thuê và lương hưu.",
       "addAnother": "+ Thêm tài sản khác",
       "loadingTypes": "Đang tải loại tài sản..."
     },
@@ -272,6 +308,7 @@
     }
   },
   "Validation": {
+    "fieldRange": "{field} phải nằm trong khoảng {min} đến {max}.",
     "requiredFields": "Vui lòng điền tất cả trường bắt buộc.",
     "passwordMismatch": "Mật khẩu và xác nhận mật khẩu phải trùng khớp.",
     "generalInformationIncomplete": "Vui lòng hoàn tất tất cả trường trong Thông Tin Chung.",
@@ -323,3 +360,4 @@
     }
   }
 }
+

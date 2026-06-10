@@ -29,6 +29,7 @@ import {
   useUpdateScenario2Input,
 } from "@/hooks/scenario/useScenario2";
 import { useLocalizedPath, useTranslations } from "@/i18n/client";
+import { useApiErrorMessage } from "@/hooks/useApiErrorMessage";
 
 ChartJS.register(
   CategoryScale,
@@ -80,6 +81,7 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
   const fields = useTranslations("Fields");
   const common = useTranslations("Common");
   const home = useTranslations("Home.features");
+  const getApiErrorMessage = useApiErrorMessage();
   const toLocalizedPath = useLocalizedPath();
   const inputQuery = useGetScenario2Input();
   const outputQuery = useGetScenario2Output();
@@ -119,7 +121,7 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
 
     const mutation = inputQuery.data ? updateMutation : createMutation;
     await mutation.mutateAsync(payload).catch((err: unknown) => {
-      setSubmitError(err instanceof Error ? err.message : t("fallbackError"));
+      setSubmitError(getApiErrorMessage(err, t("fallbackError")));
       return null;
     });
   }

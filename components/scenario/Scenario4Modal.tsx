@@ -16,6 +16,7 @@ import {
   useUpdateScenario4Input,
 } from "@/hooks/scenario/useScenario4";
 import { useLocalizedPath, useTranslations } from "@/i18n/client";
+import { useApiErrorMessage } from "@/hooks/useApiErrorMessage";
 
 interface Scenario4ModalProps {
   isOpen: boolean;
@@ -27,6 +28,7 @@ export default function Scenario4Modal({ isOpen, onClose }: Scenario4ModalProps)
   const fields = useTranslations("Fields");
   const common = useTranslations("Common");
   const home = useTranslations("Home.features");
+  const getApiErrorMessage = useApiErrorMessage();
   const toLocalizedPath = useLocalizedPath();
   const inputQuery = useGetScenario4Input();
   const outputQuery = useGetScenario4Output();
@@ -69,7 +71,7 @@ export default function Scenario4Modal({ isOpen, onClose }: Scenario4ModalProps)
 
     const mutation = inputQuery.data ? updateMutation : createMutation;
     await mutation.mutateAsync(payload).catch((err: unknown) => {
-      setSubmitError(err instanceof Error ? err.message : t("fallbackError"));
+      setSubmitError(getApiErrorMessage(err, t("fallbackError")));
       return null;
     });
   }

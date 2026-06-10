@@ -7,6 +7,7 @@ export const TIMEOUT = 15_000;
 
 export interface ApiErrorDetail {
   path?: string;
+  code?: string;
   message: string;
 }
 
@@ -20,6 +21,7 @@ export interface ApiMeta {
 export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
+  code?: string;
   message?: string;
   error?: string;
   errors?: ApiErrorDetail[];

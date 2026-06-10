@@ -4,6 +4,7 @@ import { tokenRefreshManager } from "@/lib/tokenRefreshManager";
 import { tokenService } from "@/services/token.service";
 import { authUserService } from "@/services/authUser.service";
 import { useAuthStore } from "@/store/auth.store";
+import { throwApiClientError } from "@/lib/ApiClientError";
 import type {
   AuthUser,
   LoginPayload,
@@ -84,7 +85,7 @@ export const authService = {
    */
   async register(payload: RegisterInput): Promise<void> {
     const res = await authApi.register(payload);
-    if (!res.success) throw new Error(res.error ?? "Registration failed");
+    if (!res.success) throwApiClientError(res, "Registration failed");
   },
 
   /**
@@ -95,7 +96,7 @@ export const authService = {
   async login(payload: LoginPayload): Promise<LoginResult> {
     const res = await authApi.login(payload);
     if (!res.success || !res.data?.accessToken) {
-      throw new Error(res.error ?? "Login failed");
+      throwApiClientError(res, "Login failed");
     }
 
     try {
@@ -123,7 +124,7 @@ export const authService = {
     try {
       const res = await authApi.logout();
       if (!res.success) {
-        logoutError = new Error(res.error ?? "Logout failed");
+        logoutError = throwApiClientError(res, "Logout failed");
       }
     } catch (error) {
       logoutError = error instanceof Error ? error : new Error("Logout failed");
@@ -175,7 +176,7 @@ export const authService = {
    */
   async verifyEmail(token: string): Promise<void> {
     const res = await authApi.verifyEmail(token);
-    if (!res.success) throw new Error(res.error ?? "Verification failed");
+    if (!res.success) throwApiClientError(res, "Verification failed");
   },
 
   /**
@@ -184,7 +185,7 @@ export const authService = {
    */
   async forgotPassword(email: string): Promise<string> {
     const res = await authApi.forgotPassword(email);
-    if (!res.success) throw new Error(res.error ?? "Request failed");
+    if (!res.success) throwApiClientError(res, "Request failed");
     return res.message ?? "Check your email to reset your password";
   },
 
@@ -194,7 +195,7 @@ export const authService = {
    */
   async resetPassword(token: string, password: string): Promise<string> {
     const res = await authApi.resetPassword({ token, password });
-    if (!res.success) throw new Error(res.error ?? "Reset failed");
+    if (!res.success) throwApiClientError(res, "Reset failed");
     return res.message ?? "Password reset successful";
   },
 
@@ -203,7 +204,7 @@ export const authService = {
     newPassword: string,
   ): Promise<string> {
     const res = await authApi.updatePassword({ currentPassword, newPassword });
-    if (!res.success) throw new Error(res.error ?? "Update password failed");
+    if (!res.success) throwApiClientError(res, "Update password failed");
     return res.message ?? "Password updated successfully";
   },
 };

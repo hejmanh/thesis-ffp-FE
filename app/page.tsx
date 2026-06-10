@@ -21,6 +21,7 @@ export default function Home() {
   const t = useTranslations("Home.features");
   const toLocalizedPath = useLocalizedPath();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isAuthReady = useAuthStore((state) => state.isAuthReady);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [activeScenario, setActiveScenario] = useState<ScenarioId | null>(null);
   const features: FeatureItem[] = [
@@ -64,15 +65,19 @@ export default function Home() {
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
-    if (query.get("login") !== "1" || isAuthenticated) {
+    if (query.get("login") !== "1" || !isAuthReady || isAuthenticated) {
       return;
     }
 
     const timer = window.setTimeout(() => setShowLoginModal(true), 0);
     return () => window.clearTimeout(timer);
-  }, [isAuthenticated]);
+  }, [isAuthReady, isAuthenticated]);
 
   function handleCardClick(id: string) {
+    if (!isAuthReady) {
+      return;
+    }
+
     if (!isAuthenticated) {
       setShowLoginModal(true);
       return;

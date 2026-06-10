@@ -6,9 +6,11 @@ import { useAuthStore } from "@/store/auth.store";
 import { useUserContext } from "@/providers/UserContextProvider";
 import type { LoginPayload, LoginResult, RegisterInput } from "@/types/auth";
 import { useTranslations } from "@/i18n/client";
+import { useApiErrorMessage } from "@/hooks/useApiErrorMessage";
 
 export function useAuth() {
   const t = useTranslations("Auth.errors");
+  const getApiErrorMessage = useApiErrorMessage();
   const { user, isAuthenticated } = useAuthStore();
   const { refresh, clear } = useUserContext();
   const [loading, setLoading] = useState(false);
@@ -20,14 +22,13 @@ export function useAuth() {
     try {
       return await fn();
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : t("fallback");
+      const message = getApiErrorMessage(err, t("fallback"));
       setError(message);
       throw err;
     } finally {
       setLoading(false);
     }
-  }, [t]);
+  }, [getApiErrorMessage, t]);
 
   const login = useCallback(
     (payload: LoginPayload) =>
