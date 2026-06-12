@@ -224,18 +224,18 @@
     "charts": {
       "age": "Tuổi",
       "wealth": "Tài sản",
-      "projectedWealth": "Tài sản dự phóng",
+      "projectedWealth": "Tài sản dự đoán",
       "requiredWealth": "Tài sản cần thiết",
       "ffpTargetWealth": "Tài sản mục tiêu FFP",
       "ageSpecificRequiredWealth": "Tài sản cần thiết theo tuổi",
       "wealthLabel": "Tài sản: {value}",
       "datasetLabel": "{label}: {value}",
-      "goalTitle": "Dự phóng khả năng đạt mục tiêu FFP",
-      "goalSubtitle": "So sánh tài sản dự phóng với mức tài sản cần thiết tại tuổi FFP đã chọn.",
-      "timelineTitle": "Dự phóng tuổi đạt Tuổi Tự Do Tài Chính (FFP)",
-      "timelineSubtitle": "So sánh tài sản dự phóng với mức tài sản cần thiết theo từng tuổi để xác định khi nào đạt tự do tài chính.",
-      "cashflowTitle": "Dự phóng dòng tiền nghỉ hưu",
-      "cashflowSubtitle": "Dự phóng mức giảm tài sản nghỉ hưu theo thời gian dựa trên kế hoạch chi tiêu."
+      "goalTitle": "Dự đoán khả năng đạt mục tiêu FFP",
+      "goalSubtitle": "So sánh tài sản dự đoán với mức tài sản cần thiết tại tuổi FFP đã chọn.",
+      "timelineTitle": "Dự đoán tuổi đạt Tuổi Tự Do Tài Chính (FFP)",
+      "timelineSubtitle": "So sánh tài sản dự đoán với mức tài sản cần thiết theo từng tuổi để xác định khi nào đạt tự do tài chính.",
+      "cashflowTitle": "Dự đoán dòng tiền nghỉ hưu",
+      "cashflowSubtitle": "Dự đoán mức giảm tài sản nghỉ hưu theo thời gian dựa trên kế hoạch chi tiêu."
     },
     "outputs": {
       "yesAchievable": "Có, mục tiêu có thể đạt được",
@@ -243,6 +243,7 @@
       "notYet": "Chưa đạt, hãy điều chỉnh kế hoạch",
       "ffpAge": "Tuổi FFP",
       "ffpAchievedAtAge": "Đạt FFP ở tuổi {age}",
+      "ffpNotAchievable": "Chưa thể đạt FFP với kế hoạch này",
       "annualSpending": "Chi tiêu hằng năm",
       "monthlySpending": "Chi tiêu hằng tháng",
       "requiredAnnualSaving": "Tiết kiệm hằng năm cần thiết",
@@ -360,4 +361,3 @@
     }
   }
 }
-

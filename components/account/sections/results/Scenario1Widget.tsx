@@ -129,11 +129,42 @@ export default function Scenario1Widget() {
 
   return (
     <div className="space-y-3">
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="flex items-center justify-between rounded-xl bg-primary-soft px-5 py-3">
+          <div className="flex items-center gap-3">
+            {/* <Icon
+              icon="mdi:calendar-check-outline"
+              className="h-5 w-5 text-primary"
+              aria-hidden="true"
+            /> */}
+            <span className="text-sm text-muted-foreground">
+              {t("outputs.ffpAge")}
+            </span>
+          </div>
+          <span className="text-lg font-bold text-primary">
+            {data.inputFfpAge ?? "-"}
+          </span>
+        </div>
+        <div className="flex items-center justify-between rounded-xl bg-primary-soft px-5 py-3">
+          <div className="flex items-center gap-3">
+            {/* <Icon
+              icon="mdi:cash-multiple"
+              className="h-5 w-5 text-primary"
+              aria-hidden="true"
+            /> */}
+            <span className="text-sm text-muted-foreground">
+              {t("outputs.annualSpending")}
+            </span>
+          </div>
+          <span className="text-lg font-bold text-primary">
+            {formatCompact(data.inputFfpAnnualSpending)}
+          </span>
+        </div>
+      </div>
+
       <div
         className={`inline-flex items-center gap-2 rounded-xl px-3 py-1 text-sm font-semibold ${
-          achievable
-            ? "bg-green-50 text-green-700"
-            : "bg-red-50 text-red-600"
+          achievable ? "bg-green-50 text-green-700" : "bg-red-50 text-red-600"
         }`}
       >
         <Icon
@@ -143,6 +174,7 @@ export default function Scenario1Widget() {
         />
         {achievable ? t("outputs.yesAchievable") : t("outputs.notYet")}
       </div>
+
       <Line data={chartData} options={OPTIONS} />
     </div>
   );

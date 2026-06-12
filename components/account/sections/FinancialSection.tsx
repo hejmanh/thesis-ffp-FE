@@ -50,6 +50,17 @@ const EMPTY_FINANCIAL_DATA: FinancialData = {
   assets: [],
 };
 
+type FinancialSectionErrorKey = "personal" | "financial" | "stages" | "assets";
+
+type FinancialSectionErrors = Record<FinancialSectionErrorKey, string | null>;
+
+const EMPTY_SECTION_ERRORS: FinancialSectionErrors = {
+  personal: null,
+  financial: null,
+  stages: null,
+  assets: null,
+};
+
 function createEmptyAsset(): Asset {
   return {
     id: crypto.randomUUID(),
@@ -221,7 +232,8 @@ export default function FinancialSection() {
   const [habitsDraft, setHabitsDraft] = useState<Habits | null>(null);
   const [stagesDraft, setStagesDraft] = useState<Stage[] | null>(null);
   const [assetsDraft, setAssetsDraft] = useState<Asset[] | null>(null);
-  const [sectionError, setSectionError] = useState<string | null>(null);
+  const [sectionErrors, setSectionErrors] =
+    useState<FinancialSectionErrors>(EMPTY_SECTION_ERRORS);
   const [personalDraft, setPersonalDraft] = useState<{
     name: string;
     birthYear: string;
@@ -351,19 +363,25 @@ export default function FinancialSection() {
     deleteAssetMutation.isPending;
   const isSavingPersonal = patchMeMutation.isPending;
   const pageError =
-    sectionError ??
+    references.error;
+  const personalError = sectionErrors.personal;
+  const financialError =
+    sectionErrors.financial ??
     (financialQuery.error
       ? getApiErrorMessage(financialQuery.error, t("updateFinancial"))
-      : null) ??
+      : null);
+  const stagesError =
+    sectionErrors.stages ??
     (stagesQuery.error
       ? getApiErrorMessage(stagesQuery.error, t("updateStages"))
       : null) ??
-    (assetsQuery.error
-      ? getApiErrorMessage(assetsQuery.error, t("updateAssets"))
-      : null) ??
-    references.error ??
     (lifeStageRangesQuery.error
       ? getApiErrorMessage(lifeStageRangesQuery.error, t("updateStages"))
+      : null);
+  const assetsError =
+    sectionErrors.assets ??
+    (assetsQuery.error
+      ? getApiErrorMessage(assetsQuery.error, t("updateAssets"))
       : null);
 
   const basePersonal = {
@@ -439,8 +457,18 @@ export default function FinancialSection() {
     ]);
   }
 
+  function setScopedError(
+    section: FinancialSectionErrorKey,
+    message: string | null,
+  ) {
+    setSectionErrors((prev) => ({
+      ...prev,
+      [section]: message,
+    }));
+  }
+
   async function handleSavePersonal() {
-    setSectionError(null);
+    setScopedError("personal", null);
 
     try {
       const next = await patchMeMutation.mutateAsync({
@@ -457,12 +485,12 @@ export default function FinancialSection() {
       setPersonalDraft(null);
       await refreshUserInfoData();
     } catch (error) {
-      setSectionError(getApiErrorMessage(error, t("updatePersonal")));
+      setScopedError("personal", getApiErrorMessage(error, t("updatePersonal")));
     }
   }
 
   async function handleSaveFinancial() {
-    setSectionError(null);
+    setScopedError("financial", null);
     try {
       const payload = buildFinancialRequestFromFinancialData(
         currentProfile,
@@ -479,12 +507,15 @@ export default function FinancialSection() {
       setHabitsDraft(null);
       await refreshUserInfoData();
     } catch (error) {
-      setSectionError(getApiErrorMessage(error, t("updateFinancial")));
+      setScopedError(
+        "financial",
+        getApiErrorMessage(error, t("updateFinancial")),
+      );
     }
   }
 
   async function handleSaveStages() {
-    setSectionError(null);
+    setScopedError("stages", null);
     try {
       const payload = buildStagesRequest(currentStages);
       if (hasPersistedStages) {
@@ -495,12 +526,12 @@ export default function FinancialSection() {
       setStagesDraft(null);
       await refreshUserInfoData();
     } catch (error) {
-      setSectionError(getApiErrorMessage(error, t("updateStages")));
+      setScopedError("stages", getApiErrorMessage(error, t("updateStages")));
     }
   }
 
   async function handleSaveAssets() {
-    setSectionError(null);
+    setScopedError("assets", null);
     try {
       if (newAssets.length > 0) {
         await createAssetsMutation.mutateAsync(
@@ -517,12 +548,12 @@ export default function FinancialSection() {
       setAssetsDraft(null);
       await refreshUserInfoData();
     } catch (error) {
-      setSectionError(getApiErrorMessage(error, t("updateAssets")));
+      setScopedError("assets", getApiErrorMessage(error, t("updateAssets")));
     }
   }
 
   async function handleRemoveAsset(asset: Asset, index: number) {
-    setSectionError(null);
+    setScopedError("assets", null);
 
     if (!asset.uid) {
       setAssetsDraft((prev) => {
@@ -543,7 +574,7 @@ export default function FinancialSection() {
       });
       await refreshUserInfoData();
     } catch (error) {
-      setSectionError(getApiErrorMessage(error, t("deleteAsset")));
+      setScopedError("assets", getApiErrorMessage(error, t("deleteAsset")));
     }
   }
 
@@ -584,6 +615,7 @@ export default function FinancialSection() {
           sexTypeOptions={references.sexTypeOptions}
           canSave={canSavePersonal}
           isSaving={isSavingPersonal}
+          error={personalError}
           onChange={(next) => setPersonalDraft(next)}
           onSave={handleSavePersonal}
         />
@@ -602,6 +634,7 @@ export default function FinancialSection() {
             }}
             canSave={canSaveFinancial}
             isSaving={isSavingFinancial}
+            error={financialError}
             onSave={handleSaveFinancial}
             onProfileChange={(field, value) => {
               setProfileDraft((prev) => ({
@@ -673,6 +706,11 @@ export default function FinancialSection() {
               {isSavingStages ? common("saving") : common("saveChanges")}
             </Button>
           </div>
+          {stagesError ? (
+            <p className="mt-3 text-sm font-semibold text-red-600">
+              {stagesError}
+            </p>
+          ) : null}
         </div>
 
         <div className="rounded-xl border border-border bg-slate-50 p-4">
@@ -734,6 +772,11 @@ export default function FinancialSection() {
               {isSavingAssets ? common("saving") : common("saveChanges")}
             </Button>
           </div>
+          {assetsError ? (
+            <p className="mt-3 text-sm font-semibold text-red-600">
+              {assetsError}
+            </p>
+          ) : null}
         </div>
       </div>
     </Card>

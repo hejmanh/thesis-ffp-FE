@@ -131,12 +131,56 @@ export default function Scenario2Widget() {
 
   return (
     <div className="space-y-3">
-      {ffpAge > 0 && (
-        <div className="inline-flex items-center gap-2 rounded-full bg-green-50 px-3 py-1 text-sm font-semibold text-green-700">
-          <Icon icon="mdi:flag-checkered" className="h-4 w-4" aria-hidden="true" />
-          {t("outputs.ffpAchievedAtAge", { age: ffpAge })}
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="flex items-center justify-between rounded-xl bg-primary-soft px-5 py-3">
+          <div className="flex items-center gap-3">
+            {/* <Icon
+              icon="mdi:calendar-check-outline"
+              className="h-5 w-5 text-primary"
+              aria-hidden="true"
+            /> */}
+            <span className="text-sm text-muted-foreground">
+              {t("outputs.ffpAge")}
+            </span>
+          </div>
+          <span className="text-lg font-bold text-primary">
+            {ffpAge ?? "-"}
+          </span>
         </div>
-      )}
+        <div className="flex items-center justify-between rounded-xl bg-primary-soft px-5 py-3">
+          <div className="flex items-center gap-3">
+            {/* <Icon
+              icon="mdi:cash-multiple"
+              className="h-5 w-5 text-primary"
+              aria-hidden="true"
+            /> */}
+            <span className="text-sm text-muted-foreground">
+              {t("outputs.annualSpending")}
+            </span>
+          </div>
+          <span className="text-lg font-bold text-primary">
+            {formatCompact(data.inputFfpAnnualSpending)}
+          </span>
+        </div>
+      </div>
+      
+      <div
+        className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold ${
+          ffpAge == null
+            ? "bg-red-50 text-red-600"
+            : "bg-green-50 text-green-700"
+        }`}
+      >
+        <Icon
+          icon={ffpAge == null ? "mdi:close-circle" : "mdi:flag-checkered"}
+          className="h-4 w-4"
+          aria-hidden="true"
+        />
+        {ffpAge == null
+          ? t("outputs.ffpNotAchievable")
+          : t("outputs.ffpAchievedAtAge", { age: ffpAge })}
+      </div>
+
       <Line data={chartData} options={OPTIONS} />
     </div>
   );

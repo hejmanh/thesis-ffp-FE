@@ -181,7 +181,13 @@ export default function Scenario3Modal({ isOpen, onClose }: Scenario3ModalProps)
           <p className="mb-3 text-sm font-medium text-slate-500">{t("result")}</p>
 
           {/* Spending stat cards */}
-          <div className="mb-4 grid grid-cols-2 gap-3">
+          <div className="mb-4 grid gap-3 sm:grid-cols-3">
+            <div className="rounded-2xl bg-primary-soft px-4 py-3 text-center">
+              <p className="text-xs text-muted-foreground">{t("outputs.ffpAge")}</p>
+              <p className="mt-1 text-xl font-bold text-primary">
+                {output.inputFfpAge ?? "-"}
+              </p>
+            </div>
             <div className="rounded-2xl bg-primary-soft px-4 py-3 text-center">
               <p className="text-xs text-muted-foreground">{t("outputs.annualSpending")}</p>
               <p className="mt-1 text-xl font-bold text-primary">

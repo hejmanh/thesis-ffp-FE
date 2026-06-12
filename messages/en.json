@@ -243,6 +243,7 @@
       "notYet": "Not yet, adjust your plan",
       "ffpAge": "FFP age",
       "ffpAchievedAtAge": "FFP achieved at age {age}",
+      "ffpNotAchievable": "FFP is not achievable with this plan",
       "annualSpending": "Annual spending",
       "monthlySpending": "Monthly spending",
       "requiredAnnualSaving": "Required annual saving",

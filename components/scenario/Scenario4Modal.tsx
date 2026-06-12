@@ -150,7 +150,13 @@ export default function Scenario4Modal({ isOpen, onClose }: Scenario4ModalProps)
             </div>
             <div className="flex items-center justify-between rounded-2xl bg-primary-soft px-5 py-3">
               <span className="text-sm text-muted-foreground">{t("outputs.ffpAge")}</span>
-              <span className="text-xl font-bold text-primary">{output.ffpAge}</span>
+              <span className="text-xl font-bold text-primary">{output.ffpAge ?? "-"}</span>
+            </div>
+            <div className="flex items-center justify-between rounded-2xl bg-primary-soft px-5 py-3">
+              <span className="text-sm text-muted-foreground">{t("outputs.annualSpending")}</span>
+              <span className="text-xl font-bold text-primary">
+                {formatCompact(output.inputFfpAnnualSpending)}
+              </span>
             </div>
             <div className="flex items-center justify-between rounded-2xl bg-primary-soft px-5 py-3">
               <span className="text-sm text-muted-foreground">{t("outputs.requiredWealthAtFfp")}</span>

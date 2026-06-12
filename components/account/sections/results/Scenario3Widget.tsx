@@ -108,7 +108,13 @@ export default function Scenario3Widget() {
 
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <div className="rounded-xl bg-primary-soft px-4 py-3 text-center">
+          <p className="text-xs text-muted-foreground">{t("outputs.ffpAge")}</p>
+          <p className="mt-0.5 text-xl font-bold text-primary">
+            {data.inputFfpAge ?? "-"}
+          </p>
+        </div>
         <div className="rounded-xl bg-primary-soft px-4 py-3 text-center">
           <p className="text-xs text-muted-foreground">{t("outputs.annualSpending")}</p>
           <p className="mt-0.5 text-xl font-bold text-primary">

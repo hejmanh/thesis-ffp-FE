@@ -181,12 +181,22 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
           <p className="mb-3 text-sm font-medium text-slate-500">{t("result")}</p>
 
           {/* FFP age badge */}
-          {output.outputFfpAge > 0 && (
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-green-50 px-3 py-1 text-sm font-semibold text-green-700">
-              <Icon icon="mdi:flag-checkered" className="h-4 w-4" aria-hidden="true" />
-              {t("outputs.ffpAchievedAtAge", { age: output.outputFfpAge })}
-            </div>
-          )}
+          <div
+            className={`mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold ${
+              output.outputFfpAge == null
+                ? "bg-red-50 text-red-600"
+                : "bg-green-50 text-green-700"
+            }`}
+          >
+            <Icon
+              icon={output.outputFfpAge == null ? "mdi:close-circle" : "mdi:flag-checkered"}
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
+            {output.outputFfpAge == null
+              ? t("outputs.ffpNotAchievable")
+              : t("outputs.ffpAchievedAtAge", { age: output.outputFfpAge })}
+          </div>
 
           {/* Two-line wealth chart */}
           {output.wealthProjection?.length > 0 && (() => {
