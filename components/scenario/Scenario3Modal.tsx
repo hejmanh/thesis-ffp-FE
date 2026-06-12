@@ -28,7 +28,7 @@ import {
   useCreateScenario3Input,
   useUpdateScenario3Input,
 } from "@/hooks/scenario/useScenario3";
-import { useLocalizedPath, useTranslations } from "@/i18n/client";
+import { useLocale, useLocalizedPath, useTranslations } from "@/i18n/client";
 import { useApiErrorMessage } from "@/hooks/useApiErrorMessage";
 
 ChartJS.register(
@@ -42,7 +42,8 @@ ChartJS.register(
   Title,
 );
 
-const CHART_OPTIONS: ChartOptions<"line"> = {
+function createChartOptions(locale: "en" | "vi"): ChartOptions<"line"> {
+  return {
   responsive: true,
   maintainAspectRatio: true,
   interaction: { mode: "index", intersect: false },
@@ -57,7 +58,7 @@ const CHART_OPTIONS: ChartOptions<"line"> = {
     },
     tooltip: {
       callbacks: {
-        label: (ctx) => `Wealth: ${formatCompact(ctx.parsed.y ?? 0)}`,
+        label: (ctx) => `Wealth: ${formatCompact(ctx.parsed.y ?? 0, locale)}`,
       },
     },
   },
@@ -66,10 +67,11 @@ const CHART_OPTIONS: ChartOptions<"line"> = {
     y: {
       title: { display: true, text: "Wealth" },
       min: 0,
-      ticks: { callback: (v) => formatCompact(Number(v)) },
+      ticks: { callback: (v) => formatCompact(Number(v), locale) },
     },
   },
-};
+  };
+}
 
 interface Scenario3ModalProps {
   isOpen: boolean;
@@ -82,7 +84,9 @@ export default function Scenario3Modal({ isOpen, onClose }: Scenario3ModalProps)
   const common = useTranslations("Common");
   const home = useTranslations("Home.features");
   const getApiErrorMessage = useApiErrorMessage();
+  const locale = useLocale();
   const toLocalizedPath = useLocalizedPath();
+  const chartOptions = createChartOptions(locale);
   const inputQuery = useGetScenario3Input();
   const outputQuery = useGetScenario3Output();
   const createMutation = useCreateScenario3Input();
@@ -191,13 +195,13 @@ export default function Scenario3Modal({ isOpen, onClose }: Scenario3ModalProps)
             <div className="rounded-2xl bg-primary-soft px-4 py-3 text-center">
               <p className="text-xs text-muted-foreground">{t("outputs.annualSpending")}</p>
               <p className="mt-1 text-xl font-bold text-primary">
-                {formatCompact(output.outputFfpAnnualSpending)}
+                {formatCompact(output.outputFfpAnnualSpending, locale)}
               </p>
             </div>
             <div className="rounded-2xl bg-primary-soft px-4 py-3 text-center">
               <p className="text-xs text-muted-foreground">{t("outputs.monthlySpending")}</p>
               <p className="mt-1 text-xl font-bold text-primary">
-                {formatCompact(output.outputFfpMonthlySpending)}
+                {formatCompact(output.outputFfpMonthlySpending, locale)}
               </p>
             </div>
           </div>
@@ -219,7 +223,7 @@ export default function Scenario3Modal({ isOpen, onClose }: Scenario3ModalProps)
                   },
                 ],
               }}
-              options={CHART_OPTIONS}
+              options={chartOptions}
             />
           )}
           <p className="mt-3 text-xs text-muted-foreground">

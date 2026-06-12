@@ -17,7 +17,7 @@ import {
 import { Line } from "react-chartjs-2";
 import { formatCompact } from "@/utils/formatCompact";
 import { useGetScenario3Output } from "@/hooks/scenario/useScenario3";
-import { useTranslations } from "@/i18n/client";
+import { useLocale, useTranslations } from "@/i18n/client";
 
 ChartJS.register(
   CategoryScale,
@@ -31,7 +31,8 @@ ChartJS.register(
   SubTitle,
 );
 
-const OPTIONS: ChartOptions<"line"> = {
+function createOptions(locale: "en" | "vi"): ChartOptions<"line"> {
+  return {
   responsive: true,
   maintainAspectRatio: true,
   interaction: { mode: "index", intersect: false },
@@ -53,7 +54,7 @@ const OPTIONS: ChartOptions<"line"> = {
     },
     tooltip: {
       callbacks: {
-        label: (ctx) => `Wealth: ${formatCompact(ctx.parsed.y ?? 0)}`,
+        label: (ctx) => `Wealth: ${formatCompact(ctx.parsed.y ?? 0, locale)}`,
       },
     },
   },
@@ -62,13 +63,15 @@ const OPTIONS: ChartOptions<"line"> = {
     y: {
       title: { display: true, text: "Wealth" },
       min: 0,
-      ticks: { callback: (v) => formatCompact(Number(v)) },
+      ticks: { callback: (v) => formatCompact(Number(v), locale) },
     },
   },
-};
+  };
+}
 
 export default function Scenario3Widget() {
   const t = useTranslations("Scenario");
+  const locale = useLocale();
   const { data, isLoading } = useGetScenario3Output();
 
   if (isLoading) {
@@ -118,17 +121,17 @@ export default function Scenario3Widget() {
         <div className="rounded-xl bg-primary-soft px-4 py-3 text-center">
           <p className="text-xs text-muted-foreground">{t("outputs.annualSpending")}</p>
           <p className="mt-0.5 text-xl font-bold text-primary">
-            {formatCompact(data.outputFfpAnnualSpending)}
+            {formatCompact(data.outputFfpAnnualSpending, locale)}
           </p>
         </div>
         <div className="rounded-xl bg-primary-soft px-4 py-3 text-center">
           <p className="text-xs text-muted-foreground">{t("outputs.monthlySpending")}</p>
           <p className="mt-0.5 text-xl font-bold text-primary">
-            {formatCompact(data.outputFfpMonthlySpending)}
+            {formatCompact(data.outputFfpMonthlySpending, locale)}
           </p>
         </div>
       </div>
-      <Line data={chartData} options={OPTIONS} />
+      <Line data={chartData} options={createOptions(locale)} />
     </div>
   );
 }

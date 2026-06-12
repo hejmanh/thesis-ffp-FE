@@ -28,7 +28,7 @@ import {
   useCreateScenario1Input,
   useUpdateScenario1Input,
 } from "@/hooks/scenario/useScenario1";
-import { useLocalizedPath, useTranslations } from "@/i18n/client";
+import { useLocale, useLocalizedPath, useTranslations } from "@/i18n/client";
 import { useApiErrorMessage } from "@/hooks/useApiErrorMessage";
 
 ChartJS.register(
@@ -42,7 +42,8 @@ ChartJS.register(
   SubTitle,
 );
 
-const CHART_OPTIONS: ChartOptions<"line"> = {
+function createChartOptions(locale: "en" | "vi"): ChartOptions<"line"> {
+  return {
   responsive: true,
   maintainAspectRatio: true,
   interaction: { mode: "index", intersect: false },
@@ -65,7 +66,7 @@ const CHART_OPTIONS: ChartOptions<"line"> = {
     tooltip: {
       callbacks: {
         label: (ctx) =>
-          `${ctx.dataset.label}: ${formatCompact(ctx.parsed.y ?? 0)}`,
+          `${ctx.dataset.label}: ${formatCompact(ctx.parsed.y ?? 0, locale)}`,
       },
     },
   },
@@ -73,10 +74,11 @@ const CHART_OPTIONS: ChartOptions<"line"> = {
     x: { title: { display: true, text: "Age" } },
     y: {
       title: { display: true, text: "Wealth" },
-      ticks: { callback: (v) => formatCompact(Number(v)) },
+      ticks: { callback: (v) => formatCompact(Number(v), locale) },
     },
   },
-};
+  };
+}
 
 interface Scenario1ModalProps {
   isOpen: boolean;
@@ -89,7 +91,9 @@ export default function Scenario1Modal({ isOpen, onClose }: Scenario1ModalProps)
   const common = useTranslations("Common");
   const home = useTranslations("Home.features");
   const getApiErrorMessage = useApiErrorMessage();
+  const locale = useLocale();
   const toLocalizedPath = useLocalizedPath();
+  const chartOptions = createChartOptions(locale);
   const inputQuery = useGetScenario1Input();
   const outputQuery = useGetScenario1Output();
   const createMutation = useCreateScenario1Input();
@@ -262,7 +266,7 @@ export default function Scenario1Modal({ isOpen, onClose }: Scenario1ModalProps)
                 },
               ],
             };
-            return <Line data={chartData} options={CHART_OPTIONS} />;
+            return <Line data={chartData} options={chartOptions} />;
           })()}
           <p className="mt-3 text-xs text-muted-foreground">
             <Link href={toLocalizedPath("/profile?tab=results")} className="text-primary hover:underline">

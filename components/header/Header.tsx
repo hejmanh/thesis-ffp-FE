@@ -1,14 +1,12 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { Icon } from "@iconify/react";
 import Image from "next/image";
 import Link from "next/link";
 import Button from "@/components/common/Button";
+import LanguageMenu from "@/components/header/LanguageMenu";
 import { useAuthStore } from "@/store/auth.store";
-import { useAuth } from "@/hooks";
 import { useUserContext } from "@/providers/UserContextProvider";
-import { useLocaleRouter, useLocalizedPath, useTranslations } from "@/i18n/client";
+import { useLocalizedPath, useTranslations } from "@/i18n/client";
 
 interface HeaderProps {
   authReady?: boolean;
@@ -23,33 +21,12 @@ export default function Header({
   hideLoginButton = false,
   hideRegisterButton = false,
 }: HeaderProps) {
-  const router = useLocaleRouter();
   const toLocalizedPath = useLocalizedPath();
   const t = useTranslations("Header");
-  const common = useTranslations("Common");
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [isNavigating, startTransition] = useTransition();
   const user = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { data: userContext } = useUserContext();
-  const { logout } = useAuth();
   const displayName = userContext?.name ?? user?.email ?? t("accountFallback");
-  const logoutPending = isLoggingOut || isNavigating;
-
-  async function handleLogout() {
-    if (logoutPending) return;
-
-    setIsLoggingOut(true);
-    try {
-      await logout();
-    } catch {
-    } finally {
-      setIsLoggingOut(false);
-      startTransition(() => {
-        router.push("/");
-      });
-    }
-  }
 
   return (
     <header className="w-full border-b border-border bg-surface/80 backdrop-blur">
@@ -77,26 +54,12 @@ export default function Header({
           ) : isAuthenticated ? (
             <>
               <Link
-                href={toLocalizedPath("/profile")}
-                className="max-w-[6.5rem] truncate text-sm text-muted-foreground underline-offset-4 hover:text-primary hover:underline sm:max-w-none"
+                href={toLocalizedPath("/profile?tab=financial")}
+                className="max-w-[9rem] truncate text-sm text-muted-foreground underline-offset-4 hover:text-primary hover:underline sm:max-w-none"
               >
                 {displayName}
               </Link>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleLogout}
-                disabled={logoutPending}
-                aria-busy={logoutPending}
-                className="shrink-0 min-w-0 px-3 sm:min-w-28 sm:px-5"
-              >
-                <span className="inline-flex items-center gap-2 transition-opacity duration-200">
-                  {logoutPending ? (
-                    <Icon icon="mdi:loading" className="h-4 w-4 animate-spin" />
-                  ) : null}
-                  <span>{logoutPending ? common("loggingOut") : common("logout")}</span>
-                </span>
-              </Button>
+              <LanguageMenu />
             </>
           ) : (
             <>

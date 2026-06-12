@@ -16,7 +16,7 @@ import {
 import { Line } from "react-chartjs-2";
 import { formatCompact } from "@/utils/formatCompact";
 import { useGetScenario1Output } from "@/hooks/scenario/useScenario1";
-import { useTranslations } from "@/i18n/client";
+import { useLocale, useTranslations } from "@/i18n/client";
 
 ChartJS.register(
   CategoryScale,
@@ -29,7 +29,8 @@ ChartJS.register(
   SubTitle,
 );
 
-const OPTIONS: ChartOptions<"line"> = {
+function createOptions(locale: "en" | "vi"): ChartOptions<"line"> {
+  return {
   responsive: true,
   maintainAspectRatio: true,
   interaction: { mode: "index", intersect: false },
@@ -52,7 +53,7 @@ const OPTIONS: ChartOptions<"line"> = {
     tooltip: {
       callbacks: {
         label: (ctx) =>
-          `${ctx.dataset.label}: ${formatCompact(ctx.parsed.y ?? 0)}`,
+          `${ctx.dataset.label}: ${formatCompact(ctx.parsed.y ?? 0, locale)}`,
       },
     },
   },
@@ -60,13 +61,15 @@ const OPTIONS: ChartOptions<"line"> = {
     x: { title: { display: true, text: "Age" } },
     y: {
       title: { display: true, text: "Wealth" },
-      ticks: { callback: (v) => formatCompact(Number(v)) },
+      ticks: { callback: (v) => formatCompact(Number(v), locale) },
     },
   },
-};
+  };
+}
 
 export default function Scenario1Widget() {
   const t = useTranslations("Scenario");
+  const locale = useLocale();
   const { data, isLoading } = useGetScenario1Output();
 
   if (isLoading) {
@@ -157,7 +160,7 @@ export default function Scenario1Widget() {
             </span>
           </div>
           <span className="text-lg font-bold text-primary">
-            {formatCompact(data.inputFfpAnnualSpending)}
+            {formatCompact(data.inputFfpAnnualSpending, locale)}
           </span>
         </div>
       </div>
@@ -175,7 +178,7 @@ export default function Scenario1Widget() {
         {achievable ? t("outputs.yesAchievable") : t("outputs.notYet")}
       </div>
 
-      <Line data={chartData} options={OPTIONS} />
+      <Line data={chartData} options={createOptions(locale)} />
     </div>
   );
 }

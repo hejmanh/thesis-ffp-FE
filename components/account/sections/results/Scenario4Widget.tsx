@@ -3,10 +3,11 @@
 import { Icon } from "@iconify/react";
 import { formatCompact } from "@/utils/formatCompact";
 import { useGetScenario4Output } from "@/hooks/scenario/useScenario4";
-import { useTranslations } from "@/i18n/client";
+import { useLocale, useTranslations } from "@/i18n/client";
 
 export default function Scenario4Widget() {
   const t = useTranslations("Scenario");
+  const locale = useLocale();
   const { data, isLoading } = useGetScenario4Output();
 
   if (isLoading) {
@@ -34,17 +35,17 @@ export default function Scenario4Widget() {
     },
     {
       label: t("outputs.annualSpending"),
-      value: formatCompact(data.inputFfpAnnualSpending),
+      value: formatCompact(data.inputFfpAnnualSpending, locale),
       icon: "mdi:cash-multiple",
     },
     {
       label: t("outputs.requiredWealthAtFfp"),
-      value: formatCompact(data.requiredWealthAtFFPAge),
+      value: formatCompact(data.requiredWealthAtFFPAge, locale),
       icon: "mdi:bank-outline",
     },
     {
       label: t("outputs.requiredAnnualSaving"),
-      value: formatCompact(data.requiredAnnualSaving),
+      value: formatCompact(data.requiredAnnualSaving, locale),
       icon: "mingcute:pig-money-line",
     },
   ];

@@ -15,7 +15,7 @@ import {
   useCreateScenario4Input,
   useUpdateScenario4Input,
 } from "@/hooks/scenario/useScenario4";
-import { useLocalizedPath, useTranslations } from "@/i18n/client";
+import { useLocale, useLocalizedPath, useTranslations } from "@/i18n/client";
 import { useApiErrorMessage } from "@/hooks/useApiErrorMessage";
 
 interface Scenario4ModalProps {
@@ -29,6 +29,7 @@ export default function Scenario4Modal({ isOpen, onClose }: Scenario4ModalProps)
   const common = useTranslations("Common");
   const home = useTranslations("Home.features");
   const getApiErrorMessage = useApiErrorMessage();
+  const locale = useLocale();
   const toLocalizedPath = useLocalizedPath();
   const inputQuery = useGetScenario4Input();
   const outputQuery = useGetScenario4Output();
@@ -145,7 +146,7 @@ export default function Scenario4Modal({ isOpen, onClose }: Scenario4ModalProps)
             <div className="flex items-center justify-between rounded-2xl bg-primary-soft px-5 py-3">
               <span className="text-sm text-muted-foreground">{t("outputs.requiredAnnualSaving")}</span>
               <span className="text-xl font-bold text-primary">
-                {formatCompact(output.requiredAnnualSaving)}
+                {formatCompact(output.requiredAnnualSaving, locale)}
               </span>
             </div>
             <div className="flex items-center justify-between rounded-2xl bg-primary-soft px-5 py-3">
@@ -155,13 +156,13 @@ export default function Scenario4Modal({ isOpen, onClose }: Scenario4ModalProps)
             <div className="flex items-center justify-between rounded-2xl bg-primary-soft px-5 py-3">
               <span className="text-sm text-muted-foreground">{t("outputs.annualSpending")}</span>
               <span className="text-xl font-bold text-primary">
-                {formatCompact(output.inputFfpAnnualSpending)}
+                {formatCompact(output.inputFfpAnnualSpending, locale)}
               </span>
             </div>
             <div className="flex items-center justify-between rounded-2xl bg-primary-soft px-5 py-3">
               <span className="text-sm text-muted-foreground">{t("outputs.requiredWealthAtFfp")}</span>
               <span className="text-xl font-bold text-primary">
-                {formatCompact(output.requiredWealthAtFFPAge)}
+                {formatCompact(output.requiredWealthAtFFPAge, locale)}
               </span>
             </div>
           </div>

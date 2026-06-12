@@ -142,7 +142,12 @@
   "Header": {
     "accountFallback": "Account",
     "login": "Log In",
-    "register": "Register"
+    "register": "Register",
+    "languageMenu": {
+      "label": "Change language",
+      "english": "English",
+      "vietnamese": "Vietnamese"
+    }
   },
   "Fields": {
     "annualSpendingAtFfp": "Annual Spending at FFP",

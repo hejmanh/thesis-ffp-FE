@@ -142,7 +142,12 @@
   "Header": {
     "accountFallback": "Tài khoản",
     "login": "Đăng Nhập",
-    "register": "Đăng Ký"
+    "register": "Đăng Ký",
+    "languageMenu": {
+      "label": "Đổi ngôn ngữ",
+      "english": "Tiếng Anh",
+      "vietnamese": "Tiếng Việt"
+    }
   },
   "Fields": {
     "annualSpendingAtFfp": "Chi tiêu hằng năm tại FFP",
