@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useCallback, useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import AccountContent from "@/components/account/AccountContent";
 import AccountSidebar from "@/components/account/AccountSidebar";
@@ -17,11 +17,18 @@ function getValidTab(tab: string | null): AccountTab {
 export default function AccountLayout() {
   const router = useLocaleRouter();
   const searchParams = useSearchParams();
-  const [activeTab, setActiveTab] = useState<AccountTab>(() => getValidTab(searchParams.get("tab")));
+  const activeTab = getValidTab(searchParams.get("tab"));
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isNavigating, startTransition] = useTransition();
   const logoutPending = isLoggingOut || isNavigating;
   const { logout } = useAuth();
+
+  const handleTabChange = useCallback(
+    (tab: AccountTab) => {
+      router.replace(`/profile?tab=${tab}`);
+    },
+    [router],
+  );
 
   async function handleLogout() {
     if (logoutPending) return;
@@ -42,7 +49,7 @@ export default function AccountLayout() {
     <div className="flex flex-col gap-4 lg:flex-row">
       <AccountSidebar
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={handleTabChange}
         onLogout={handleLogout}
         isLoggingOut={logoutPending}
       />

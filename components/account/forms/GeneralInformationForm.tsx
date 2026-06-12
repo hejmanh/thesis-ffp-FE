@@ -18,6 +18,7 @@ interface GeneralInformationFormProps {
   sexTypeOptions: SelectOption[];
   canSave: boolean;
   isSaving: boolean;
+  error?: string | null;
   onChange: (next: GeneralInformationValue) => void;
   onSave: () => void;
 }
@@ -28,6 +29,7 @@ export default function GeneralInformationForm({
   sexTypeOptions,
   canSave,
   isSaving,
+  error,
   onChange,
   onSave,
 }: GeneralInformationFormProps) {
@@ -113,6 +115,9 @@ export default function GeneralInformationForm({
           {isSaving ? common("saving") : common("saveChanges")}
         </Button>
       </div>
+      {error ? (
+        <p className="mt-3 text-sm font-semibold text-red-600">{error}</p>
+      ) : null}
     </div>
   );
 }

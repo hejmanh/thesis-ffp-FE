@@ -19,6 +19,7 @@ interface FinancialFormProps {
   habitOptions: Record<keyof Habits, SelectOption[]>;
   canSave: boolean;
   isSaving: boolean;
+  error?: string | null;
   onSave: () => void;
   onProfileChange: (
     field: "estimatedLE" | "savings" | "currency" | "desiredLE",
@@ -47,6 +48,7 @@ export default function FinancialForm({
   habitOptions,
   canSave,
   isSaving,
+  error,
   onSave,
   onProfileChange,
   onAllocationChange,
@@ -90,11 +92,16 @@ export default function FinancialForm({
         onAllocationChange={onAllocationChange}
         onHabitChange={onHabitChange}
         footer={
-          <div className="mt-4 flex justify-end">
-            <Button size="sm" onClick={onSave} disabled={!canSave}>
-              {isSaving ? common("saving") : common("saveChanges")}
-            </Button>
-          </div>
+          <>
+            <div className="mt-4 flex justify-end">
+              <Button size="sm" onClick={onSave} disabled={!canSave}>
+                {isSaving ? common("saving") : common("saveChanges")}
+              </Button>
+            </div>
+            {error ? (
+              <p className="mt-3 text-sm font-semibold text-red-600">{error}</p>
+            ) : null}
+          </>
         }
       />
   );
