@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Icon } from "@iconify/react";
+import Image from "next/image";
 import Link from "next/link";
 import Button from "@/components/common/Button";
 import { useAuthStore } from "@/store/auth.store";
@@ -55,9 +56,11 @@ export default function Header({
       <div className="mx-auto flex h-16 w-full max-w-[1200px] items-center justify-between px-4 sm:h-[4.5rem] sm:px-6 lg:px-8 xl:max-w-[1280px]">
         <Link href={toLocalizedPath("/")} className="flex items-center gap-3">
           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary to-indigo-90 shadow-sm sm:h-10 sm:w-10">
-            <img
+            <Image
               src="/CoinfusedLogo.png"
               alt="Coinfused Logo"
+              width={28}
+              height={28}
               className="h-6 w-6 object-contain sm:h-7 sm:w-7"
             />
           </span>

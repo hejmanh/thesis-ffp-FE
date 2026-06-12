@@ -7,17 +7,21 @@ import type { AccountTab } from "@/utils/types";
 import { useTranslations } from "@/i18n/client";
 
 interface AccountSidebarProps {
+  id?: string;
   activeTab: AccountTab;
   onTabChange: (tab: AccountTab) => void;
   onLogout: () => void;
   isLoggingOut?: boolean;
+  isMobileOpen?: boolean;
 }
 
 export default function AccountSidebar({
+  id,
   activeTab,
   onTabChange,
   onLogout,
   isLoggingOut = false,
+  isMobileOpen = false,
 }: AccountSidebarProps) {
   const t = useTranslations("Account.tabs");
   const common = useTranslations("Common");
@@ -25,11 +29,17 @@ export default function AccountSidebar({
     { label: t("account"), value: "personal" },
     { label: t("personalInformation"), value: "financial" },
     { label: t("results"), value: "results" },
-    { label: t("preferences"), value: "preferences" },
   ];
 
   return (
-    <Card hoverable={false} className="h-fit w-full rounded-xl bg-white p-3 shadow-md lg:w-[21.25rem] lg:flex-shrink-0">
+    <Card
+      id={id}
+      hoverable={false}
+      className={cn(
+        "fixed inset-x-3 top-32 z-50 h-fit max-h-[calc(100vh-9rem)] w-auto overflow-y-auto rounded-xl bg-white p-3 shadow-xl lg:static lg:inset-auto lg:z-auto lg:max-h-none lg:w-[21.25rem] lg:flex-shrink-0 lg:overflow-visible lg:shadow-md",
+        isMobileOpen ? "block" : "hidden lg:block",
+      )}
+    >
       <nav className="space-y-1">
         {tabs.map((tab) => (
           <button
