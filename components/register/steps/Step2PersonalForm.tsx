@@ -1,6 +1,7 @@
 "use client";
 
 import FinancialProfileFields from "@/components/common/FinancialProfileFields";
+import { useEnterToFocusNextField } from "@/components/common/useEnterToFocusNextField";
 import StepNavigationActions from "@/components/register/steps/StepNavigationActions";
 import type { Step2PersonalData } from "@/types/onboarding";
 import type { SelectOption } from "@/utils/referenceOptions";
@@ -42,6 +43,7 @@ export default function Step2PersonalForm({
   const fields = useTranslations("Fields");
   const financial = useTranslations("FinancialProfile");
   const register = useTranslations("Register.personal");
+  const { containerRef, handleEnterKeyDown } = useEnterToFocusNextField();
   const habitLabels: Record<keyof Step2PersonalData["habits"], string> = {
     smoke: financial("habits.smoking"),
     physical: financial("habits.physical"),
@@ -81,7 +83,11 @@ export default function Step2PersonalForm({
   }
 
   return (
-    <div className="mt-8">
+    <div
+      ref={containerRef}
+      className="mt-8"
+      onKeyDown={handleEnterKeyDown}
+    >
       {/* <h2 className="text-center text-3xl font-bold text-primary">
         Personal Information
       </h2> */}

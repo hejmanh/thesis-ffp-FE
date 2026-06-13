@@ -1,5 +1,6 @@
 "use client";
 
+import { useEnterToFocusNextField } from "@/components/common/useEnterToFocusNextField";
 import StageEditorCard, {
   type StageEditorValue,
 } from "@/components/common/StageEditorCard";
@@ -45,10 +46,15 @@ export default function Step3StagesCards({
   onChange,
 }: Step3StagesCardsProps) {
   const t = useTranslations("Register.stages");
+  const { containerRef, handleEnterKeyDown } = useEnterToFocusNextField();
   const canContinue = stages.length > 0 && stages.every(isStageComplete);
 
   return (
-    <div className="mt-8">
+    <div
+      ref={containerRef}
+      className="mt-8"
+      onKeyDown={handleEnterKeyDown}
+    >
       {/* <h2 className="text-center text-3xl font-bold text-primary">
         Your Life Stages
       </h2> */}

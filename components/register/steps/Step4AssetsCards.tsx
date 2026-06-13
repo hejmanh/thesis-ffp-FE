@@ -1,5 +1,6 @@
 "use client";
 
+import { useEnterToFocusNextField } from "@/components/common/useEnterToFocusNextField";
 import AssetCardEditor from "@/components/register/cards/AssetCardEditor";
 import StepNavigationActions from "@/components/register/steps/StepNavigationActions";
 import type { AssetItem } from "@/types/onboarding";
@@ -41,6 +42,7 @@ export default function Step4AssetsCards({
 }: Step4AssetsCardsProps) {
   const t = useTranslations("Register.assets");
   const steps = useTranslations("Register.steps");
+  const { containerRef, handleEnterKeyDown } = useEnterToFocusNextField();
 
   function handleAssetChange(updated: AssetItem) {
     onChange(assets.map((asset) => (asset.id === updated.id ? updated : asset)));
@@ -57,7 +59,11 @@ export default function Step4AssetsCards({
   const canSubmit = assets.length === 0 || assets.every(isAssetComplete);
 
   return (
-    <div className="mt-8">
+    <div
+      ref={containerRef}
+      className="mt-8"
+      onKeyDown={handleEnterKeyDown}
+    >
       {/* <h2 className="text-center text-3xl font-bold text-primary">Asset Data</h2> */}
       <p className="mt-2 text-center text-sm text-muted-foreground">
         {t("description")}

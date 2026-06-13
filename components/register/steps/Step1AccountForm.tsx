@@ -4,6 +4,7 @@ import { Icon } from "@iconify/react";
 import Button from "@/components/common/Button";
 import FormField from "@/components/common/FormField";
 import PersonalInfoFields from "@/components/common/PersonalInfoFields";
+import { useEnterToFocusNextField } from "@/components/common/useEnterToFocusNextField";
 import type { Step1AccountData } from "@/types/onboarding";
 import type { SelectOption } from "@/utils/referenceOptions";
 import { useLocaleRouter, useTranslations } from "@/i18n/client";
@@ -34,6 +35,7 @@ export default function Step1AccountForm({
 }: Step1AccountFormProps) {
   const t = useTranslations("Register.account");
   const fields = useTranslations("Fields");
+  const { containerRef, handleEnterKeyDown } = useEnterToFocusNextField();
   const isReferenceReady = countryOptions.length > 0 && sexOptions.length > 0;
   const router = useLocaleRouter();
   const isSubmitting = submissionStage !== null;
@@ -43,7 +45,11 @@ export default function Step1AccountForm({
       : t("submit");
 
   return (
-    <div className="mt-3">
+    <div
+      ref={containerRef}
+      className="mt-3"
+      onKeyDown={handleEnterKeyDown}
+    >
       <h2 className="text-center text-3xl font-bold text-primary">
         {t("title")}
       </h2>
