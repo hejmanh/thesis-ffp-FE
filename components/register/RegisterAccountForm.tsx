@@ -15,7 +15,7 @@ import {
 import { useLocaleRouter, useTranslations } from "@/i18n/client";
 import { useApiErrorMessage } from "@/hooks/useApiErrorMessage";
 
-type SubmissionStage = "registering" | null;
+type SubmissionStage = "registering" | "resending" | null;
 
 export default function RegisterAccountForm() {
   const router = useLocaleRouter();
@@ -29,7 +29,7 @@ export default function RegisterAccountForm() {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [submissionStage, setSubmissionStage] = useState<SubmissionStage>(null);
-  const { register } = useAuth();
+  const { register, resendVerificationEmail } = useAuth();
   const {
     countries,
     sexTypes,
@@ -97,6 +97,25 @@ export default function RegisterAccountForm() {
     }
   }
 
+  async function handleResendVerification() {
+    const email = data.email.trim();
+    if (!email) {
+      setError(validationT("requiredFields"));
+      return;
+    }
+
+    setError("");
+    setSubmissionStage("resending");
+    try {
+      await resendVerificationEmail(email);
+      setSuccessMessage(t("resendSuccess"));
+    } catch (submitError) {
+      setError(getApiErrorMessage(submitError, t("resendFallbackError")));
+    } finally {
+      setSubmissionStage(null);
+    }
+  }
+
   return (
     <div className="relative mx-auto max-w-xl rounded-3xl bg-slate-50 p-6 shadow-[0_20px_50px_-25px_rgba(15,23,42,0.4)] sm:p-8">
       <AnimatedPanel>
@@ -109,6 +128,7 @@ export default function RegisterAccountForm() {
           sexOptions={sexOptions}
           onFieldChange={updateField}
           onNext={handleCreateAccount}
+          onResendVerification={handleResendVerification}
         />
       </AnimatedPanel>
     </div>

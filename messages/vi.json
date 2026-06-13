@@ -68,7 +68,12 @@
       "submitting": "Đang đăng nhập...",
       "noAccount": "Chưa có tài khoản?",
       "signUp": "Đăng ký",
-      "close": "Đóng hộp thoại đăng nhập"
+      "close": "Đóng hộp thoại đăng nhập",
+      "resendHint": "Chưa nhận được email xác thực?",
+      "resendVerification": "Gửi lại email xác thực",
+      "resendingVerification": "Đang gửi email xác thực...",
+      "resendSuccess": "Đã gửi email xác thực. Vui lòng kiểm tra hộp thư.",
+      "resendFailed": "Không thể gửi lại email xác thực."
     },
     "forgotPassword": {
       "title": "Quên Mật Khẩu",
@@ -265,8 +270,12 @@
       "alreadyHaveAccount": "Đã có tài khoản?",
       "signIn": "Đăng nhập",
       "success": "Đã tạo tài khoản. Vui lòng kiểm tra email để xác thực.",
+      "resendVerification": "Chưa nhận email? Gửi lại email xác thực",
+      "resendingVerification": "Đang gửi email xác thực...",
+      "resendSuccess": "Đã gửi email xác thực. Vui lòng kiểm tra hộp thư.",
       "invalidOptions": "Vui lòng chọn tùy chọn đăng ký hợp lệ.",
-      "fallbackError": "Không thể tạo tài khoản."
+      "fallbackError": "Không thể tạo tài khoản.",
+      "resendFallbackError": "Không thể gửi lại email xác thực."
     },
     "steps": {
       "generalInformation": "Thông tin chung",

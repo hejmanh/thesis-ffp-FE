@@ -13,7 +13,7 @@ interface Step1AccountFormProps {
   data: Step1AccountData;
   error: string;
   successMessage?: string;
-  submissionStage: "registering" | null;
+  submissionStage: "registering" | "resending" | null;
   countryOptions: SelectOption[];
   sexOptions: SelectOption[];
   onFieldChange: <K extends keyof Step1AccountData>(
@@ -21,6 +21,7 @@ interface Step1AccountFormProps {
     value: Step1AccountData[K],
   ) => void;
   onNext: () => void;
+  onResendVerification: () => void;
 }
 
 export default function Step1AccountForm({
@@ -32,6 +33,7 @@ export default function Step1AccountForm({
   sexOptions,
   onFieldChange,
   onNext,
+  onResendVerification,
 }: Step1AccountFormProps) {
   const t = useTranslations("Register.account");
   const fields = useTranslations("Fields");
@@ -100,9 +102,21 @@ export default function Step1AccountForm({
         </p>
       ) : null}
       {!error && successMessage ? (
-        <p className="mt-4 text-center text-sm font-semibold text-emerald-600">
-          {successMessage}
-        </p>
+        <div className="mt-4 text-center">
+          <p className="text-sm font-semibold text-emerald-600">
+            {successMessage}
+          </p>
+          <button
+            type="button"
+            onClick={onResendVerification}
+            disabled={submissionStage === "resending"}
+            className="mt-2 text-sm font-semibold text-primary underline disabled:cursor-not-allowed disabled:text-muted-foreground"
+          >
+            {submissionStage === "resending"
+              ? t("resendingVerification")
+              : t("resendVerification")}
+          </button>
+        </div>
       ) : null}
       {!isReferenceReady ? (
         <p className="mt-4 text-center text-sm text-muted-foreground">

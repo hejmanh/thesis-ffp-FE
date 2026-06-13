@@ -68,7 +68,12 @@
       "submitting": "Logging in...",
       "noAccount": "Don't have an account?",
       "signUp": "Sign up",
-      "close": "Close login modal"
+      "close": "Close login modal",
+      "resendHint": "Didn't receive the verification email?",
+      "resendVerification": "Resend verification email",
+      "resendingVerification": "Sending verification email...",
+      "resendSuccess": "Verification email sent. Please check your inbox.",
+      "resendFailed": "Unable to resend verification email."
     },
     "forgotPassword": {
       "title": "Forgot Password",
@@ -265,8 +270,12 @@
       "alreadyHaveAccount": "Already have an account?",
       "signIn": "Sign in",
       "success": "Account created. Please check your email to verify it.",
+      "resendVerification": "Didn't receive the email? Resend verification email",
+      "resendingVerification": "Sending verification email...",
+      "resendSuccess": "Verification email sent. Please check your inbox.",
       "invalidOptions": "Please select valid registration options.",
-      "fallbackError": "Unable to create your account."
+      "fallbackError": "Unable to create your account.",
+      "resendFallbackError": "Unable to resend verification email."
     },
     "steps": {
       "generalInformation": "General Information",

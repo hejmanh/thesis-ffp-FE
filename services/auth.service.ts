@@ -179,6 +179,17 @@ export const authService = {
     if (!res.success) throwApiClientError(res, "Verification failed");
   },
 
+  async resendVerificationEmail(email: string): Promise<string> {
+    const res = await authApi.resendVerificationEmail(email);
+    if (!res.success) {
+      throwApiClientError(res, "Unable to resend verification email");
+    }
+    return (
+      res.message ??
+      "If the account exists and is not verified, a verification email has been sent"
+    );
+  },
+
   /**
    * Request password reset email. Throws on failure.
    * @throws Error on request failure

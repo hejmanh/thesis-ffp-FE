@@ -20,6 +20,7 @@ const SKIP_REFRESH_URLS = [
   API_ENDPOINTS.auth.login,
   API_ENDPOINTS.auth.register,
   API_ENDPOINTS.auth.verifyEmail,
+  API_ENDPOINTS.auth.resendVerificationEmail,
   API_ENDPOINTS.auth.forgotPassword,
   API_ENDPOINTS.auth.resetPassword,
 ];

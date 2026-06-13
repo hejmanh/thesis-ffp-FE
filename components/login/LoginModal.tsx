@@ -6,6 +6,7 @@ import { Icon } from "@iconify/react";
 import Button from "@/components/common/Button";
 import FormField from "@/components/common/FormField";
 import { useAuth } from "@/hooks";
+import { ApiClientError } from "@/lib/ApiClientError";
 import { cn } from "@/utils/cn";
 import { useLocaleRouter, useLocalizedPath, useTranslations } from "@/i18n/client";
 
@@ -20,10 +21,12 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const t = useTranslations("Auth.login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showResendVerification, setShowResendVerification] = useState(false);
+  const [resendMessage, setResendMessage] = useState("");
   const modalRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const previouslyFocusedElement = useRef<HTMLElement | null>(null);
-  const { login, loading, error } = useAuth();
+  const { login, resendVerificationEmail, loading, error } = useAuth();
 
   useEffect(() => {
     if (!isOpen) return;
@@ -84,6 +87,8 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setShowResendVerification(false);
+    setResendMessage("");
     try {
       const result = await login({ email, password });
       if (result.isFirstLogin) {
@@ -92,7 +97,26 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
         return;
       }
       onClose();
+    } catch (submitError) {
+      if (
+        submitError instanceof ApiClientError &&
+        submitError.code === "AUTH.EMAIL_NOT_VERIFIED"
+      ) {
+        setShowResendVerification(true);
+      }
+    }
+  }
+
+  async function handleResendVerification() {
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) return;
+
+    setResendMessage("");
+    try {
+      await resendVerificationEmail(trimmedEmail);
+      setResendMessage(t("resendSuccess"));
     } catch {
+      setResendMessage(t("resendFailed"));
     }
   }
 
@@ -169,6 +193,24 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
             }}
           />
           {error ? <p className="text-sm text-red-600">{error}</p> : null}
+          {showResendVerification ? (
+            <div className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
+              <p>{t("resendHint")}</p>
+              <button
+                type="button"
+                onClick={handleResendVerification}
+                disabled={loading || !email.trim()}
+                className="mt-1 font-semibold text-primary underline disabled:cursor-not-allowed disabled:text-muted-foreground"
+              >
+                {loading ? t("resendingVerification") : t("resendVerification")}
+              </button>
+              {resendMessage ? (
+                <p className="mt-1 font-semibold text-emerald-700">
+                  {resendMessage}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
           <button
             type="button"
             className="text-sm font-semibold text-primary underline"

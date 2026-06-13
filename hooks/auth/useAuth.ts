@@ -45,6 +45,11 @@ export function useAuth() {
     [wrap],
   );
 
+  const resendVerificationEmail = useCallback(
+    (email: string) => wrap(() => authService.resendVerificationEmail(email)),
+    [wrap],
+  );
+
   const logout = useCallback(
     () =>
       wrap(async () => {
@@ -64,6 +69,7 @@ export function useAuth() {
     isAuthenticated,
     login,
     register,
+    resendVerificationEmail,
     logout,
     forgotPassword,
     loading,
