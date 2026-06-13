@@ -106,16 +106,19 @@ export default function Step1AccountForm({
           <p className="text-sm font-semibold text-emerald-600">
             {successMessage}
           </p>
-          <button
-            type="button"
-            onClick={onResendVerification}
-            disabled={submissionStage === "resending"}
-            className="mt-2 text-sm font-semibold text-primary underline disabled:cursor-not-allowed disabled:text-muted-foreground"
-          >
-            {submissionStage === "resending"
-              ? t("resendingVerification")
-              : t("resendVerification")}
-          </button>
+          <p className="mt-6 text-center text-sm text-muted-foreground">
+            {t("emailNotReceived")}{" "}
+            <button
+              type="button"
+              onClick={onResendVerification}
+              disabled={submissionStage === "resending"}
+              className="font-semibold text-primary underline transition hover:text-primary-600 disabled:cursor-not-allowed disabled:text-muted-foreground disabled:no-underline"
+            >
+              {submissionStage === "resending"
+                ? t("resendingVerification")
+                : t("resendVerification")}
+            </button>
+          </p>
         </div>
       ) : null}
       {!isReferenceReady ? (

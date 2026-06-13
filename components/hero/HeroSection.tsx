@@ -7,7 +7,7 @@ export default function HeroSection() {
   const t = useTranslations("Home.hero");
 
   return (
-    <section className="relative px-4 pb-8 pt-8 text-center sm:px-6 sm:pb-10 sm:pt-10 lg:px-8">
+    <section className="relative z-0 px-4 pb-8 pt-8 text-center sm:px-6 sm:pb-10 sm:pt-10 lg:px-8">
       <Badge>{t("badge")}</Badge>
       <h1 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
         {t("title")}

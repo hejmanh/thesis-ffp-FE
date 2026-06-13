@@ -36,7 +36,7 @@ export default function AccountSidebar({
       id={id}
       hoverable={false}
       className={cn(
-        "fixed inset-x-3 top-32 z-50 h-fit max-h-[calc(100vh-9rem)] w-auto overflow-y-auto rounded-xl bg-white p-3 shadow-xl lg:static lg:inset-auto lg:z-auto lg:max-h-none lg:w-[21.25rem] lg:flex-shrink-0 lg:overflow-visible lg:shadow-md",
+        "fixed inset-x-3 bottom-30 z-50 h-fit max-h-[calc(100vh-9rem)] w-auto overflow-y-auto rounded-xl bg-white p-3 shadow-xl lg:static lg:inset-auto lg:z-auto lg:max-h-none lg:w-[21.25rem] lg:flex-shrink-0 lg:overflow-visible lg:shadow-md",
         isMobileOpen ? "block" : "hidden lg:block",
       )}
     >

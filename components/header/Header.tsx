@@ -29,7 +29,7 @@ export default function Header({
   const displayName = userContext?.name ?? user?.email ?? t("accountFallback");
 
   return (
-    <header className="w-full border-b border-border bg-surface/80 backdrop-blur">
+    <header className="w-full z-50 border-b border-border bg-surface/80 backdrop-blur">
       <div className="mx-auto flex h-16 w-full max-w-[1200px] items-center justify-between px-4 sm:h-[4.5rem] sm:px-6 lg:px-8 xl:max-w-[1280px]">
         <Link href={toLocalizedPath("/")} className="flex items-center gap-3">
           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary to-indigo-90 shadow-sm sm:h-10 sm:w-10">

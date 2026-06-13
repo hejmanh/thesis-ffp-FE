@@ -22,7 +22,7 @@ export default function CollapsibleButton({
       aria-controls={controlsId}
       aria-label={isOpen ? "Close account menu" : "Open account menu"}
       className={cn(
-        "fixed bottom-5 right-5 z-[60] inline-flex h-15 w-15 items-center justify-center rounded-full border border-border bg-white text-slate-700 shadow-sm transition hover:bg-primary-soft lg:hidden",
+        "fixed bottom-5 right-5 z-[60] inline-flex h-15 w-15 items-center justify-center rounded-full border border-border bg-white text-slate-700 shadow-lg transition hover:bg-primary-soft lg:hidden",
         isOpen && "shadow-lg",
       )}
     >

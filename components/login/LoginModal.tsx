@@ -194,22 +194,22 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
           />
           {error ? <p className="text-sm text-red-600">{error}</p> : null}
           {showResendVerification ? (
-            <div className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
-              <p>{t("resendHint")}</p>
+            <p className="text-sm text-muted-foreground">
+              {t("resendHint")}{" "}
               <button
                 type="button"
                 onClick={handleResendVerification}
                 disabled={loading || !email.trim()}
-                className="mt-1 font-semibold text-primary underline disabled:cursor-not-allowed disabled:text-muted-foreground"
+                className="font-semibold text-primary underline disabled:cursor-not-allowed disabled:text-muted-foreground"
               >
                 {loading ? t("resendingVerification") : t("resendVerification")}
               </button>
               {resendMessage ? (
-                <p className="mt-1 font-semibold text-emerald-700">
+                <p className="font-semibold text-emerald-700">
                   {resendMessage}
                 </p>
               ) : null}
-            </div>
+            </p>
           ) : null}
           <button
             type="button"
