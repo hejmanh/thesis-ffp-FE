@@ -240,9 +240,8 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
             return <Line data={chartData} options={chartOptions} />;
           })()}
           <p className="mt-3 text-xs text-muted-foreground">
-            {locale === "vi" ? "Xem chi tiết thống kê tại " : "See detail statss in "}
             <Link href={toLocalizedPath("/profile?tab=results")} className="text-primary hover:underline">
-              {locale === "vi" ? "trang hồ sơ" : "Profile page"}
+              {t("detailsLink", { tab: common("results") })}
             </Link>
           </p>
 

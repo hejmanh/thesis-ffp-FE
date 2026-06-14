@@ -5,11 +5,10 @@ import { Icon } from "@iconify/react";
 import { formatCompact } from "@/utils/formatCompact";
 import Button from "@/components/common/Button";
 import Link from "next/link";
+import FormField from "@/components/common/FormField";
 import LifeExpectancyField from "@/components/scenario/LifeExpectancyField";
 import ScenarioInputModal from "@/components/scenario/ScenarioInputModal";
-import ScenarioStatList from "@/components/scenario/ScenarioStatList";
 import { useLifeExpectancyOptions } from "@/hooks/scenario/useLifeExpectancyOptions";
-import { useGetScenario1Input } from "@/hooks/scenario/useScenario1";
 import {
   useGetScenario4Input,
   useGetScenario4Output,
@@ -26,12 +25,12 @@ interface Scenario4ModalProps {
 
 export default function Scenario4Modal({ isOpen, onClose }: Scenario4ModalProps) {
   const t = useTranslations("Scenario");
+  const fields = useTranslations("Fields");
   const common = useTranslations("Common");
   const home = useTranslations("Home.features");
   const getApiErrorMessage = useApiErrorMessage();
   const locale = useLocale();
   const toLocalizedPath = useLocalizedPath();
-  const scenario1InputQuery = useGetScenario1Input();
   const inputQuery = useGetScenario4Input();
   const outputQuery = useGetScenario4Output();
   const createMutation = useCreateScenario4Input();
@@ -39,6 +38,8 @@ export default function Scenario4Modal({ isOpen, onClose }: Scenario4ModalProps)
   const { defaultValue: defaultLifeExpectancy } = useLifeExpectancyOptions();
 
   const [lifeExpectancy, setLifeExpectancy] = useState("");
+  const [inputFfpAge, setInputFfpAge] = useState("");
+  const [inputFfpAnnualSpending, setInputFfpAnnualSpending] = useState("");
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
@@ -47,6 +48,8 @@ export default function Scenario4Modal({ isOpen, onClose }: Scenario4ModalProps)
     if (inputQuery.data) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setLifeExpectancy(String(inputQuery.data.lifeExpectancy));
+      setInputFfpAge(String(inputQuery.data.inputFfpAge));
+      setInputFfpAnnualSpending(String(inputQuery.data.inputFfpAnnualSpending));
     } else if (defaultLifeExpectancy) {
       setLifeExpectancy(defaultLifeExpectancy);
     }
@@ -61,20 +64,10 @@ export default function Scenario4Modal({ isOpen, onClose }: Scenario4ModalProps)
     e.preventDefault();
     setSubmitError(null);
 
-    const resolvedInputFfpAge =
-      scenario1InputQuery.data?.inputFfpAge ?? inputQuery.data?.inputFfpAge;
-    const resolvedInputFfpAnnualSpending =
-      scenario1InputQuery.data?.inputFfpAnnualSpending ?? inputQuery.data?.inputFfpAnnualSpending;
-
-    if (resolvedInputFfpAge == null || resolvedInputFfpAnnualSpending == null) {
-      setSubmitError(t("fallbackError"));
-      return;
-    }
-
     const payload = {
       lifeExpectancy: Number(lifeExpectancy),
-      inputFfpAge: resolvedInputFfpAge,
-      inputFfpAnnualSpending: resolvedInputFfpAnnualSpending,
+      inputFfpAge: Number(inputFfpAge),
+      inputFfpAnnualSpending: Number(inputFfpAnnualSpending),
     };
 
     const mutation = inputQuery.data ? updateMutation : createMutation;
@@ -85,21 +78,6 @@ export default function Scenario4Modal({ isOpen, onClose }: Scenario4ModalProps)
   }
 
   const output = outputQuery.data;
-  const hasScenario4Targets =
-    (scenario1InputQuery.data?.inputFfpAge ?? inputQuery.data?.inputFfpAge) != null &&
-    (scenario1InputQuery.data?.inputFfpAnnualSpending ?? inputQuery.data?.inputFfpAnnualSpending) != null;
-  const stats = output == null
-    ? []
-    : [
-        {
-          label: t("outputs.requiredAnnualSaving"),
-          value: formatCompact(output.requiredAnnualSaving, locale),
-        },
-        {
-          label: t("outputs.requiredWealthAtFfp"),
-          value: formatCompact(output.requiredWealthAtFFPAge, locale),
-        },
-      ];
 
   return (
     <ScenarioInputModal
@@ -113,6 +91,30 @@ export default function Scenario4Modal({ isOpen, onClose }: Scenario4ModalProps)
           value={lifeExpectancy}
           onChange={setLifeExpectancy}
         />
+        <FormField
+          label={fields("targetFfpAge")}
+          isRequired
+          inputProps={{
+            type: "number",
+            min: 1,
+            placeholder: fields("placeholderAge60"),
+            value: inputFfpAge,
+            onChange: (e) => setInputFfpAge(e.target.value),
+            required: true,
+          }}
+        />
+        <FormField
+          label={fields("annualSpendingAtFfp")}
+          isRequired
+          inputProps={{
+            type: "number",
+            min: 0,
+            placeholder: fields("placeholderAnnualSpendingSmall"),
+            value: inputFfpAnnualSpending,
+            onChange: (e) => setInputFfpAnnualSpending(e.target.value),
+            required: true,
+          }}
+        />
 
         {submitError && (
           <p className="text-sm text-red-600">{submitError}</p>
@@ -121,13 +123,7 @@ export default function Scenario4Modal({ isOpen, onClose }: Scenario4ModalProps)
         <Button
           type="submit"
           className="w-full"
-          disabled={
-            isSubmitting ||
-            inputQuery.isLoading ||
-            scenario1InputQuery.isLoading ||
-            !lifeExpectancy ||
-            !hasScenario4Targets
-          }
+          disabled={isSubmitting || inputQuery.isLoading || !lifeExpectancy}
         >
           {isSubmitting ? (
             <span className="inline-flex items-center gap-2">
@@ -146,15 +142,33 @@ export default function Scenario4Modal({ isOpen, onClose }: Scenario4ModalProps)
       {output !== null && output !== undefined && (
         <div className="mt-5 border-t border-border pt-5">
           <p className="mb-3 text-sm font-medium text-slate-500">{t("result")}</p>
-          <ScenarioStatList
-            items={stats}
-            itemClassName="rounded-2xl"
-            valueClassName="text-xl"
-          />
+          <div className="grid grid-cols-1 gap-3">
+            <div className="flex items-center justify-between rounded-2xl bg-primary-soft px-5 py-3">
+              <span className="text-sm text-muted-foreground">{t("outputs.requiredAnnualSaving")}</span>
+              <span className="text-xl font-bold text-primary">
+                {formatCompact(output.requiredAnnualSaving, locale)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between rounded-2xl bg-primary-soft px-5 py-3">
+              <span className="text-sm text-muted-foreground">{t("outputs.ffpAge")}</span>
+              <span className="text-xl font-bold text-primary">{output.ffpAge ?? "-"}</span>
+            </div>
+            <div className="flex items-center justify-between rounded-2xl bg-primary-soft px-5 py-3">
+              <span className="text-sm text-muted-foreground">{t("outputs.annualSpending")}</span>
+              <span className="text-xl font-bold text-primary">
+                {formatCompact(output.inputFfpAnnualSpending, locale)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between rounded-2xl bg-primary-soft px-5 py-3">
+              <span className="text-sm text-muted-foreground">{t("outputs.requiredWealthAtFfp")}</span>
+              <span className="text-xl font-bold text-primary">
+                {formatCompact(output.requiredWealthAtFFPAge, locale)}
+              </span>
+            </div>
+          </div>
           <p className="mt-3 text-xs text-muted-foreground">
-            {locale === "vi" ? "Xem chi tiết thống kê tại " : "See detail statss in "}
             <Link href={toLocalizedPath("/profile?tab=results")} className="text-primary hover:underline">
-              {locale === "vi" ? "trang hồ sơ" : "Profile page"}
+              {t("detailsLink", { tab: common("results") })}
             </Link>
           </p>
           {outputQuery.isFetching && (

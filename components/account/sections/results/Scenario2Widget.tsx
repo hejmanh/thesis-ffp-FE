@@ -138,6 +138,21 @@ export default function Scenario2Widget() {
         <div className="flex items-center justify-between rounded-xl bg-primary-soft px-5 py-3">
           <div className="flex items-center gap-3">
             {/* <Icon
+              icon="mdi:calendar-check-outline"
+              className="h-5 w-5 text-primary"
+              aria-hidden="true"
+            /> */}
+            <span className="text-sm text-muted-foreground">
+              {t("outputs.ffpAge")}
+            </span>
+          </div>
+          <span className="text-lg font-bold text-primary">
+            {ffpAge ?? "-"}
+          </span>
+        </div>
+        <div className="flex items-center justify-between rounded-xl bg-primary-soft px-5 py-3">
+          <div className="flex items-center gap-3">
+            {/* <Icon
               icon="mdi:cash-multiple"
               className="h-5 w-5 text-primary"
               aria-hidden="true"
