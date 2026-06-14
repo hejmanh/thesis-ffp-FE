@@ -2,6 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import { formatCompact } from "@/utils/formatCompact";
+import ScenarioStatList from "@/components/scenario/ScenarioStatList";
 import { useGetScenario4Output } from "@/hooks/scenario/useScenario4";
 import { useLocale, useTranslations } from "@/i18n/client";
 
@@ -29,41 +30,28 @@ export default function Scenario4Widget() {
 
   const stats = [
     {
-      label: t("outputs.ffpAge"),
+      label: t("outputs.targetFfpAge"),
       value: data.ffpAge == null ? "-" : String(data.ffpAge),
-      icon: "mdi:calendar-check-outline",
     },
     {
       label: t("outputs.annualSpending"),
       value: formatCompact(data.inputFfpAnnualSpending, locale),
-      icon: "mdi:cash-multiple",
     },
     {
       label: t("outputs.requiredWealthAtFfp"),
       value: formatCompact(data.requiredWealthAtFFPAge, locale),
-      icon: "mdi:bank-outline",
     },
     {
       label: t("outputs.requiredAnnualSaving"),
       value: formatCompact(data.requiredAnnualSaving, locale),
-      icon: "mingcute:pig-money-line",
     },
   ];
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      {stats.map((stat) => (
-        <div
-          key={stat.label}
-          className="flex items-center justify-between rounded-xl bg-primary-soft px-5 py-3"
-        >
-          <div className="flex items-center gap-3">
-            {/* <Icon icon={stat.icon} className="h-5 w-5 text-primary" aria-hidden="true" /> */}
-            <span className="text-sm text-muted-foreground">{stat.label}</span>
-          </div>
-          <span className="text-lg font-bold text-primary">{stat.value}</span>
-        </div>
-      ))}
-    </div>
+    <ScenarioStatList
+      items={stats}
+      className="sm:grid-cols-2"
+      itemClassName="rounded-xl"
+    />
   );
 }

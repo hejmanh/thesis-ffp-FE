@@ -113,19 +113,19 @@ export default function Scenario3Widget() {
     <div className="space-y-3">
       <div className="grid gap-3 sm:grid-cols-3">
         <div className="rounded-xl bg-primary-soft px-4 py-3 text-center">
-          <p className="text-xs text-muted-foreground">{t("outputs.ffpAge")}</p>
+          <p className="text-xs text-muted-foreground">{t("outputs.targetFfpAge")}</p>
           <p className="mt-0.5 text-xl font-bold text-primary">
             {data.inputFfpAge ?? "-"}
           </p>
         </div>
         <div className="rounded-xl bg-primary-soft px-4 py-3 text-center">
-          <p className="text-xs text-muted-foreground">{t("outputs.annualSpending")}</p>
+          <p className="text-xs text-muted-foreground">{t("outputs.availableAnnualSpending")}</p>
           <p className="mt-0.5 text-xl font-bold text-primary">
             {formatCompact(data.outputFfpAnnualSpending, locale)}
           </p>
         </div>
         <div className="rounded-xl bg-primary-soft px-4 py-3 text-center">
-          <p className="text-xs text-muted-foreground">{t("outputs.monthlySpending")}</p>
+          <p className="text-xs text-muted-foreground">{t("outputs.availableMonthlySpending")}</p>
           <p className="mt-0.5 text-xl font-bold text-primary">
             {formatCompact(data.outputFfpMonthlySpending, locale)}
           </p>
