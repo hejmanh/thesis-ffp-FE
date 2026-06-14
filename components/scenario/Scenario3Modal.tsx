@@ -28,7 +28,7 @@ import {
   useCreateScenario3Input,
   useUpdateScenario3Input,
 } from "@/hooks/scenario/useScenario3";
-import { useLocale, useLocalizedPath, useTranslations } from "@/i18n/client";
+import { useLocale, useLocalizedPath, useTranslations, useLocaleRouter } from "@/i18n/client";
 import { useApiErrorMessage } from "@/hooks/useApiErrorMessage";
 
 ChartJS.register(
@@ -92,6 +92,7 @@ export default function Scenario3Modal({ isOpen, onClose }: Scenario3ModalProps)
   const createMutation = useCreateScenario3Input();
   const updateMutation = useUpdateScenario3Input();
   const { defaultValue: defaultLifeExpectancy } = useLifeExpectancyOptions();
+  const router = useLocaleRouter();
 
   const [lifeExpectancy, setLifeExpectancy] = useState("");
   const [inputFfpAge, setInputFfpAge] = useState("");
@@ -148,7 +149,6 @@ export default function Scenario3Modal({ isOpen, onClose }: Scenario3ModalProps)
           label={fields("targetFfpAge")}
           isRequired
           inputProps={{
-            type: "number",
             min: 1,
             placeholder: fields("placeholderAge55"),
             value: inputFfpAge,
@@ -182,7 +182,17 @@ export default function Scenario3Modal({ isOpen, onClose }: Scenario3ModalProps)
       {/* Inline result */}
       {output !== null && output !== undefined && (
         <div className="mt-5 border-t border-border pt-5">
-          <p className="mb-3 text-sm font-medium text-slate-500">{t("result")}</p>
+          <p className="mb-2 text-sm font-bold text-slate-500">{t("result")}</p>
+          <p className="mb-4 text-sm text-red-600">
+            {t("incompleteStageNotice")}{" "}
+            <button
+              type="button"
+              onClick={() => router.push("/profile?tab=financial")}
+              className="font-semibold text-primary underline hover:text-primary-600 transition"
+            >
+              {t("profilePage")}
+            </button>
+          </p>
 
           {/* Spending stat cards */}
           <div className="mb-4 grid gap-3 sm:grid-cols-3">

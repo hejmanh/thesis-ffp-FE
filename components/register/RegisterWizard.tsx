@@ -64,7 +64,7 @@ export default function RegisterWizard() {
 
   return (
     <div className="relative mx-auto max-w-3xl rounded-3xl bg-slate-50 p-6 shadow-[0_20px_50px_-25px_rgba(15,23,42,0.4)] sm:p-8 lg:p-10">
-      {!wizard.completed ? (
+      {(!wizard.completed && wizard.step != 1) ? (
         <RegisterSkipNotice
           disabled={wizard.saving}
           onSkip={wizard.goToAccount}
