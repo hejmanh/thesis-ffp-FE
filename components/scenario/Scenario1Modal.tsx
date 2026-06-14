@@ -28,8 +28,11 @@ import {
   useCreateScenario1Input,
   useUpdateScenario1Input,
 } from "@/hooks/scenario/useScenario1";
-import { useLocale, useLocalizedPath, useTranslations } from "@/i18n/client";
+import { useLocale, useLocalizedPath, useTranslations, useLocaleRouter } from "@/i18n/client";
 import { useApiErrorMessage } from "@/hooks/useApiErrorMessage";
+import { useUserContext } from "@/providers/UserContextProvider";
+import { useFinancialPlanningReferences } from "@/hooks/reference/useFinancialPlanningReferences";
+import { resolveCurrencyCode } from "@/utils/referenceOptions";
 
 ChartJS.register(
   CategoryScale,
@@ -99,6 +102,10 @@ export default function Scenario1Modal({ isOpen, onClose }: Scenario1ModalProps)
   const createMutation = useCreateScenario1Input();
   const updateMutation = useUpdateScenario1Input();
   const { defaultValue: defaultLifeExpectancy } = useLifeExpectancyOptions();
+  const { data: userData } = useUserContext();
+  const { currencies } = useFinancialPlanningReferences();
+  const currencyCode = resolveCurrencyCode(currencies, userData?.preferredCurrencyId);
+  const router = useLocaleRouter(); 
 
   const [lifeExpectancy, setLifeExpectancy] = useState("");
   const [inputFfpAge, setInputFfpAge] = useState("");
@@ -162,7 +169,6 @@ export default function Scenario1Modal({ isOpen, onClose }: Scenario1ModalProps)
           label={fields("targetFfpAge")}
           isRequired
           inputProps={{
-            type: "number",
             min: 1,
             placeholder: fields("placeholderAge55"),
             value: inputFfpAge,
@@ -173,8 +179,9 @@ export default function Scenario1Modal({ isOpen, onClose }: Scenario1ModalProps)
         <FormField
           label={fields("annualSpendingAtFfp")}
           isRequired
+          inputClassName="h-11 px-3 pr-14"
+          suffix={currencyCode}
           inputProps={{
-            type: "number",
             min: 0,
             placeholder: fields("placeholderAnnualSpending"),
             value: inputFfpAnnualSpending,
@@ -208,8 +215,17 @@ export default function Scenario1Modal({ isOpen, onClose }: Scenario1ModalProps)
       {/* Inline result */}
       {output !== null && output !== undefined && (
         <div className="mt-5 border-t border-border pt-5">
-          <p className="mb-3 text-sm font-medium text-slate-500">{t("result")}</p>
-
+          <p className="mb-2 text-sm font-bold text-slate-500">{t("result")}</p>
+          <p className="mb-4 text-sm text-red-600">
+            {t("incompleteStageNotice")}{" "}
+            <button
+              type="button"
+              onClick={() => router.push("/profile?tab=financial")}
+              className="font-semibold text-primary underline hover:text-primary-600 transition"
+            >
+              {t("profilePage")}
+            </button>
+          </p>
           {/* Yes / No badge */}
           <div
             className={`mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold ${

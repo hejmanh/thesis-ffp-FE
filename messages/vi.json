@@ -227,6 +227,8 @@
     "routeDescription": "Khung route bối cảnh đã sẵn sàng cho logic tính toán tài chính sau này.",
     "closeModal": "Đóng hộp thoại bối cảnh",
     "result": "Kết quả",
+    "incompleteStageNotice": "Kết quả có thể không chính xác nếu bạn chưa hoàn tất thông tin ở các giai đoạn cuộc đời trong",
+    "profilePage": "Trang hồ sơ",
     "detailsLink": "Xem thống kê chi tiết trong tab {tab} trên trang hồ sơ.",
     "updating": "Đang cập nhật...",
     "fallbackError": "Đã có lỗi xảy ra",

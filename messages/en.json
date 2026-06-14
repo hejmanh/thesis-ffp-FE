@@ -227,6 +227,8 @@
     "routeDescription": "Scenario route scaffold is ready for future financial calculation logic.",
     "closeModal": "Close scenario modal",
     "result": "Result",
+    "incompleteStageNotice": "To ensure accurate results, please complete your stage information on the",
+    "profilePage": "Profile page",
     "detailsLink": "See detailed stats in your {tab} tab on the profile page.",
     "updating": "Updating...",
     "fallbackError": "Something went wrong",
