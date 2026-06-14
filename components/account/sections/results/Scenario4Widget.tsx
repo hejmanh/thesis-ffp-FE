@@ -31,22 +31,18 @@ export default function Scenario4Widget() {
     {
       label: t("outputs.ffpAge"),
       value: data.ffpAge == null ? "-" : String(data.ffpAge),
-      icon: "mdi:calendar-check-outline",
     },
     {
       label: t("outputs.annualSpending"),
       value: formatCompact(data.inputFfpAnnualSpending, locale),
-      icon: "mdi:cash-multiple",
     },
     {
       label: t("outputs.requiredWealthAtFfp"),
       value: formatCompact(data.requiredWealthAtFFPAge, locale),
-      icon: "mdi:bank-outline",
     },
     {
       label: t("outputs.requiredAnnualSaving"),
       value: formatCompact(data.requiredAnnualSaving, locale),
-      icon: "mingcute:pig-money-line",
     },
   ];
 
