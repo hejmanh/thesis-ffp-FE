@@ -155,7 +155,7 @@
     }
   },
   "Fields": {
-    "annualSpendingAtFfp": "Annual Spending at FFP",
+    "annualSpendingAtFfp": "Target Annual Spending at FFP",
     "annualGrowthRate": "Annual Growth Rate",
     "annualRate": "Annual Rate",
     "assetType": "Asset Type",
@@ -253,11 +253,14 @@
       "yesAchievable": "Yes, the goal is achievable",
       "yesAchievableModal": "Yes, goal is achievable!",
       "notYet": "Not yet, adjust your plan",
+      "targetFfpAge": "Target FFP age",
       "ffpAge": "FFP age",
       "ffpAchievedAtAge": "FFP achieved at age {age}",
       "ffpNotAchievable": "FFP is not achievable with this plan",
-      "annualSpending": "Annual spending",
+      "annualSpending": "Target annual spending",
+      "availableAnnualSpending": "Available annual spending",
       "monthlySpending": "Monthly spending",
+      "availableMonthlySpending": "Available monthly spending",
       "requiredAnnualSaving": "Required annual saving",
       "requiredWealthAtFfp": "Required wealth at FFP",
       "empty": "No result yet, try Scenario {id} on the home page."

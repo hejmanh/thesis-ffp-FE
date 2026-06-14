@@ -197,19 +197,19 @@ export default function Scenario3Modal({ isOpen, onClose }: Scenario3ModalProps)
           {/* Spending stat cards */}
           <div className="mb-4 grid gap-3 sm:grid-cols-3">
             <div className="rounded-2xl bg-primary-soft px-4 py-3 text-center">
-              <p className="text-xs text-muted-foreground">{t("outputs.ffpAge")}</p>
+              <p className="text-xs text-muted-foreground">{t("outputs.targetFfpAge")}</p>
               <p className="mt-1 text-xl font-bold text-primary">
                 {output.inputFfpAge ?? "-"}
               </p>
             </div>
             <div className="rounded-2xl bg-primary-soft px-4 py-3 text-center">
-              <p className="text-xs text-muted-foreground">{t("outputs.annualSpending")}</p>
+              <p className="text-xs text-muted-foreground">{t("outputs.availableAnnualSpending")}</p>
               <p className="mt-1 text-xl font-bold text-primary">
                 {formatCompact(output.outputFfpAnnualSpending, locale)}
               </p>
             </div>
             <div className="rounded-2xl bg-primary-soft px-4 py-3 text-center">
-              <p className="text-xs text-muted-foreground">{t("outputs.monthlySpending")}</p>
+              <p className="text-xs text-muted-foreground">{t("outputs.availableMonthlySpending")}</p>
               <p className="mt-1 text-xl font-bold text-primary">
                 {formatCompact(output.outputFfpMonthlySpending, locale)}
               </p>
@@ -237,8 +237,9 @@ export default function Scenario3Modal({ isOpen, onClose }: Scenario3ModalProps)
             />
           )}
           <p className="mt-3 text-xs text-muted-foreground">
+            {locale === "vi" ? "Xem chi tiết thống kê tại " : "See detail statss in "}
             <Link href={toLocalizedPath("/profile?tab=results")} className="text-primary hover:underline">
-              {t("detailsLink", { tab: common("results") })}
+              {locale === "vi" ? "trang hồ sơ" : "Profile page"}
             </Link>
           </p>
 

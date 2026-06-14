@@ -173,8 +173,9 @@ export default function Scenario4Modal({ isOpen, onClose }: Scenario4ModalProps)
             </div>
           </div>
           <p className="mt-3 text-xs text-muted-foreground">
+            {locale === "vi" ? "Xem chi tiết thống kê tại " : "See detail statss in "}
             <Link href={toLocalizedPath("/profile?tab=results")} className="text-primary hover:underline">
-              {t("detailsLink", { tab: common("results") })}
+              {locale === "vi" ? "trang hồ sơ" : "Profile page"}
             </Link>
           </p>
           {outputQuery.isFetching && (
