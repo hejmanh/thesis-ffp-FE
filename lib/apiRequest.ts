@@ -8,18 +8,44 @@ import { tokenService } from "@/services/token.service";
 import { csrfService } from "@/services/csrf.service";
 import { tokenRefreshManager } from "@/lib/tokenRefreshManager";
 import { API_ENDPOINTS } from "@/api/endpoints";
+import {
+  defaultLocale,
+  getLocaleFromPathname,
+  isLocale,
+  localeCookieName,
+} from "@/i18n/routing";
 
 const SKIP_REFRESH_URLS = [
   API_ENDPOINTS.auth.refresh,
   API_ENDPOINTS.auth.login,
   API_ENDPOINTS.auth.register,
   API_ENDPOINTS.auth.verifyEmail,
+  API_ENDPOINTS.auth.resendVerificationEmail,
   API_ENDPOINTS.auth.forgotPassword,
   API_ENDPOINTS.auth.resetPassword,
 ];
 
 type RetryConfig = AxiosRequestConfig & { _retry?: boolean };
 type ApiEnvelope<T> = ApiResponse<T> & { data?: T };
+
+function getActiveLocale(): string {
+  if (typeof window === "undefined") {
+    return defaultLocale;
+  }
+
+  const pathnameLocale = getLocaleFromPathname(window.location.pathname);
+  if (pathnameLocale) {
+    return pathnameLocale;
+  }
+
+  const cookieLocale = document.cookie
+    .split(";")
+    .map((entry) => entry.trim())
+    .find((entry) => entry.startsWith(`${localeCookieName}=`))
+    ?.split("=")[1];
+
+  return isLocale(cookieLocale) ? cookieLocale : defaultLocale;
+}
 
 function formatApiErrorMessage<T>(
   data: Partial<ApiEnvelope<T>>,
@@ -73,6 +99,8 @@ class ApiRequest {
           headerBag["Content-Type"] = "application/json";
         }
       }
+
+      (headers as Record<string, string>)["Accept-Language"] = getActiveLocale();
 
       config.headers = headers;
       return config;
@@ -132,7 +160,7 @@ class ApiRequest {
           if (typeof window !== "undefined") {
              const isAlreadyOnLoginPage = window.location.pathname === "/" && new URLSearchParams(window.location.search).get("login") === "1";
              if (!isAlreadyOnLoginPage) {
-               window.location.href = "/?login=1";
+               window.location.href = `/${getActiveLocale()}?login=1`;
              }
            }
           return Promise.reject(refreshError);
@@ -218,6 +246,7 @@ class ApiRequest {
     return {
       success: ok,
       data: data.data as T,
+      code: ok ? undefined : data.code,
       message,
       error: ok ? undefined : message,
       errors: data.errors,
@@ -236,6 +265,7 @@ class ApiRequest {
       return {
         success: false,
         data: data.data as T,
+        code: data.code,
         message,
         error: message,
         errors: data.errors,

@@ -1,4 +1,4 @@
-export type AccountTab = "personal" | "financial" | "preferences" | "results";
+export type AccountTab = "personal" | "financial" | "results";
 
 export interface Allocation {
   u: string;

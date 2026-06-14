@@ -2,10 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { authService } from "@/services/auth.service";
+import { useTranslations } from "@/i18n/client";
+import { useApiErrorMessage } from "@/hooks/useApiErrorMessage";
 
 type Status = "pending" | "success" | "error";
 
 export function useVerifyEmail() {
+  const t = useTranslations("Auth.verifyEmail");
+  const getApiErrorMessage = useApiErrorMessage();
   const [verificationState, setVerificationState] = useState<{
     token: string | null;
     status: Status;
@@ -20,7 +24,7 @@ export function useVerifyEmail() {
       return {
         token: null,
         status: "error",
-        error: "Invalid verification link",
+        error: t("invalidLink"),
       };
     }
 
@@ -44,10 +48,10 @@ export function useVerifyEmail() {
         setVerificationState((currentState) => ({
           ...currentState,
           status: "error",
-          error: err instanceof Error ? err.message : "Verification failed",
+          error: getApiErrorMessage(err, t("failed")),
         }));
       });
-  }, [verificationState.token]);
+  }, [getApiErrorMessage, t, verificationState.token]);
 
   return {
     status: verificationState.status,

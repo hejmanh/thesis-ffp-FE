@@ -11,6 +11,8 @@ export interface Scenario1WealthPoint {
 }
 
 export interface Scenario1Output {
+  inputFfpAge: number;
+  inputFfpAnnualSpending: number;
   outputIsAchievable: boolean;
   requiredWealthAtFFPAge: number;
   wealthProjection: Scenario1WealthPoint[];
@@ -29,7 +31,8 @@ export interface WealthProjectionPoint {
 }
 
 export interface Scenario2Output {
-  outputFfpAge: number;
+  inputFfpAnnualSpending: number;
+  outputFfpAge: number | null;
   wealthProjection: WealthProjectionPoint[];
 }
 
@@ -45,6 +48,7 @@ export interface RetirementCashflowPoint {
 }
 
 export interface Scenario3Output {
+  inputFfpAge: number;
   outputFfpAnnualSpending: number;
   outputFfpMonthlySpending: number;
   retirementCashflow: RetirementCashflowPoint[];
@@ -60,5 +64,6 @@ export interface Scenario4Input {
 export interface Scenario4Output {
   requiredAnnualSaving: number;
   ffpAge: number;
+  inputFfpAnnualSpending: number;
   requiredWealthAtFFPAge: number;
 }

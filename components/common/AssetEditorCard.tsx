@@ -2,6 +2,7 @@
 
 import FormField from "@/components/common/FormField";
 import type { SelectOption } from "@/utils/referenceOptions";
+import { useTranslations } from "@/i18n/client";
 
 export interface AssetEditorValue {
   assetTypeId: string;
@@ -38,6 +39,8 @@ export default function AssetEditorCard<TAsset extends AssetEditorValue>({
   assetTypeOptions,
   assetTypeDisabled = false,
 }: AssetEditorCardProps<TAsset>) {
+  const fields = useTranslations("Fields");
+
   function updateField<K extends keyof AssetEditorValue>(
     key: K,
     value: AssetEditorValue[K],
@@ -68,10 +71,10 @@ export default function AssetEditorCard<TAsset extends AssetEditorValue>({
         <FormField
           id={`${idPrefix}assetTypeId`}
           name={`${idPrefix}assetTypeId`}
-          label="Asset Type"
+          label={fields("assetType")}
           variant="select"
           className="sm:col-span-2"
-          placeholder="Select asset type"
+          placeholder={fields("selectAssetType")}
           selectClassName="h-11"
           value={asset.assetTypeId}
           onChange={(value) => updateField("assetTypeId", value)}
@@ -81,9 +84,9 @@ export default function AssetEditorCard<TAsset extends AssetEditorValue>({
         <FormField
           id={`${idPrefix}initialAnnualIncome`}
           name={`${idPrefix}initialAnnualIncome`}
-          label="Initial Annual Income"
+          label={fields("initialAnnualIncome")}
           inputClassName="h-11"
-          placeholder="e.g. 100000"
+          placeholder={fields("placeholderMoney")}
           inputProps={{
             value: asset.initialAnnualIncome,
             onChange: (event) =>
@@ -95,9 +98,9 @@ export default function AssetEditorCard<TAsset extends AssetEditorValue>({
         <FormField
           id={`${idPrefix}growthRate`}
           name={`${idPrefix}growthRate`}
-          label="Growth Rate"
+          label={fields("growthRate")}
           inputClassName="h-11"
-          placeholder="Growth rate"
+          placeholder={fields("growthRate")}
           suffix="%"
           inputProps={{
             value: asset.growthRate,

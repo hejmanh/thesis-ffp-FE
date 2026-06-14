@@ -6,8 +6,11 @@ import MainLayout from "@/layouts/MainLayout";
 import FormField from "@/components/common/FormField";
 import Button from "@/components/common/Button";
 import { useResetPassword } from "@/hooks";
+import { useLocalizedPath, useTranslations } from "@/i18n/client";
 
 export default function ResetPasswordPage() {
+  const toLocalizedPath = useLocalizedPath();
+  const t = useTranslations("Auth.resetPassword");
   const [password, setPassword] = useState("");
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const { submit, loading, error } = useResetPassword();
@@ -30,16 +33,16 @@ export default function ResetPasswordPage() {
       <section className="px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
         <div className="relative mx-auto max-w-xl rounded-3xl bg-slate-50 p-6 shadow-[0_20px_50px_-25px_rgba(15,23,42,0.4)] sm:p-8">
           <h1 className="text-center text-2xl font-bold text-primary">
-            Reset Password
+            {t("title")}
           </h1>
           <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
             <FormField
               id="reset-password"
               name="password"
-              label="New Password"
+              label={t("newPassword")}
               variant="password"
               inputClassName="h-10 border-primary/60"
-              placeholder="Enter new password"
+              placeholder={t("newPasswordPlaceholder")}
               inputProps={{
                 value: password,
                 onChange: (event) => setPassword(event.target.value),
@@ -66,16 +69,16 @@ export default function ResetPasswordPage() {
               disabled={loading || !password.trim()}
               aria-busy={loading}
             >
-              {loading ? "Resetting..." : "Reset password"}
+              {loading ? t("submitting") : t("submit")}
             </Button>
           </form>
 
           <div className="mt-6 flex justify-center gap-3">
             <Link
-              href="/?login=1"
+              href={toLocalizedPath("/?login=1")}
               className="text-sm font-semibold text-primary underline"
             >
-              Back to login
+              {t("backToLogin")}
             </Link>
           </div>
         </div>

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useLifeStageRangesQuery, useOnboardingReferences } from "@/hooks";
 import { canAccessOnboardingSteps } from "@/guards/onboardingGuard";
 import { useUserContext } from "@/providers/UserContextProvider";
@@ -22,12 +21,8 @@ import {
   validateStep2,
 } from "@/utils/onboardingValidators";
 import { resolveCurrencyCode } from "@/utils/referenceOptions";
-
-export const ONBOARDING_STEPS = [
-  "General Information",
-  "Life Stages",
-  "Post FFP Assets",
-];
+import { useLocaleRouter, useTranslations } from "@/i18n/client";
+import { useApiErrorMessage } from "@/hooks/useApiErrorMessage";
 
 function didLifestyleChange(
   current: OnboardingDraft["step2"]["habits"],
@@ -42,7 +37,17 @@ function didLifestyleChange(
 }
 
 export function useRegisterWizard() {
-  const router = useRouter();
+  const router = useLocaleRouter();
+  const steps = useTranslations("Register.steps");
+  const toast = useTranslations("Register.toast");
+  const errors = useTranslations("Register.errors");
+  const validationT = useTranslations("Validation");
+  const getApiErrorMessage = useApiErrorMessage();
+  const onboardingSteps = [
+    steps("generalInformation"),
+    steps("lifeStages"),
+    steps("postFfpAssets"),
+  ];
   const [step, setStep] = useState(1);
   const [draft, setDraft] = useState<OnboardingDraft>(
     createEmptyOnboardingState,
@@ -166,7 +171,7 @@ export function useRegisterWizard() {
       return;
     }
     if (isUserContextLoading) {
-      setError("Loading your account context, please wait...");
+      setError(errors("loadingContext"));
       return;
     }
     if (userContextError) {
@@ -175,33 +180,33 @@ export function useRegisterWizard() {
     }
     if (!hasRegistrationBirthYear) {
       setError(
-        "Your account context does not include a birth year. Please update your account information before continuing onboarding.",
+        errors("missingBirthYear"),
       );
       return;
     }
     if (!lifeStageRangesQuery.enabled) {
       setError(
-        "A valid birth year is required to continue.",
+        errors("invalidBirthYear"),
       );
       return;
     }
     if (lifeStageRangesQuery.isLoading) {
-      setError("Loading life stage ranges, please wait...");
+      setError(errors("loadingLifeStages"));
       return;
     }
     if (lifeStageRangesQuery.error instanceof Error) {
-      setError(lifeStageRangesQuery.error.message);
+      setError(getApiErrorMessage(lifeStageRangesQuery.error, errors("loadingLifeStages")));
       return;
     }
     if (!lifeStageRangesQuery.data?.length) {
       setError(
-        "No life stage ranges are available for the selected birth year.",
+        errors("noLifeStages"),
       );
       return;
     }
     const validation = validateStep2(nextDraft.step2);
     if (validation) {
-      setError(validation);
+      setError(validationT("generalInformationIncomplete"));
       return;
     }
 
@@ -215,18 +220,14 @@ export function useRegisterWizard() {
     );
 
     setSaving(true);
-    setToastMessage("Saving your financial information...");
+    setToastMessage(toast("savingFinancial"));
     try {
       const payload = buildCreateFinancialRequestFromOnboarding(nextDraft);
       await userInfoService.upsertFinancial(payload);
       setDraft({ ...nextDraft, stages: generatedStages });
       setStep(2);
     } catch (submitError) {
-      setError(
-        submitError instanceof Error
-          ? submitError.message
-          : "Unable to save financial information.",
-      );
+      setError(getApiErrorMessage(submitError, errors("saveFinancial")));
     } finally {
       setToastMessage("");
       setSaving(false);
@@ -236,22 +237,18 @@ export function useRegisterWizard() {
   async function handleStagesNext() {
     setError("");
     if (!draft.stages.length || !draft.stages.every(isStageComplete)) {
-      setError("Please complete your stage data before continuing.");
+      setError(errors("completeStageData"));
       return;
     }
 
     setSaving(true);
-    setToastMessage("Saving your stage information...");
+    setToastMessage(toast("savingStages"));
     try {
       const payload = buildStagesRequest(draft.stages);
       await userInfoService.upsertStages(payload);
       setStep(3);
     } catch (submitError) {
-      setError(
-        submitError instanceof Error
-          ? submitError.message
-          : "Unable to save stages.",
-      );
+      setError(getApiErrorMessage(submitError, errors("saveStages")));
     } finally {
       setToastMessage("");
       setSaving(false);
@@ -263,22 +260,22 @@ export function useRegisterWizard() {
     const nextDraft = getDraftWithEstimatedLifeExpectancy(draft);
     const validation = validateStep2(nextDraft.step2);
     if (validation) {
-      setError(validation);
+      setError(validationT("generalInformationIncomplete"));
       return;
     }
     if (!nextDraft.stages.length || !nextDraft.stages.every(isStageComplete)) {
-      setError("Please complete your stage data before submitting.");
+      setError(errors("completeStageDataSubmit"));
       return;
     }
     if (
       nextDraft.assets.length > 0 &&
       !nextDraft.assets.every(isAssetComplete)
     ) {
-      setError("Please complete each asset card before submitting.");
+      setError(errors("completeAssets"));
       return;
     }
     setSaving(true);
-    setToastMessage("Saving your assets...");
+    setToastMessage(toast("savingAssets"));
     try {
       if (nextDraft.assets.length > 0) {
         const payload = buildCreateAssetsRequest(nextDraft.assets);
@@ -286,11 +283,7 @@ export function useRegisterWizard() {
       }
       setCompleted(true);
     } catch (submitError) {
-      setError(
-        submitError instanceof Error
-          ? submitError.message
-          : "Unable to complete onboarding.",
-      );
+      setError(getApiErrorMessage(submitError, errors("completeOnboarding")));
     } finally {
       setToastMessage("");
       setSaving(false);
@@ -304,6 +297,7 @@ export function useRegisterWizard() {
     saving,
     completed,
     toastMessage,
+    onboardingSteps,
     onboardingReferences,
     isUserContextLoading,
     step2Data,

@@ -1,0 +1,378 @@
+{
+  "Common": {
+    "account": "Tài khoản",
+    "back": "Quay lại",
+    "calculate": "Tính toán",
+    "calculating": "Đang tính...",
+    "coinfused": "Coinfused",
+    "close": "Đóng",
+    "email": "Email",
+    "loading": "Đang tải...",
+    "logout": "Đăng xuất",
+    "loggingOut": "Đang đăng xuất...",
+    "next": "Tiếp theo",
+    "recalculate": "Tính lại",
+    "results": "Kết quả",
+    "save": "Lưu",
+    "saveChanges": "Lưu thay đổi",
+    "saving": "Đang lưu...",
+    "search": "Tìm kiếm...",
+    "noResults": "Không tìm thấy kết quả",
+    "select": "Chọn...",
+    "updating": "Đang cập nhật..."
+  },
+  "Home": {
+    "hero": {
+      "ffpNote": "*FFP: Tuổi tự do tài chính",
+      "badge": "LÊN KẾ HOẠCH THÔNG MINH, TƯƠNG LAI TỰ DO HƠN",
+      "title": "Lập Kế Hoạch Tự Do Tài Chính",
+      "line1": "Bạn đang rối với kế hoạch tài chính? Đừng lo.",
+      "line2": "Trả lời vài câu hỏi đơn giản để nhận được gợi ý rõ ràng cho tương lai."
+    },
+    "features": {
+      "cta": "Khám phá bối cảnh",
+      "viewResults": "Xem kết quả của tôi",
+      "reachGoal": {
+        "title": "Tôi có đạt được mục tiêu FFP không?",
+        "description": "Kiểm tra kế hoạch hiện tại có khả thi hay bạn đang tiết kiệm quá ít hoặc quá nhiều.",
+        "placeholder": "Ví dụ: Nghỉ hưu ở tuổi 55"
+      },
+      "timeline": {
+        "title": "Khi nào tôi đạt FFP?",
+        "description": "Tính độ tuổi bạn có thể đạt tự do tài chính.",
+        "placeholder": "Ví dụ: Nếu tôi tiết kiệm 20% mỗi tháng"
+      },
+      "spending": {
+        "title": "Tôi có thể chi bao nhiêu tại FFP?",
+        "description": "Ước tính mức chi tiêu hằng tháng an toàn sau khi đạt tự do tài chính.",
+        "placeholder": "Ví dụ: Ngân sách hằng tháng sau FFP"
+      },
+      "savings": {
+        "title": "Tôi nên tiết kiệm bao nhiêu?",
+        "description": "Tính khoản tiết kiệm hằng tháng cần thiết để đạt mục tiêu đúng hạn.",
+        "placeholder": "Ví dụ: Số tiền cần tiết kiệm mỗi tháng"
+      },
+      "footer": "© 2026 sha und manh. Bảo lưu mọi quyền."
+    }
+  },
+  "Auth": {
+    "login": {
+      "title": "Chào mừng trở lại",
+      "description": "Hãy cùng tiếp tục khám phá ứng dụng.",
+      "username": "Tên đăng nhập",
+      "usernamePlaceholder": "Nhập tên đăng nhập",
+      "password": "Mật khẩu",
+      "passwordPlaceholder": "Nhập mật khẩu",
+      "forgotPassword": "Quên mật khẩu?",
+      "submit": "Đăng nhập",
+      "submitting": "Đang đăng nhập...",
+      "noAccount": "Chưa có tài khoản?",
+      "signUp": "Đăng ký",
+      "close": "Đóng hộp thoại đăng nhập",
+      "resendHint": "Chưa nhận được email xác thực?",
+      "resendVerification": "Gửi lại email xác thực",
+      "resendingVerification": "Đang gửi email xác thực...",
+      "resendSuccess": "Đã gửi email xác thực. Vui lòng kiểm tra hộp thư.",
+      "resendFailed": "Không thể gửi lại email xác thực."
+    },
+    "forgotPassword": {
+      "title": "Quên Mật Khẩu",
+      "description": "Nhập email để nhận liên kết đặt lại mật khẩu.",
+      "emailPlaceholder": "Nhập email",
+      "submit": "Gửi liên kết đặt lại",
+      "submitting": "Đang gửi...",
+      "backToLogin": "Quay lại đăng nhập"
+    },
+    "resetPassword": {
+      "title": "Đặt Lại Mật Khẩu",
+      "newPassword": "Mật khẩu mới",
+      "newPasswordPlaceholder": "Nhập mật khẩu mới",
+      "submit": "Đặt lại mật khẩu",
+      "submitting": "Đang đặt lại...",
+      "backToLogin": "Quay lại đăng nhập",
+      "invalidLink": "Liên kết đặt lại không hợp lệ",
+      "failed": "Đặt lại thất bại"
+    },
+    "verifyEmail": {
+      "pending": "Đang xác thực email...",
+      "success": "Email của bạn đã được xác thực. Bây giờ bạn có thể đăng nhập.",
+      "failed": "Xác thực thất bại.",
+      "invalidLink": "Liên kết xác thực không hợp lệ",
+      "goToLogin": "Đến đăng nhập",
+      "backToHome": "Về trang chủ"
+    },
+    "password": {
+      "hide": "Ẩn mật khẩu",
+      "show": "Hiện mật khẩu"
+    },
+    "errors": {
+      "fallback": "Đã có lỗi xảy ra"
+    }
+  },
+  "Errors": {
+    "AUTH": {
+      "NO_TOKEN": "Vui lòng đăng nhập để tiếp tục.",
+      "UNAUTHORIZED": "Vui lòng đăng nhập để tiếp tục.",
+      "FORBIDDEN": "Bạn không có quyền thực hiện hành động này.",
+      "INVALID_TOKEN": "Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại.",
+      "INVALID_CSRF_TOKEN": "Mã bảo mật phiên không hợp lệ. Vui lòng tải lại trang và thử lại.",
+      "MISSING_REFRESH_TOKEN": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+      "INVALID_REFRESH_TOKEN": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+      "INVALID_CREDENTIALS": "Email hoặc mật khẩu không hợp lệ.",
+      "EMAIL_EXISTS": "Email này đã được dùng để tạo tài khoản.",
+      "EMAIL_NOT_VERIFIED": "Vui lòng xác thực email trước khi đăng nhập.",
+      "INVALID_OR_EXPIRED_TOKEN": "Liên kết này không hợp lệ hoặc đã hết hạn.",
+      "CURRENT_PASSWORD_INCORRECT": "Mật khẩu hiện tại không đúng.",
+      "NEW_PASSWORD_REUSED": "Mật khẩu mới phải khác mật khẩu hiện tại."
+    },
+    "VALIDATION": {
+      "BAD_REQUEST": "Vui lòng kiểm tra thông tin và thử lại.",
+      "INVALID_INPUT": "Vui lòng kiểm tra thông tin và thử lại.",
+      "INVALID_JSON": "Không thể xử lý yêu cầu.",
+      "FIELD_INVALID": "Vui lòng kiểm tra trường thông tin và thử lại."
+    },
+    "RATE_LIMIT": {
+      "AUTH": "Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau.",
+      "EMAIL_VERIFICATION": "Bạn đã thử xác thực email quá nhiều lần. Vui lòng thử lại sau.",
+      "PASSWORD_RESET": "Bạn đã yêu cầu đặt lại mật khẩu quá nhiều lần. Vui lòng thử lại sau."
+    },
+    "SYSTEM": {
+      "UNKNOWN": "Đã có lỗi xảy ra.",
+      "ERROR": "Đã có lỗi xảy ra.",
+      "INTERNAL_ERROR": "Đã có lỗi xảy ra.",
+      "NOT_FOUND": "Không tìm thấy tài nguyên được yêu cầu.",
+      "ROUTE_NOT_FOUND": "Không tìm thấy trang hoặc API được yêu cầu."
+    }
+  },
+  "Header": {
+    "accountFallback": "Tài khoản",
+    "login": "Đăng Nhập",
+    "register": "Đăng Ký",
+    "languageMenu": {
+      "label": "Đổi ngôn ngữ",
+      "english": "Tiếng Anh",
+      "vietnamese": "Tiếng Việt"
+    }
+  },
+  "Fields": {
+    "annualSpendingAtFfp": "Chi tiêu hằng năm tại FFP",
+    "annualGrowthRate": "Tỷ lệ tăng trưởng hằng năm",
+    "annualRate": "Tỷ lệ hằng năm",
+    "assetType": "Loại tài sản",
+    "birthYear": "Năm sinh",
+    "confirmPassword": "Xác nhận mật khẩu",
+    "country": "Quốc gia",
+    "currentPassword": "Mật khẩu hiện tại",
+    "currentSavings": "Tiền tiết kiệm hiện tại",
+    "desiredLifeExpectancy": "Tuổi thọ mong muốn",
+    "email": "Email",
+    "estimatedLifeExpectancy": "Tuổi thọ ước tính",
+    "gender": "Giới tính",
+    "growthRate": "Tỷ lệ tăng trưởng",
+    "initialAnnualIncome": "Thu nhập trong năm đầu tiên",
+    "initialAnnualSavings": "Tiết kiệm trong năm đầu tiên",
+    "lifeExpectancy": "Tuổi thọ",
+    "name": "Tên",
+    "newPassword": "Mật khẩu mới",
+    "password": "Mật khẩu",
+    "preferredCurrency": "Tiền tệ ưu tiên",
+    "currency": "Tiền tệ",
+    "targetFfpAge": "Tuổi FFP mục tiêu",
+    "selectAssetType": "Chọn loại tài sản",
+    "selectCountry": "Chọn quốc gia",
+    "selectGender": "Chọn giới tính",
+    "selectLevel": "Chọn mức độ",
+    "selectLifeExpectancy": "Chọn tuổi thọ",
+    "selectYear": "Chọn năm",
+    "enterCurrentPassword": "Nhập mật khẩu hiện tại",
+    "enterEmail": "Nhập email",
+    "enterName": "Nhập tên",
+    "enterNewPassword": "Nhập mật khẩu mới",
+    "enterPassword": "Nhập mật khẩu",
+    "confirmYourPassword": "Xác nhận mật khẩu",
+    "confirmNewPassword": "Xác nhận mật khẩu mới",
+    "placeholderAge55": "VD: 55",
+    "placeholderAge60": "VD: 60",
+    "placeholderAnnualSpending": "VD: 24000",
+    "placeholderAnnualSpendingSmall": "VD: 12000",
+    "placeholderMoney": "VD: 100 000",
+    "placeholderRate": "VD: 15",
+    "placeholderLifeExpectancy": "VD: 90"
+  },
+  "FinancialProfile": {
+    "lifeExpectancyAndSavings": "Tuổi thọ và tiết kiệm",
+    "investmentPortfolio": "Danh mục đầu tư",
+    "lifestyle": "Lối sống",
+    "estimatedHint": "Ước tính dựa trên nơi sinh, giới tính và thói quen sống",
+    "desiredHint": "Tuổi thọ mục tiêu của bạn",
+    "allocation": {
+      "riskyAsset": "Tỷ trọng tài sản rủi ro",
+      "expectedReturn": "Tỷ suất sinh lời hằng năm kỳ vọng của tài sản rủi ro",
+      "riskFreeRate": "Tỷ suất sinh lời hằng năm của tài sản phi rủi ro",
+      "beforeLabel": "Trước Tuổi Tự Do Tài Chính",
+      "beforeHint": "Mô tả các khoản đầu tư tăng trưởng trước tuổi tự do tài chính. Lương, tiết kiệm và thu nhập khác được quản lý trong dòng tiền theo giai đoạn.",
+      "afterLabel": "Sau Tuổi Tự Do Tài Chính",
+      "afterHint": "Mô tả các phần đầu tư còn lại tăng trưởng sau nghỉ hưu. Lương hưu và thu nhập thụ động được quản lý riêng."
+    },
+    "habits": {
+      "smoking": "Hút thuốc",
+      "physical": "Hoạt động thể chất",
+      "diet": "Ăn uống lành mạnh",
+      "alcohol": "Tiêu thụ rượu bia"
+    }
+  },
+  "Scenario": {
+    "label": "Bối cảnh {id}",
+    "routeTitle": "Bối cảnh: {name}",
+    "routeDescription": "Khung route bối cảnh đã sẵn sàng cho logic tính toán tài chính sau này.",
+    "closeModal": "Đóng hộp thoại bối cảnh",
+    "result": "Kết quả",
+    "detailsLink": "Xem thống kê chi tiết trong tab {tab} trên trang hồ sơ.",
+    "updating": "Đang cập nhật...",
+    "fallbackError": "Đã có lỗi xảy ra",
+    "lifeExpectancyHint": "Chọn tuổi thọ ước tính, được tính từ quốc gia, giới tính và thói quen sống, hoặc tuổi thọ mục tiêu mong muốn của bạn.",
+    "charts": {
+      "age": "Tuổi",
+      "wealth": "Tài sản",
+      "projectedWealth": "Tài sản dự đoán",
+      "requiredWealth": "Tài sản cần thiết",
+      "ffpTargetWealth": "Tài sản mục tiêu FFP",
+      "ageSpecificRequiredWealth": "Tài sản cần thiết theo tuổi",
+      "wealthLabel": "Tài sản: {value}",
+      "datasetLabel": "{label}: {value}",
+      "goalTitle": "Dự đoán khả năng đạt mục tiêu FFP",
+      "goalSubtitle": "So sánh tài sản dự đoán với mức tài sản cần thiết tại tuổi FFP đã chọn.",
+      "timelineTitle": "Dự đoán tuổi đạt Tuổi Tự Do Tài Chính (FFP)",
+      "timelineSubtitle": "So sánh tài sản dự đoán với mức tài sản cần thiết theo từng tuổi để xác định khi nào đạt tự do tài chính.",
+      "cashflowTitle": "Dự đoán dòng tiền nghỉ hưu",
+      "cashflowSubtitle": "Dự đoán mức giảm tài sản nghỉ hưu theo thời gian dựa trên kế hoạch chi tiêu."
+    },
+    "outputs": {
+      "yesAchievable": "Có, mục tiêu có thể đạt được",
+      "yesAchievableModal": "Có, mục tiêu có thể đạt được!",
+      "notYet": "Chưa đạt, hãy điều chỉnh kế hoạch",
+      "ffpAge": "Tuổi FFP",
+      "ffpAchievedAtAge": "Đạt FFP ở tuổi {age}",
+      "ffpNotAchievable": "Chưa thể đạt FFP với kế hoạch này",
+      "annualSpending": "Chi tiêu hằng năm",
+      "monthlySpending": "Chi tiêu hằng tháng",
+      "requiredAnnualSaving": "Tiết kiệm hằng năm cần thiết",
+      "requiredWealthAtFfp": "Tài sản cần thiết tại FFP",
+      "empty": "Chưa có kết quả, hãy thử Bối cảnh {id} trên trang chủ."
+    }
+  },
+  "Register": {
+    "account": {
+      "title": "Đăng ký",
+      "submit": "Tạo tài khoản",
+      "submitting": "Đang tạo tài khoản...",
+      "loadingOptions": "Đang tải tùy chọn đăng ký...",
+      "alreadyHaveAccount": "Đã có tài khoản?",
+      "signIn": "Đăng nhập",
+      "success": "Đã tạo tài khoản. Vui lòng kiểm tra email để xác thực.",
+      "emailNotReceived": "Chưa nhận email?",
+      "resendVerification": "Gửi lại email xác thực",
+      "resendingVerification": "Đang gửi email xác thực...",
+      "resendSuccess": "Đã gửi email xác thực. Vui lòng kiểm tra hộp thư.",
+      "invalidOptions": "Vui lòng chọn tùy chọn đăng ký hợp lệ.",
+      "fallbackError": "Không thể tạo tài khoản.",
+      "resendFallbackError": "Không thể gửi lại email xác thực."
+    },
+    "steps": {
+      "generalInformation": "Thông tin chung",
+      "lifeStages": "Giai đoạn cuộc đời",
+      "postFfpAssets": "Tài sản sau FFP",
+      "completeOnboarding": "Hoàn tất thiết lập"
+    },
+    "personal": {
+      "loadingReferences": "Đang tải dữ liệu thiết lập..."
+    },
+    "stages": {
+      "description": "Bao gồm lương, thu nhập cho thuê và các khoản tiết kiệm khác trước Tuổi Tự Do Tài Chính."
+    },
+    "assets": {
+      "description": "Bao gồm nguồn thu nhập thụ động sau Tuổi Tự Do Tài Chính, như thu nhập cho thuê và lương hưu.",
+      "addAnother": "+ Thêm tài sản khác",
+      "loadingTypes": "Đang tải loại tài sản..."
+    },
+    "skip": {
+      "action": "Bỏ qua",
+      "description": "Bạn có thể bỏ qua bước này và hoàn tất sau trong trang tài khoản."
+    },
+    "complete": {
+      "title": "Đã Hoàn Tất Thiết Lập",
+      "description": "Hồ sơ của bạn đã được lưu. Bây giờ bạn có thể tiếp tục với các công cụ lập kế hoạch tài chính.",
+      "cta": "Bắt Đầu Hành Trình Tài Chính"
+    },
+    "toast": {
+      "savingFinancial": "Đang lưu thông tin tài chính...",
+      "savingStages": "Đang lưu thông tin giai đoạn...",
+      "savingAssets": "Đang lưu tài sản..."
+    },
+    "errors": {
+      "loadingContext": "Đang tải thông tin tài khoản, vui lòng đợi...",
+      "missingBirthYear": "Thông tin tài khoản chưa có năm sinh. Vui lòng cập nhật thông tin tài khoản trước khi tiếp tục.",
+      "invalidBirthYear": "Cần năm sinh hợp lệ để tiếp tục.",
+      "loadingLifeStages": "Đang tải các giai đoạn cuộc đời, vui lòng đợi...",
+      "noLifeStages": "Không có giai đoạn cuộc đời cho năm sinh đã chọn.",
+      "saveFinancial": "Không thể lưu thông tin tài chính.",
+      "completeStageData": "Vui lòng hoàn tất dữ liệu giai đoạn trước khi tiếp tục.",
+      "completeStageDataSubmit": "Vui lòng hoàn tất dữ liệu giai đoạn trước khi gửi.",
+      "saveStages": "Không thể lưu giai đoạn.",
+      "completeAssets": "Vui lòng hoàn tất từng thẻ tài sản trước khi gửi.",
+      "completeOnboarding": "Không thể hoàn tất thiết lập."
+    }
+  },
+  "Validation": {
+    "fieldRange": "{field} phải nằm trong khoảng {min} đến {max}.",
+    "requiredFields": "Vui lòng điền tất cả trường bắt buộc.",
+    "passwordMismatch": "Mật khẩu và xác nhận mật khẩu phải trùng khớp.",
+    "generalInformationIncomplete": "Vui lòng hoàn tất tất cả trường trong Thông Tin Chung.",
+    "allPasswordFieldsRequired": "Tất cả trường mật khẩu đều bắt buộc.",
+    "newPasswordMismatch": "Mật khẩu mới và xác nhận mật khẩu không trùng khớp."
+  },
+  "Account": {
+    "tabs": {
+      "account": "Tài khoản",
+      "personalInformation": "Thông tin cá nhân",
+      "preferences": "Tùy chọn",
+      "results": "Kết quả"
+    },
+    "security": {
+      "changePassword": "Đổi Mật Khẩu",
+      "updating": "Đang cập nhật...",
+      "fallbackError": "Không thể đổi mật khẩu."
+    },
+    "financial": {
+      "title": "Thông tin cá nhân",
+      "loadingDetails": "Đang tải thông tin chi tiết...",
+      "generalInformation": "Thông tin chung",
+      "lifeStages": "Giai đoạn cuộc đời",
+      "lifeStagesEmpty": "Các giai đoạn sẽ hiển thị khi năm sinh đăng ký có sẵn.",
+      "postFfpAssets": "Tài sản sau FFP",
+      "addAsset": "+ Thêm tài sản",
+      "noAssets": "Chưa có tài sản.",
+      "deleteAsset": "Không thể xóa tài sản.",
+      "updatePersonal": "Không thể cập nhật thông tin cá nhân.",
+      "updateFinancial": "Không thể cập nhật thông tin tài chính.",
+      "updateStages": "Không thể cập nhật giai đoạn.",
+      "updateAssets": "Không thể cập nhật tài sản."
+    },
+    "preferences": {
+      "description": "Thiết lập tùy chọn tài khoản.",
+      "language": "Ngôn ngữ",
+      "english": "Tiếng Anh",
+      "vietnamese": "Tiếng Việt",
+      "japanese": "Tiếng Nhật",
+      "german": "Tiếng Đức"
+    },
+    "assets": {
+      "remove": "Gỡ bỏ"
+    },
+    "results": {
+      "title": "Kết Quả Của Bạn",
+      "description": "Kết quả bối cảnh của bạn sẽ hiển thị tại đây. Bạn có thể xem thông tin chi tiết cho từng bối cảnh.",
+      "back": "Quay lại trình khám phá bối cảnh"
+    }
+  }
+}

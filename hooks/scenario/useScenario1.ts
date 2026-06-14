@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { scenarioApi } from "@/api/scenario.api";
 import { useAuthStore } from "@/store/auth.store";
 import type { Scenario1Input } from "@/types/scenario";
+import { throwApiClientError } from "@/lib/ApiClientError";
 
 export const SCENARIO1_KEYS = {
   input: ["scenario", "1", "input"] as const,
@@ -40,7 +41,10 @@ export function useCreateScenario1Input() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: Scenario1Input) =>
-      scenarioApi.createScenario1Input(payload),
+      scenarioApi.createScenario1Input(payload).then((res) => {
+        if (!res.success) throwApiClientError(res, "Unable to save Scenario 1 input");
+        return res;
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: SCENARIO1_KEYS.input });
       queryClient.invalidateQueries({ queryKey: SCENARIO1_KEYS.output });
@@ -52,7 +56,10 @@ export function useUpdateScenario1Input() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: Partial<Scenario1Input>) =>
-      scenarioApi.updateScenario1Input(payload),
+      scenarioApi.updateScenario1Input(payload).then((res) => {
+        if (!res.success) throwApiClientError(res, "Unable to update Scenario 1 input");
+        return res;
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: SCENARIO1_KEYS.input });
       queryClient.invalidateQueries({ queryKey: SCENARIO1_KEYS.output });

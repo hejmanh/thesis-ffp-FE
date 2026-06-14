@@ -28,6 +28,8 @@ import {
   useCreateScenario2Input,
   useUpdateScenario2Input,
 } from "@/hooks/scenario/useScenario2";
+import { useLocale, useLocalizedPath, useTranslations } from "@/i18n/client";
+import { useApiErrorMessage } from "@/hooks/useApiErrorMessage";
 
 ChartJS.register(
   CategoryScale,
@@ -40,7 +42,8 @@ ChartJS.register(
   SubTitle,
 );
 
-const CHART_OPTIONS: ChartOptions<"line"> = {
+function createChartOptions(locale: "en" | "vi"): ChartOptions<"line"> {
+  return {
   responsive: true,
   maintainAspectRatio: true,
   interaction: { mode: "index", intersect: false },
@@ -56,7 +59,7 @@ const CHART_OPTIONS: ChartOptions<"line"> = {
     tooltip: {
       callbacks: {
         label: (ctx) =>
-          `${ctx.dataset.label}: ${formatCompact(ctx.parsed.y ?? 0)}`,
+          `${ctx.dataset.label}: ${formatCompact(ctx.parsed.y ?? 0, locale)}`,
       },
     },
   },
@@ -64,10 +67,11 @@ const CHART_OPTIONS: ChartOptions<"line"> = {
     x: { title: { display: true, text: "Age" } },
     y: {
       title: { display: true, text: "Wealth" },
-      ticks: { callback: (v) => formatCompact(Number(v)) },
+      ticks: { callback: (v) => formatCompact(Number(v), locale) },
     },
   },
-};
+  };
+}
 
 interface Scenario2ModalProps {
   isOpen: boolean;
@@ -75,6 +79,14 @@ interface Scenario2ModalProps {
 }
 
 export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps) {
+  const t = useTranslations("Scenario");
+  const fields = useTranslations("Fields");
+  const common = useTranslations("Common");
+  const home = useTranslations("Home.features");
+  const getApiErrorMessage = useApiErrorMessage();
+  const locale = useLocale();
+  const toLocalizedPath = useLocalizedPath();
+  const chartOptions = createChartOptions(locale);
   const inputQuery = useGetScenario2Input();
   const outputQuery = useGetScenario2Output();
   const createMutation = useCreateScenario2Input();
@@ -89,6 +101,7 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
 
   useEffect(() => {
     if (inputQuery.data) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLifeExpectancy(String(inputQuery.data.lifeExpectancy));
       setInputFfpAnnualSpending(String(inputQuery.data.inputFfpAnnualSpending));
     } else if (defaultLifeExpectancy) {
@@ -97,6 +110,7 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
   }, [inputQuery.data, defaultLifeExpectancy]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (isOpen) setSubmitError(null);
   }, [isOpen]);
 
@@ -111,7 +125,7 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
 
     const mutation = inputQuery.data ? updateMutation : createMutation;
     await mutation.mutateAsync(payload).catch((err: unknown) => {
-      setSubmitError(err instanceof Error ? err.message : "Something went wrong");
+      setSubmitError(getApiErrorMessage(err, t("fallbackError")));
       return null;
     });
   }
@@ -122,7 +136,7 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
     <ScenarioInputModal
       isOpen={isOpen}
       onClose={onClose}
-      title="When will I reach FFP?"
+      title={home("timeline.title")}
       scenarioId="02"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -131,12 +145,12 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
           onChange={setLifeExpectancy}
         />
         <FormField
-          label="Annual Spending at FFP"
+          label={fields("annualSpendingAtFfp")}
           isRequired
           inputProps={{
             type: "number",
             min: 0,
-            placeholder: "e.g. 24000",
+            placeholder: fields("placeholderAnnualSpending"),
             value: inputFfpAnnualSpending,
             onChange: (e) => setInputFfpAnnualSpending(e.target.value),
             required: true,
@@ -155,12 +169,12 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
           {isSubmitting ? (
             <span className="inline-flex items-center gap-2">
               <Icon icon="mdi:loading" className="h-4 w-4 animate-spin" aria-hidden="true" />
-              Calculating…
+              {common("calculating")}
             </span>
           ) : inputQuery.data ? (
-            "Recalculate"
+            common("recalculate")
           ) : (
-            "Calculate"
+            common("calculate")
           )}
         </Button>
       </form>
@@ -168,15 +182,25 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
       {/* Inline result */}
       {output !== null && output !== undefined && (
         <div className="mt-5 border-t border-border pt-5">
-          <p className="mb-3 text-sm font-medium text-slate-500">Result</p>
+          <p className="mb-3 text-sm font-medium text-slate-500">{t("result")}</p>
 
           {/* FFP age badge */}
-          {output.outputFfpAge > 0 && (
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-green-50 px-3 py-1 text-sm font-semibold text-green-700">
-              <Icon icon="mdi:flag-checkered" className="h-4 w-4" aria-hidden="true" />
-              FFP achieved at age {output.outputFfpAge}
-            </div>
-          )}
+          <div
+            className={`mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold ${
+              output.outputFfpAge == null
+                ? "bg-red-50 text-red-600"
+                : "bg-green-50 text-green-700"
+            }`}
+          >
+            <Icon
+              icon={output.outputFfpAge == null ? "mdi:close-circle" : "mdi:flag-checkered"}
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
+            {output.outputFfpAge == null
+              ? t("outputs.ffpNotAchievable")
+              : t("outputs.ffpAchievedAtAge", { age: output.outputFfpAge })}
+          </div>
 
           {/* Two-line wealth chart */}
           {output.wealthProjection?.length > 0 && (() => {
@@ -194,7 +218,7 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
               labels,
               datasets: [
                 {
-                  label: "Projected Wealth",
+                  label: t("charts.projectedWealth"),
                   data: output.wealthProjection.map((p) => p.wealth),
                   borderColor: "#6366f1",
                   backgroundColor: "#6366f120",
@@ -203,7 +227,7 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
                   tension: 0.3,
                 },
                 {
-                  label: "Required Wealth",
+                  label: t("charts.requiredWealth"),
                   data: output.wealthProjection.map((p) => p.requiredWealth),
                   borderColor: "#f59e0b",
                   backgroundColor: "#f59e0b20",
@@ -213,16 +237,16 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
                 },
               ],
             };
-            return <Line data={chartData} options={CHART_OPTIONS} />;
+            return <Line data={chartData} options={chartOptions} />;
           })()}
           <p className="mt-3 text-xs text-muted-foreground">
-            See detailed stats in your{" "}
-            <Link href="/profile?tab=results" className="text-primary hover:underline">
-            Results</Link> tab on the profile page.
+            <Link href={toLocalizedPath("/profile?tab=results")} className="text-primary hover:underline">
+              {t("detailsLink", { tab: common("results") })}
+            </Link>
           </p>
 
           {outputQuery.isFetching && (
-            <p className="mt-2 text-xs text-muted-foreground">Updating…</p>
+            <p className="mt-2 text-xs text-muted-foreground">{t("updating")}</p>
           )}
         </div>
       )}

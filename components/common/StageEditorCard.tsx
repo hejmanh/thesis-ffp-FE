@@ -1,6 +1,7 @@
 "use client";
 
 import FormField from "@/components/common/FormField";
+import { useTranslations } from "@/i18n/client";
 
 export interface StageEditorValue {
   title?: string;
@@ -49,6 +50,7 @@ export default function StageEditorCard({
   variant,
   index,
 }: StageEditorCardProps) {
+  const fields = useTranslations("Fields");
   const config = variantConfig[variant];
 
   function updateField<K extends keyof StageEditorValue>(
@@ -65,10 +67,10 @@ export default function StageEditorCard({
       </h3>
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <FormField
-          label="Initial Annual Savings"
+          label={fields("initialAnnualSavings")}
           inputClassName="h-11 px-3 pr-14"
           suffix={stage.currency}
-          placeholder="e.g. 100 000"
+          placeholder={fields("placeholderMoney")}
           inputProps={{
             value: stage.annualSaving,
             onChange: (event) =>
@@ -77,10 +79,10 @@ export default function StageEditorCard({
           }}
         />
         <FormField
-          label={config.inputRateLabel}
+          label={variant === "account" ? fields("annualRate") : fields("annualGrowthRate")}
           inputClassName="h-11 px-3 pr-8"
           suffix="%"
-          placeholder="e.g. 15"
+          placeholder={fields("placeholderRate")}
           inputProps={{
             value: stage.annualRate,
             onChange: (event) => updateField("annualRate", event.target.value),

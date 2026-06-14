@@ -2,6 +2,7 @@
 
 import Button from "@/components/common/Button";
 import { cn } from "@/utils/cn";
+import { useTranslations } from "@/i18n/client";
 
 interface StepNavigationActionsProps {
   className?: string;
@@ -18,15 +19,18 @@ interface StepNavigationActionsProps {
 export default function StepNavigationActions({
   className,
   layout = "row",
-  nextLabel = "Next",
-  submittingLabel = "Saving...",
+  nextLabel,
+  submittingLabel,
   isSubmitting,
   nextDisabled = false,
   backDisabled,
   onNext,
   onBack,
 }: StepNavigationActionsProps) {
+  const common = useTranslations("Common");
   const isColumn = layout === "column";
+  const resolvedNextLabel = nextLabel ?? common("next");
+  const resolvedSubmittingLabel = submittingLabel ?? common("saving");
   const buttonClassName = cn(
     "h-12 rounded-full text-base",
     isColumn ? "w-full" : "flex-1",
@@ -38,7 +42,7 @@ export default function StepNavigationActions({
       onClick={onNext}
       disabled={nextDisabled || isSubmitting}
     >
-      {isSubmitting ? submittingLabel : nextLabel}
+      {isSubmitting ? resolvedSubmittingLabel : resolvedNextLabel}
     </Button>
   );
 
@@ -49,7 +53,7 @@ export default function StepNavigationActions({
       onClick={onBack}
       disabled={backDisabled ?? isSubmitting}
     >
-      Back
+      {common("back")}
     </Button>
   ) : null;
 

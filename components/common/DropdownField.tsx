@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/utils/cn";
+import { useTranslations } from "@/i18n/client";
 
 interface DropdownOption {
   label: string;
@@ -23,7 +24,7 @@ interface DropdownFieldProps {
 
 export default function DropdownField({
   options,
-  placeholder = "Select...",
+  placeholder,
   value,
   onChange,
   disabled = false,
@@ -33,6 +34,7 @@ export default function DropdownField({
   name,
   searchable = false,
 }: DropdownFieldProps) {
+  const common = useTranslations("Common");
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
@@ -140,7 +142,7 @@ export default function DropdownField({
           buttonClassName
         )}
       >
-        {selected ? selected.label : placeholder}
+        {selected ? selected.label : placeholder ?? common("select")}
 
         <svg
           className="h-5 w-5 flex-shrink-0 text-gray-400"
@@ -167,11 +169,11 @@ export default function DropdownField({
               <input
                 ref={searchInputRef}
                 type="text"
-                placeholder="Search..."
+                placeholder={common("search")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full rounded px-2 py-1 text-sm border border-gray-300 outline-none focus:ring-2 focus:ring-blue-500"
-                aria-label="Search options"
+                aria-label={common("search")}
               />
             </div>
           )}
@@ -200,7 +202,7 @@ export default function DropdownField({
                 </button>
               ))
             ) : (
-              <div className="px-4 py-2 text-sm text-gray-500">No results found</div>
+              <div className="px-4 py-2 text-sm text-gray-500">{common("noResults")}</div>
             )}
           </div>
         </div>

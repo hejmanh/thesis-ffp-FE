@@ -15,6 +15,7 @@ import type {
   UserInfoStageData,
 } from "@/types/userInfo";
 import type { UserContextData } from "@/types/userContext";
+import { throwApiClientError } from "@/lib/ApiClientError";
 
 const MISSING_RESOURCE_PATTERNS = [
   "not found",
@@ -119,7 +120,7 @@ export const userInfoService = {
   async getMe(): Promise<UserContextData> {
     const res = await userInfoApi.getMe();
     if (!res.success || !res.data) {
-      throw new Error(res.error ?? "Unable to load user context");
+      throwApiClientError(res, "Unable to load user context");
     }
     return normalizeUserContextData(res.data);
   },
@@ -127,7 +128,7 @@ export const userInfoService = {
   async patchMe(payload: PatchUserInfoMeRequest): Promise<UserContextData> {
     const res = await userInfoApi.patchMe(payload);
     if (!res.success || !res.data) {
-      throw new Error(res.error ?? "Unable to update personal information");
+      throwApiClientError(res, "Unable to update personal information");
     }
     return normalizeUserContextData(res.data);
   },
@@ -138,7 +139,7 @@ export const userInfoService = {
       return null;
     }
     if (!res.success) {
-      throw new Error(res.error ?? "Unable to load financial information");
+      throwApiClientError(res, "Unable to load financial information");
     }
     return normalizeFinancialResponse(res.data);
   },
@@ -146,14 +147,14 @@ export const userInfoService = {
   async createFinancial(payload: CreateFinancialRequest): Promise<void> {
     const res = await userInfoApi.createFinancial(payload);
     if (!res.success) {
-      throw new Error(res.error ?? "Unable to create financial information");
+      throwApiClientError(res, "Unable to create financial information");
     }
   },
 
   async patchFinancial(payload: CreateFinancialRequest): Promise<void> {
     const res = await userInfoApi.patchFinancial(payload);
     if (!res.success) {
-      throw new Error(res.error ?? "Unable to update financial information");
+      throwApiClientError(res, "Unable to update financial information");
     }
   },
 
@@ -163,16 +164,12 @@ export const userInfoService = {
     if (isNotFoundResponse(patchRes.message, patchRes.error)) {
       const createRes = await userInfoApi.createFinancial(payload);
       if (!createRes.success) {
-        throw new Error(
-          createRes.error ?? "Unable to create financial information",
-        );
+        throwApiClientError(createRes, "Unable to create financial information");
       }
       return;
     }
     if (!patchRes.success) {
-      throw new Error(
-        patchRes.error ?? "Unable to update financial information",
-      );
+      throwApiClientError(patchRes, "Unable to update financial information");
     }
   },
 
@@ -182,7 +179,7 @@ export const userInfoService = {
       return [];
     }
     if (!res.success) {
-      throw new Error(res.error ?? "Unable to load stages");
+      throwApiClientError(res, "Unable to load stages");
     }
     return normalizeStagesResponse(res.data);
   },
@@ -190,7 +187,7 @@ export const userInfoService = {
   async patchStages(payload: PatchStagesRequest): Promise<void> {
     const res = await userInfoApi.patchStages(payload);
     if (!res.success) {
-      throw new Error(res.error ?? "Unable to update stages");
+      throwApiClientError(res, "Unable to update stages");
     }
   },
 
@@ -200,19 +197,19 @@ export const userInfoService = {
     if (isNotFoundResponse(patchRes.message, patchRes.error)) {
       const createRes = await userInfoApi.createStages(payload);
       if (!createRes.success) {
-        throw new Error(createRes.error ?? "Unable to create stages");
+        throwApiClientError(createRes, "Unable to create stages");
       }
       return;
     }
     if (!patchRes.success) {
-      throw new Error(patchRes.error ?? "Unable to update stages");
+      throwApiClientError(patchRes, "Unable to update stages");
     }
   },
 
   async createStages(payload: CreateStagesRequest): Promise<void> {
     const res = await userInfoApi.createStages(payload);
     if (!res.success) {
-      throw new Error(res.error ?? "Unable to create stages");
+      throwApiClientError(res, "Unable to create stages");
     }
   },
 
@@ -222,7 +219,7 @@ export const userInfoService = {
       return [];
     }
     if (!res.success) {
-      throw new Error(res.error ?? "Unable to load assets");
+      throwApiClientError(res, "Unable to load assets");
     }
     return normalizeAssetsResponse(res.data);
   },
@@ -232,7 +229,7 @@ export const userInfoService = {
   ): Promise<CreateAssetsResponse> {
     const res = await userInfoApi.createAssets(payload);
     if (!res.success) {
-      throw new Error(res.error ?? "Unable to create assets");
+      throwApiClientError(res, "Unable to create assets");
     }
     return res.data ?? [];
   },
@@ -240,14 +237,14 @@ export const userInfoService = {
   async patchAssets(payload: PatchAssetsRequest): Promise<void> {
     const res = await userInfoApi.patchAssets(payload);
     if (!res.success) {
-      throw new Error(res.error ?? "Unable to update assets");
+      throwApiClientError(res, "Unable to update assets");
     }
   },
 
   async deleteAsset(uid: string): Promise<void> {
     const res = await userInfoApi.deleteAsset(uid);
     if (!res.success) {
-      throw new Error(res.error ?? "Unable to delete asset");
+      throwApiClientError(res, "Unable to delete asset");
     }
   },
 };

@@ -1,0 +1,378 @@
+{
+  "Common": {
+    "account": "Account",
+    "back": "Back",
+    "calculate": "Calculate",
+    "calculating": "Calculating...",
+    "coinfused": "Coinfused",
+    "close": "Close",
+    "email": "Email",
+    "loading": "Loading...",
+    "logout": "Logout",
+    "loggingOut": "Logging out...",
+    "next": "Next",
+    "recalculate": "Recalculate",
+    "results": "Results",
+    "save": "Save",
+    "saveChanges": "Save changes",
+    "saving": "Saving...",
+    "search": "Search...",
+    "noResults": "No results found",
+    "select": "Select...",
+    "updating": "Updating..."
+  },
+  "Home": {
+    "hero": {
+      "badge": "SMART PLANNING, FREER FUTURE",
+      "title": "Plan Your Financial Freedom",
+      "line1": "Confused about your financial planning? Don't worry.",
+      "line2": "Answer a few simple questions and get clear insights to take control of your future.",
+      "ffpNote": "*FFP: Financial Freedom Point"
+    },
+    "features": {
+      "cta": "Explore Scenario",
+      "viewResults": "View my results",
+      "reachGoal": {
+        "title": "Can I reach my FFP goal?",
+        "description": "Check if your current plan is achievable or if you're saving too little or too much.",
+        "placeholder": "Example: Retire by age 55"
+      },
+      "timeline": {
+        "title": "When will I reach FFP?",
+        "description": "Calculate the age you can achieve financial freedom.",
+        "placeholder": "Example: If I save 20% monthly"
+      },
+      "spending": {
+        "title": "How much can I spend at FFP?",
+        "description": "Find out your safe monthly spending once you reach financial freedom.",
+        "placeholder": "Example: Monthly budget after FFP"
+      },
+      "savings": {
+        "title": "How much should I save?",
+        "description": "Calculate the required monthly savings to reach your goal on time.",
+        "placeholder": "Example: Savings needed per month"
+      },
+      "footer": "© 2026 sha und manh. All rights reserved."
+    }
+  },
+  "Auth": {
+    "login": {
+      "title": "Welcome back",
+      "description": "Let's explore the app again with us.",
+      "username": "Username",
+      "usernamePlaceholder": "Enter your username",
+      "password": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "forgotPassword": "Forgot password?",
+      "submit": "Log in",
+      "submitting": "Logging in...",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up",
+      "close": "Close login modal",
+      "resendHint": "Didn't receive the verification email?",
+      "resendVerification": "Resend verification email",
+      "resendingVerification": "Sending verification email...",
+      "resendSuccess": "Verification email sent. Please check your inbox.",
+      "resendFailed": "Unable to resend verification email."
+    },
+    "forgotPassword": {
+      "title": "Forgot Password",
+      "description": "Enter your email to receive a password reset link.",
+      "emailPlaceholder": "Enter your email",
+      "submit": "Send reset link",
+      "submitting": "Sending...",
+      "backToLogin": "Back to login"
+    },
+    "resetPassword": {
+      "title": "Reset Password",
+      "newPassword": "New Password",
+      "newPasswordPlaceholder": "Enter new password",
+      "submit": "Reset password",
+      "submitting": "Resetting...",
+      "backToLogin": "Back to login",
+      "invalidLink": "Invalid reset link",
+      "failed": "Reset failed"
+    },
+    "verifyEmail": {
+      "pending": "Verifying your email...",
+      "success": "Your email has been verified. You can now log in.",
+      "failed": "Verification failed.",
+      "invalidLink": "Invalid verification link",
+      "goToLogin": "Go to login",
+      "backToHome": "Back to home"
+    },
+    "password": {
+      "hide": "Hide password",
+      "show": "Show password"
+    },
+    "errors": {
+      "fallback": "Something went wrong"
+    }
+  },
+  "Errors": {
+    "AUTH": {
+      "NO_TOKEN": "Please log in to continue.",
+      "UNAUTHORIZED": "Please log in to continue.",
+      "FORBIDDEN": "You do not have permission to perform this action.",
+      "INVALID_TOKEN": "Your session is invalid. Please log in again.",
+      "INVALID_CSRF_TOKEN": "Your session security token is invalid. Please refresh and try again.",
+      "MISSING_REFRESH_TOKEN": "Your session has expired. Please log in again.",
+      "INVALID_REFRESH_TOKEN": "Your session has expired. Please log in again.",
+      "INVALID_CREDENTIALS": "Invalid email or password.",
+      "EMAIL_EXISTS": "An account with this email already exists.",
+      "EMAIL_NOT_VERIFIED": "Please verify your email before logging in.",
+      "INVALID_OR_EXPIRED_TOKEN": "This link is invalid or has expired.",
+      "CURRENT_PASSWORD_INCORRECT": "Your current password is incorrect.",
+      "NEW_PASSWORD_REUSED": "Your new password must be different from your current password."
+    },
+    "VALIDATION": {
+      "BAD_REQUEST": "Please check your input and try again.",
+      "INVALID_INPUT": "Please check your input and try again.",
+      "INVALID_JSON": "The request could not be processed.",
+      "FIELD_INVALID": "Please check the highlighted field and try again."
+    },
+    "RATE_LIMIT": {
+      "AUTH": "Too many requests. Please try again later.",
+      "EMAIL_VERIFICATION": "Too many email verification attempts. Please try again later.",
+      "PASSWORD_RESET": "Too many password reset attempts. Please try again later."
+    },
+    "SYSTEM": {
+      "UNKNOWN": "Something went wrong.",
+      "ERROR": "Something went wrong.",
+      "INTERNAL_ERROR": "Something went wrong.",
+      "NOT_FOUND": "The requested resource was not found.",
+      "ROUTE_NOT_FOUND": "The requested page or API route was not found."
+    }
+  },
+  "Header": {
+    "accountFallback": "Account",
+    "login": "Log In",
+    "register": "Register",
+    "languageMenu": {
+      "label": "Change language",
+      "english": "English",
+      "vietnamese": "Vietnamese"
+    }
+  },
+  "Fields": {
+    "annualSpendingAtFfp": "Annual Spending at FFP",
+    "annualGrowthRate": "Annual Growth Rate",
+    "annualRate": "Annual Rate",
+    "assetType": "Asset Type",
+    "birthYear": "Birth Year",
+    "confirmPassword": "Confirm password",
+    "country": "Country",
+    "currentPassword": "Current password",
+    "currentSavings": "Current Savings",
+    "desiredLifeExpectancy": "Desired Life Expectancy",
+    "email": "Email",
+    "estimatedLifeExpectancy": "Estimated Life Expectancy",
+    "gender": "Gender",
+    "growthRate": "Growth Rate",
+    "initialAnnualIncome": "Initial Annual Income",
+    "initialAnnualSavings": "Initial Annual Savings",
+    "lifeExpectancy": "Life Expectancy",
+    "name": "Name",
+    "newPassword": "New password",
+    "password": "Password",
+    "preferredCurrency": "Preferred Currency",
+    "currency": "Currency",
+    "targetFfpAge": "Target FFP Age",
+    "selectAssetType": "Select asset type",
+    "selectCountry": "Select country",
+    "selectGender": "Select gender",
+    "selectLevel": "Select level",
+    "selectLifeExpectancy": "Select life expectancy",
+    "selectYear": "Select year",
+    "enterCurrentPassword": "Enter current password",
+    "enterEmail": "Enter your email",
+    "enterName": "Enter your name",
+    "enterNewPassword": "Enter new password",
+    "enterPassword": "Enter your password",
+    "confirmYourPassword": "Confirm your password",
+    "confirmNewPassword": "Confirm new password",
+    "placeholderAge55": "e.g. 55",
+    "placeholderAge60": "e.g. 60",
+    "placeholderAnnualSpending": "e.g. 24000",
+    "placeholderAnnualSpendingSmall": "e.g. 12000",
+    "placeholderMoney": "e.g. 100 000",
+    "placeholderRate": "e.g. 15",
+    "placeholderLifeExpectancy": "e.g. 90"
+  },
+  "FinancialProfile": {
+    "lifeExpectancyAndSavings": "Life Expectancy and Savings",
+    "investmentPortfolio": "Investment Portfolio",
+    "lifestyle": "Lifestyle",
+    "estimatedHint": "Estimated based on your birthplace, gender, and lifestyle habits",
+    "desiredHint": "Your target lifespan",
+    "allocation": {
+      "riskyAsset": "Proportion of risky asset",
+      "expectedReturn": "Expected annual return rate of risky asset",
+      "riskFreeRate": "Annual return rate of risk-free asset",
+      "beforeLabel": "Before Financial Freedom Point",
+      "beforeHint": "Defines how your investments grow before financial freedom. Salary, savings, and other income are managed through life-stage cash flow projections.",
+      "afterLabel": "After Financial Freedom Point",
+      "afterHint": "Defines how your remaining investments grow after retirement. Pension and passive income are projected separately."
+    },
+    "habits": {
+      "smoking": "Smoking",
+      "physical": "Physical Activity",
+      "diet": "Healthy Diet",
+      "alcohol": "Alcohol Consumption"
+    }
+  },
+  "Scenario": {
+    "label": "Scenario {id}",
+    "routeTitle": "Scenario: {name}",
+    "routeDescription": "Scenario route scaffold is ready for future financial calculation logic.",
+    "closeModal": "Close scenario modal",
+    "result": "Result",
+    "detailsLink": "See detailed stats in your {tab} tab on the profile page.",
+    "updating": "Updating...",
+    "fallbackError": "Something went wrong",
+    "lifeExpectancyHint": "Select either your estimated life expectancy, calculated from your country, gender, and lifestyle habits, or your desired target lifespan.",
+    "charts": {
+      "age": "Age",
+      "wealth": "Wealth",
+      "projectedWealth": "Projected Wealth",
+      "requiredWealth": "Required Wealth",
+      "ffpTargetWealth": "FFP Target Wealth",
+      "ageSpecificRequiredWealth": "Age-Specific Required Wealth",
+      "wealthLabel": "Wealth: {value}",
+      "datasetLabel": "{label}: {value}",
+      "goalTitle": "FFP Goal Achievement Projection",
+      "goalSubtitle": "Compare projected wealth against the required wealth target at your selected FFP age.",
+      "timelineTitle": "Financial Freedom Point (FFP) Age Projection",
+      "timelineSubtitle": "Compare projected wealth against the age-specific wealth requirement to identify when financial freedom is achieved.",
+      "cashflowTitle": "Retirement Cashflow Projection",
+      "cashflowSubtitle": "Projects the decline of retirement wealth over time based on your spending plan."
+    },
+    "outputs": {
+      "yesAchievable": "Yes, the goal is achievable",
+      "yesAchievableModal": "Yes, goal is achievable!",
+      "notYet": "Not yet, adjust your plan",
+      "ffpAge": "FFP age",
+      "ffpAchievedAtAge": "FFP achieved at age {age}",
+      "ffpNotAchievable": "FFP is not achievable with this plan",
+      "annualSpending": "Annual spending",
+      "monthlySpending": "Monthly spending",
+      "requiredAnnualSaving": "Required annual saving",
+      "requiredWealthAtFfp": "Required wealth at FFP",
+      "empty": "No result yet, try Scenario {id} on the home page."
+    }
+  },
+  "Register": {
+    "account": {
+      "title": "Registration",
+      "submit": "Create account",
+      "submitting": "Creating account...",
+      "loadingOptions": "Loading registration options...",
+      "alreadyHaveAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "success": "Account created. Please check your email to verify it.",
+      "emailNotReceived": "Didn't receive the email?",
+      "resendVerification": "Resend verification email",
+      "resendingVerification": "Sending verification email...",
+      "resendSuccess": "Verification email sent. Please check your inbox.",
+      "invalidOptions": "Please select valid registration options.",
+      "fallbackError": "Unable to create your account.",
+      "resendFallbackError": "Unable to resend verification email."
+    },
+    "steps": {
+      "generalInformation": "General Information",
+      "lifeStages": "Life Stages",
+      "postFfpAssets": "Post FFP Assets",
+      "completeOnboarding": "Complete Onboarding"
+    },
+    "personal": {
+      "loadingReferences": "Loading onboarding references..."
+    },
+    "stages": {
+      "description": "Includes salary, rental income, and other savings contributions before Financial Freedom Point."
+    },
+    "assets": {
+      "description": "Includes passive income sources after Financial Freedom Point, such as rental income and pensions.",
+      "addAnother": "+ Add another asset",
+      "loadingTypes": "Loading asset types..."
+    },
+    "skip": {
+      "action": "Skip",
+      "description": "You can skip this setup for now and complete it later from the account page."
+    },
+    "complete": {
+      "title": "Onboarding Complete",
+      "description": "Your profile has been saved. You can now proceed to financial planning tools.",
+      "cta": "Start Your Financial Journey"
+    },
+    "toast": {
+      "savingFinancial": "Saving your financial information...",
+      "savingStages": "Saving your stage information...",
+      "savingAssets": "Saving your assets..."
+    },
+    "errors": {
+      "loadingContext": "Loading your account context, please wait...",
+      "missingBirthYear": "Your account context does not include a birth year. Please update your account information before continuing onboarding.",
+      "invalidBirthYear": "A valid birth year is required to continue.",
+      "loadingLifeStages": "Loading life stage ranges, please wait...",
+      "noLifeStages": "No life stage ranges are available for the selected birth year.",
+      "saveFinancial": "Unable to save financial information.",
+      "completeStageData": "Please complete your stage data before continuing.",
+      "completeStageDataSubmit": "Please complete your stage data before submitting.",
+      "saveStages": "Unable to save stages.",
+      "completeAssets": "Please complete each asset card before submitting.",
+      "completeOnboarding": "Unable to complete onboarding."
+    }
+  },
+  "Validation": {
+    "requiredFields": "Please fill all required fields.",
+    "passwordMismatch": "Password and confirm password must match.",
+    "generalInformationIncomplete": "Please complete all fields in General Information.",
+    "allPasswordFieldsRequired": "All password fields are required.",
+    "newPasswordMismatch": "New password and confirm password do not match.",
+    "fieldRange": "{field} must be between {min} and {max}."
+  },
+  "Account": {
+    "tabs": {
+      "account": "Account",
+      "personalInformation": "Personal Information",
+      "preferences": "Preferences",
+      "results": "Results"
+    },
+    "security": {
+      "changePassword": "Change Password",
+      "updating": "Updating...",
+      "fallbackError": "Unable to change password."
+    },
+    "financial": {
+      "title": "Personal Information",
+      "loadingDetails": "Loading your detailed information...",
+      "generalInformation": "General Information",
+      "lifeStages": "Life Stages",
+      "lifeStagesEmpty": "Life stages will appear here once your registration birth year is available.",
+      "postFfpAssets": "Post-FFP Assets",
+      "addAsset": "+ Add asset",
+      "noAssets": "No assets yet.",
+      "deleteAsset": "Unable to delete asset.",
+      "updatePersonal": "Unable to update personal information.",
+      "updateFinancial": "Unable to update financial information.",
+      "updateStages": "Unable to update stages.",
+      "updateAssets": "Unable to update assets."
+    },
+    "preferences": {
+      "description": "Set your account preferences.",
+      "language": "Language",
+      "english": "English",
+      "vietnamese": "Vietnamese",
+      "japanese": "Japanese",
+      "german": "German"
+    },
+    "assets": {
+      "remove": "Remove"
+    },
+    "results": {
+      "title": "Your Results",
+      "description": "Your scenario results will be displayed here. You can view detailed insights for each scenario.",
+      "back": "Back to scenarios explorer"
+    }
+  }
+}

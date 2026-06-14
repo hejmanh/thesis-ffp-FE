@@ -28,6 +28,8 @@ import {
 } from "@/utils/userInfoMappers";
 import type { Asset, FinancialData, Habits, Stage } from "@/utils/types";
 import { resolveCurrencyCode } from "@/utils/referenceOptions";
+import { useTranslations } from "@/i18n/client";
+import { useApiErrorMessage } from "@/hooks/useApiErrorMessage";
 
 const EMPTY_FINANCIAL_DATA: FinancialData = {
   estimatedLE: "",
@@ -46,6 +48,17 @@ const EMPTY_FINANCIAL_DATA: FinancialData = {
   },
   stages: [],
   assets: [],
+};
+
+type FinancialSectionErrorKey = "personal" | "financial" | "stages" | "assets";
+
+type FinancialSectionErrors = Record<FinancialSectionErrorKey, string | null>;
+
+const EMPTY_SECTION_ERRORS: FinancialSectionErrors = {
+  personal: null,
+  financial: null,
+  stages: null,
+  assets: null,
 };
 
 function createEmptyAsset(): Asset {
@@ -196,6 +209,11 @@ function getAssetOptionsForAsset(
 }
 
 export default function FinancialSection() {
+  const t = useTranslations("Account.financial");
+  const common = useTranslations("Common");
+  const registerStages = useTranslations("Register.stages");
+  const registerAssets = useTranslations("Register.assets");
+  const getApiErrorMessage = useApiErrorMessage();
   const queryClient = useQueryClient();
   const references = useFinancialPlanningReferences();
   const { data: userContext, set: setUserContext, refresh: refreshUserContext } =
@@ -214,7 +232,8 @@ export default function FinancialSection() {
   const [habitsDraft, setHabitsDraft] = useState<Habits | null>(null);
   const [stagesDraft, setStagesDraft] = useState<Stage[] | null>(null);
   const [assetsDraft, setAssetsDraft] = useState<Asset[] | null>(null);
-  const [sectionError, setSectionError] = useState<string | null>(null);
+  const [sectionErrors, setSectionErrors] =
+    useState<FinancialSectionErrors>(EMPTY_SECTION_ERRORS);
   const [personalDraft, setPersonalDraft] = useState<{
     name: string;
     birthYear: string;
@@ -344,15 +363,25 @@ export default function FinancialSection() {
     deleteAssetMutation.isPending;
   const isSavingPersonal = patchMeMutation.isPending;
   const pageError =
-    sectionError ??
-    (financialQuery.error instanceof Error
-      ? financialQuery.error.message
+    references.error;
+  const personalError = sectionErrors.personal;
+  const financialError =
+    sectionErrors.financial ??
+    (financialQuery.error
+      ? getApiErrorMessage(financialQuery.error, t("updateFinancial"))
+      : null);
+  const stagesError =
+    sectionErrors.stages ??
+    (stagesQuery.error
+      ? getApiErrorMessage(stagesQuery.error, t("updateStages"))
       : null) ??
-    (stagesQuery.error instanceof Error ? stagesQuery.error.message : null) ??
-    (assetsQuery.error instanceof Error ? assetsQuery.error.message : null) ??
-    references.error ??
-    (lifeStageRangesQuery.error instanceof Error
-      ? lifeStageRangesQuery.error.message
+    (lifeStageRangesQuery.error
+      ? getApiErrorMessage(lifeStageRangesQuery.error, t("updateStages"))
+      : null);
+  const assetsError =
+    sectionErrors.assets ??
+    (assetsQuery.error
+      ? getApiErrorMessage(assetsQuery.error, t("updateAssets"))
       : null);
 
   const basePersonal = {
@@ -428,8 +457,18 @@ export default function FinancialSection() {
     ]);
   }
 
+  function setScopedError(
+    section: FinancialSectionErrorKey,
+    message: string | null,
+  ) {
+    setSectionErrors((prev) => ({
+      ...prev,
+      [section]: message,
+    }));
+  }
+
   async function handleSavePersonal() {
-    setSectionError(null);
+    setScopedError("personal", null);
 
     try {
       const next = await patchMeMutation.mutateAsync({
@@ -446,16 +485,12 @@ export default function FinancialSection() {
       setPersonalDraft(null);
       await refreshUserInfoData();
     } catch (error) {
-      setSectionError(
-        error instanceof Error
-          ? error.message
-          : "Unable to update personal information.",
-      );
+      setScopedError("personal", getApiErrorMessage(error, t("updatePersonal")));
     }
   }
 
   async function handleSaveFinancial() {
-    setSectionError(null);
+    setScopedError("financial", null);
     try {
       const payload = buildFinancialRequestFromFinancialData(
         currentProfile,
@@ -472,16 +507,15 @@ export default function FinancialSection() {
       setHabitsDraft(null);
       await refreshUserInfoData();
     } catch (error) {
-      setSectionError(
-        error instanceof Error
-          ? error.message
-          : "Unable to update financial information.",
+      setScopedError(
+        "financial",
+        getApiErrorMessage(error, t("updateFinancial")),
       );
     }
   }
 
   async function handleSaveStages() {
-    setSectionError(null);
+    setScopedError("stages", null);
     try {
       const payload = buildStagesRequest(currentStages);
       if (hasPersistedStages) {
@@ -492,14 +526,12 @@ export default function FinancialSection() {
       setStagesDraft(null);
       await refreshUserInfoData();
     } catch (error) {
-      setSectionError(
-        error instanceof Error ? error.message : "Unable to update stages.",
-      );
+      setScopedError("stages", getApiErrorMessage(error, t("updateStages")));
     }
   }
 
   async function handleSaveAssets() {
-    setSectionError(null);
+    setScopedError("assets", null);
     try {
       if (newAssets.length > 0) {
         await createAssetsMutation.mutateAsync(
@@ -516,14 +548,12 @@ export default function FinancialSection() {
       setAssetsDraft(null);
       await refreshUserInfoData();
     } catch (error) {
-      setSectionError(
-        error instanceof Error ? error.message : "Unable to update assets.",
-      );
+      setScopedError("assets", getApiErrorMessage(error, t("updateAssets")));
     }
   }
 
   async function handleRemoveAsset(asset: Asset, index: number) {
-    setSectionError(null);
+    setScopedError("assets", null);
 
     if (!asset.uid) {
       setAssetsDraft((prev) => {
@@ -544,9 +574,7 @@ export default function FinancialSection() {
       });
       await refreshUserInfoData();
     } catch (error) {
-      setSectionError(
-        error instanceof Error ? error.message : "Unable to delete asset.",
-      );
+      setScopedError("assets", getApiErrorMessage(error, t("deleteAsset")));
     }
   }
 
@@ -557,10 +585,10 @@ export default function FinancialSection() {
         className="w-full rounded-xl bg-white p-6 shadow-md"
       >
         <h2 className="text-2xl font-bold text-primary">
-          Personal Information
+          {t("title")}
         </h2>
         <p className="mt-4 text-sm text-muted-foreground">
-          Loading your detailed information...
+          {t("loadingDetails")}
         </p>
       </Card>
     );
@@ -571,7 +599,7 @@ export default function FinancialSection() {
       hoverable={false}
       className="w-full rounded-xl bg-white p-6 shadow-md"
     >
-      <h2 className="text-2xl font-bold text-primary">Personal Information</h2>
+      <h2 className="text-2xl font-bold text-primary">{t("title")}</h2>
       {/* <p className="mt-1 text-sm text-muted-foreground">
         Manage your general information life expectancy, savings, investment portfolio, lifestyle,
         life stages, and post-FFP asset profiles.
@@ -587,6 +615,7 @@ export default function FinancialSection() {
           sexTypeOptions={references.sexTypeOptions}
           canSave={canSavePersonal}
           isSaving={isSavingPersonal}
+          error={personalError}
           onChange={(next) => setPersonalDraft(next)}
           onSave={handleSavePersonal}
         />
@@ -605,6 +634,7 @@ export default function FinancialSection() {
             }}
             canSave={canSaveFinancial}
             isSaving={isSavingFinancial}
+            error={financialError}
             onSave={handleSaveFinancial}
             onProfileChange={(field, value) => {
               setProfileDraft((prev) => ({
@@ -637,17 +667,15 @@ export default function FinancialSection() {
 
         <div className="rounded-xl border border-border bg-slate-50 p-4">
           <h3 className="text-base font-semibold text-slate-900">
-            Life Stages
+            {t("lifeStages")}
           </h3>
           <p className="mt-1 text-xs italic text-slate-600">
-            Includes salary, rental income, and other savings contributions
-            before Financial Freedom Point.
+            {registerStages("description")}
           </p>
           <div className="mt-4 max-h-96 space-y-4 overflow-y-auto pr-2">
             {!lifeStageRangesQuery.isLoading && currentStages.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                Life stages will appear here once your registration birth year
-                is available.
+                {t("lifeStagesEmpty")}
               </p>
             ) : null}
             {currentStages.map((stage, index) => (
@@ -675,18 +703,22 @@ export default function FinancialSection() {
               onClick={handleSaveStages}
               disabled={!canSaveStages}
             >
-              {isSavingStages ? "Saving..." : "Save changes"}
+              {isSavingStages ? common("saving") : common("saveChanges")}
             </Button>
           </div>
+          {stagesError ? (
+            <p className="mt-3 text-sm font-semibold text-red-600">
+              {stagesError}
+            </p>
+          ) : null}
         </div>
 
         <div className="rounded-xl border border-border bg-slate-50 p-4">
           <h3 className="text-base font-semibold text-slate-900">
-            Post-FFP Assets
+            {t("postFfpAssets")}
           </h3>
           <p className="mt-1 text-xs italic text-slate-600">
-            Includes passive income sources after Financial Freedom Point, such
-            as rental income and pensions.
+            {registerAssets("description")}
           </p>
           <div className="mt-4 flex items-center justify-between">
             <button
@@ -702,12 +734,12 @@ export default function FinancialSection() {
                 references.isLoading || references.assetTypeOptions.length === 0
               }
             >
-              + Add asset
+              {t("addAsset")}
             </button>
           </div>
           <div className="mt-4 space-y-4">
             {currentAssets.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No assets yet.</p>
+              <p className="text-sm text-muted-foreground">{t("noAssets")}</p>
             ) : (
               currentAssets.map((asset, index) => (
                 <AssetForm
@@ -737,9 +769,14 @@ export default function FinancialSection() {
               onClick={handleSaveAssets}
               disabled={!canSaveAssets}
             >
-              {isSavingAssets ? "Saving..." : "Save changes"}
+              {isSavingAssets ? common("saving") : common("saveChanges")}
             </Button>
           </div>
+          {assetsError ? (
+            <p className="mt-3 text-sm font-semibold text-red-600">
+              {assetsError}
+            </p>
+          ) : null}
         </div>
       </div>
     </Card>

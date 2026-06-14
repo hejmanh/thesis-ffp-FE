@@ -3,10 +3,12 @@ import { useQuery } from "@tanstack/react-query";
 import { useUserContext } from "@/providers/UserContextProvider";
 import { userInfoService } from "@/services/userInfo.service";
 import { useAuthStore } from "@/store/auth.store";
+import { useTranslations } from "@/i18n/client";
 
 export function useLifeExpectancyOptions() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { data: userContext, isLoading: isUserContextLoading } = useUserContext();
+  const fields = useTranslations("Fields");
   const financialQuery = useQuery({
     queryKey: ["user-info", "financial"],
     queryFn: () => userInfoService.getFinancial(),
@@ -22,14 +24,14 @@ export function useLifeExpectancyOptions() {
 
     if (estimated != null) {
       options.push({
-        label: `Estimated Life Expectancy ${estimated}`,
+        label: `${fields("estimatedLifeExpectancy")}: ${estimated}`,
         value: String(estimated),
       });
     }
 
     if (desired != null) {
       options.push({
-        label: `Desired Life Expectancy ${desired}`,
+        label: `${fields("desiredLifeExpectancy")}: ${desired}`,
         value: String(desired),
       });
     }
@@ -50,6 +52,7 @@ export function useLifeExpectancyOptions() {
   }, [
     financialQuery.data,
     financialQuery.isLoading,
+    fields,
     isUserContextLoading,
     userContext?.estimatedLifeExpectancy,
   ]);

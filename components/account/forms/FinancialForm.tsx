@@ -4,6 +4,7 @@ import Button from "@/components/common/Button";
 import FinancialProfileFields from "@/components/common/FinancialProfileFields";
 import type { SelectOption } from "@/utils/referenceOptions";
 import type { Allocation, FinancialData, Habits } from "@/utils/types";
+import { useTranslations } from "@/i18n/client";
 
 interface FinancialFormProps {
   profile: {
@@ -18,6 +19,7 @@ interface FinancialFormProps {
   habitOptions: Record<keyof Habits, SelectOption[]>;
   canSave: boolean;
   isSaving: boolean;
+  error?: string | null;
   onSave: () => void;
   onProfileChange: (
     field: "estimatedLE" | "savings" | "currency" | "desiredLE",
@@ -31,12 +33,6 @@ interface FinancialFormProps {
   onHabitChange: (key: keyof Habits, value: string) => void;
 }
 
-const HABIT_LABELS: Record<keyof Habits, string> = {
-  smoking: "Smoking",
-  physical: "Physical Activity",
-  diet: "Healthy Diet",
-  alcohol: "Alcohol Consumption",
-};
 const HABIT_ORDER: Array<keyof Habits> = [
   "physical",
   "diet",
@@ -52,11 +48,21 @@ export default function FinancialForm({
   habitOptions,
   canSave,
   isSaving,
+  error,
   onSave,
   onProfileChange,
   onAllocationChange,
   onHabitChange,
 }: FinancialFormProps) {
+  const financial = useTranslations("FinancialProfile");
+  const common = useTranslations("Common");
+  const habitLabels: Record<keyof Habits, string> = {
+    smoking: financial("habits.smoking"),
+    physical: financial("habits.physical"),
+    diet: financial("habits.diet"),
+    alcohol: financial("habits.alcohol"),
+  };
+
   return (
     <FinancialProfileFields
         profile={{
@@ -68,7 +74,7 @@ export default function FinancialForm({
         allocations={allocation}
         habits={HABIT_ORDER.map((habit) => ({
           key: habit,
-          label: HABIT_LABELS[habit],
+          label: habitLabels[habit],
           value: habits[habit],
           options: habitOptions[habit],
         }))}
@@ -86,11 +92,16 @@ export default function FinancialForm({
         onAllocationChange={onAllocationChange}
         onHabitChange={onHabitChange}
         footer={
-          <div className="mt-4 flex justify-end">
-            <Button size="sm" onClick={onSave} disabled={!canSave}>
-              {isSaving ? "Saving..." : "Save changes"}
-            </Button>
-          </div>
+          <>
+            <div className="mt-4 flex justify-end">
+              <Button size="sm" onClick={onSave} disabled={!canSave}>
+                {isSaving ? common("saving") : common("saveChanges")}
+              </Button>
+            </div>
+            {error ? (
+              <p className="mt-3 text-sm font-semibold text-red-600">{error}</p>
+            ) : null}
+          </>
         }
       />
   );

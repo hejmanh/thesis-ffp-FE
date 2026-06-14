@@ -1,18 +1,19 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { useRouter } from "next/navigation";
 import Button from "@/components/common/Button";
 import FormField from "@/components/common/FormField";
 import PersonalInfoFields from "@/components/common/PersonalInfoFields";
+import { useEnterToFocusNextField } from "@/components/common/useEnterToFocusNextField";
 import type { Step1AccountData } from "@/types/onboarding";
 import type { SelectOption } from "@/utils/referenceOptions";
+import { useLocaleRouter, useTranslations } from "@/i18n/client";
 
 interface Step1AccountFormProps {
   data: Step1AccountData;
   error: string;
   successMessage?: string;
-  submissionStage: "registering" | null;
+  submissionStage: "registering" | "resending" | null;
   countryOptions: SelectOption[];
   sexOptions: SelectOption[];
   onFieldChange: <K extends keyof Step1AccountData>(
@@ -20,6 +21,7 @@ interface Step1AccountFormProps {
     value: Step1AccountData[K],
   ) => void;
   onNext: () => void;
+  onResendVerification: () => void;
 }
 
 export default function Step1AccountForm({
@@ -31,19 +33,27 @@ export default function Step1AccountForm({
   sexOptions,
   onFieldChange,
   onNext,
+  onResendVerification,
 }: Step1AccountFormProps) {
+  const t = useTranslations("Register.account");
+  const fields = useTranslations("Fields");
+  const { containerRef, handleEnterKeyDown } = useEnterToFocusNextField();
   const isReferenceReady = countryOptions.length > 0 && sexOptions.length > 0;
-  const router = useRouter();
+  const router = useLocaleRouter();
   const isSubmitting = submissionStage !== null;
   const submitLabel =
     submissionStage === "registering"
-      ? "Creating account..."
-      : "Create account";
+      ? t("submitting")
+      : t("submit");
 
   return (
-    <div className="mt-3">
+    <div
+      ref={containerRef}
+      className="mt-3"
+      onKeyDown={handleEnterKeyDown}
+    >
       <h2 className="text-center text-3xl font-bold text-primary">
-        Registration
+        {t("title")}
       </h2>
       <div className="mx-auto mt-8 max-w-md space-y-6">
         <PersonalInfoFields
@@ -73,10 +83,10 @@ export default function Step1AccountForm({
             <FormField
               id="name"
               name="name"
-              label="Name"
+              label={fields("name")}
               isRequired
               inputClassName="h-10 border-primary/60"
-              placeholder="Enter your name"
+              placeholder={fields("enterName")}
               inputProps={{
                 value: data.name,
                 onChange: (event) => onFieldChange("name", event.target.value),
@@ -92,13 +102,28 @@ export default function Step1AccountForm({
         </p>
       ) : null}
       {!error && successMessage ? (
-        <p className="mt-4 text-center text-sm font-semibold text-emerald-600">
-          {successMessage}
-        </p>
+        <div className="mt-4 text-center">
+          <p className="text-sm font-semibold text-emerald-600">
+            {successMessage}
+          </p>
+          <p className="mt-6 text-center text-sm text-muted-foreground">
+            {t("emailNotReceived")}{" "}
+            <button
+              type="button"
+              onClick={onResendVerification}
+              disabled={submissionStage === "resending"}
+              className="font-semibold text-primary underline transition hover:text-primary-600 disabled:cursor-not-allowed disabled:text-muted-foreground disabled:no-underline"
+            >
+              {submissionStage === "resending"
+                ? t("resendingVerification")
+                : t("resendVerification")}
+            </button>
+          </p>
+        </div>
       ) : null}
       {!isReferenceReady ? (
         <p className="mt-4 text-center text-sm text-muted-foreground">
-          Loading registration options...
+          {t("loadingOptions")}
         </p>
       ) : null}
       <div className="mx-auto mt-8 max-w-md">
@@ -116,13 +141,13 @@ export default function Step1AccountForm({
         </Button>
       </div>
       <p className="mt-6 text-center text-sm text-muted-foreground">
-        Already have an account?{" "}
+        {t("alreadyHaveAccount")}{" "}
         <button
           type="button"
           onClick={() => router.push("/?login=1")}
           className="font-semibold text-primary underline hover:text-primary-600 transition"
         >
-          Sign in
+          {t("signIn")}
         </button>
       </p>
     </div>

@@ -17,6 +17,7 @@ import {
 import { Line } from "react-chartjs-2";
 import { formatCompact } from "@/utils/formatCompact";
 import { useGetScenario3Output } from "@/hooks/scenario/useScenario3";
+import { useLocale, useTranslations } from "@/i18n/client";
 
 ChartJS.register(
   CategoryScale,
@@ -30,7 +31,8 @@ ChartJS.register(
   SubTitle,
 );
 
-const OPTIONS: ChartOptions<"line"> = {
+function createOptions(locale: "en" | "vi"): ChartOptions<"line"> {
+  return {
   responsive: true,
   maintainAspectRatio: true,
   interaction: { mode: "index", intersect: false },
@@ -52,7 +54,7 @@ const OPTIONS: ChartOptions<"line"> = {
     },
     tooltip: {
       callbacks: {
-        label: (ctx) => `Wealth: ${formatCompact(ctx.parsed.y ?? 0)}`,
+        label: (ctx) => `Wealth: ${formatCompact(ctx.parsed.y ?? 0, locale)}`,
       },
     },
   },
@@ -61,12 +63,15 @@ const OPTIONS: ChartOptions<"line"> = {
     y: {
       title: { display: true, text: "Wealth" },
       min: 0,
-      ticks: { callback: (v) => formatCompact(Number(v)) },
+      ticks: { callback: (v) => formatCompact(Number(v), locale) },
     },
   },
-};
+  };
+}
 
 export default function Scenario3Widget() {
+  const t = useTranslations("Scenario");
+  const locale = useLocale();
   const { data, isLoading } = useGetScenario3Output();
 
   if (isLoading) {
@@ -81,7 +86,7 @@ export default function Scenario3Widget() {
     return (
       <div className="flex h-40 flex-col items-center justify-center gap-2 text-center text-muted-foreground">
         <Icon icon="icon-park-outline:calculator" className="h-8 w-8 opacity-30" aria-hidden="true" />
-        <p className="text-sm">No result yet — try Scenario 03 on the home page.</p>
+        <p className="text-sm">{t("outputs.empty", { id: "03" })}</p>
       </div>
     );
   }
@@ -93,7 +98,7 @@ export default function Scenario3Widget() {
     labels,
     datasets: [
       {
-        label: "Wealth",
+        label: t("charts.wealth"),
         data: wealthData,
         borderColor: "#6366f1",
         backgroundColor: "#6366f130",
@@ -106,21 +111,27 @@ export default function Scenario3Widget() {
 
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid gap-3 sm:grid-cols-3">
         <div className="rounded-xl bg-primary-soft px-4 py-3 text-center">
-          <p className="text-xs text-muted-foreground">Annual spending</p>
+          <p className="text-xs text-muted-foreground">{t("outputs.ffpAge")}</p>
           <p className="mt-0.5 text-xl font-bold text-primary">
-            {formatCompact(data.outputFfpAnnualSpending)}
+            {data.inputFfpAge ?? "-"}
           </p>
         </div>
         <div className="rounded-xl bg-primary-soft px-4 py-3 text-center">
-          <p className="text-xs text-muted-foreground">Monthly spending</p>
+          <p className="text-xs text-muted-foreground">{t("outputs.annualSpending")}</p>
           <p className="mt-0.5 text-xl font-bold text-primary">
-            {formatCompact(data.outputFfpMonthlySpending)}
+            {formatCompact(data.outputFfpAnnualSpending, locale)}
+          </p>
+        </div>
+        <div className="rounded-xl bg-primary-soft px-4 py-3 text-center">
+          <p className="text-xs text-muted-foreground">{t("outputs.monthlySpending")}</p>
+          <p className="mt-0.5 text-xl font-bold text-primary">
+            {formatCompact(data.outputFfpMonthlySpending, locale)}
           </p>
         </div>
       </div>
-      <Line data={chartData} options={OPTIONS} />
+      <Line data={chartData} options={createOptions(locale)} />
     </div>
   );
 }

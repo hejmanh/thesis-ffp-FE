@@ -8,6 +8,8 @@ import PersonalInfoFields from "@/components/common/PersonalInfoFields";
 import { useUserContext } from "@/providers/UserContextProvider";
 import { authService } from "@/services/auth.service";
 import type { SecurityData } from "@/utils/types";
+import { useTranslations } from "@/i18n/client";
+import { useApiErrorMessage } from "@/hooks/useApiErrorMessage";
 
 const ACCOUNT_FIELD_WIDTH_CLASS = "max-w-sm";
 
@@ -18,6 +20,12 @@ const INITIAL_SECURITY_DATA: SecurityData = {
 };
 
 export default function PersonalInfoSection() {
+  const common = useTranslations("Common");
+  const fields = useTranslations("Fields");
+  const account = useTranslations("Account.tabs");
+  const security = useTranslations("Account.security");
+  const validation = useTranslations("Validation");
+  const getApiErrorMessage = useApiErrorMessage();
   const { data: userContext } = useUserContext();
   const [securityData, setSecurityData] = useState<SecurityData>(
     INITIAL_SECURITY_DATA,
@@ -43,12 +51,12 @@ export default function PersonalInfoSection() {
     const confirmPassword = securityData.confirmPassword.trim();
 
     if (!currentPassword || !newPassword || !confirmPassword) {
-      setPasswordError("All password fields are required.");
+      setPasswordError(validation("allPasswordFieldsRequired"));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setPasswordError("New password and confirm password do not match.");
+      setPasswordError(validation("newPasswordMismatch"));
       return;
     }
 
@@ -61,9 +69,7 @@ export default function PersonalInfoSection() {
       setPasswordMessage(message);
       setSecurityData(INITIAL_SECURITY_DATA);
     } catch (error) {
-      setPasswordError(
-        error instanceof Error ? error.message : "Unable to change password.",
-      );
+      setPasswordError(getApiErrorMessage(error, security("fallbackError")));
     } finally {
       setIsSubmitting(false);
     }
@@ -75,7 +81,7 @@ export default function PersonalInfoSection() {
       className="w-full rounded-xl bg-white p-6 shadow-md"
     >
       <h2 className="text-2xl font-bold text-primary">
-        Account
+        {account("account")}
       </h2>
       {/* <p className="mt-1 text-sm text-muted-foreground">
         Review your account email and update your password credentials.
@@ -87,7 +93,7 @@ export default function PersonalInfoSection() {
         <FormField
           id="account_email"
           name="account_email"
-          label="Email"
+          label={fields("email")}
           className={ACCOUNT_FIELD_WIDTH_CLASS}
           inputClassName="h-10"
           inputProps={{
@@ -137,7 +143,7 @@ export default function PersonalInfoSection() {
               onClick={() => void handleChangePassword()}
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Updating..." : "Change Password"}
+              {isSubmitting ? common("updating") : security("changePassword")}
             </Button>
           </div>
         </div>

@@ -2,6 +2,7 @@
 
 import FormField from "@/components/common/FormField";
 import { useLifeExpectancyOptions } from "@/hooks/scenario/useLifeExpectancyOptions";
+import { useTranslations } from "@/i18n/client";
 
 interface LifeExpectancyFieldProps {
   value: string;
@@ -14,23 +15,24 @@ export default function LifeExpectancyField({
   onChange,
   disabled = false,
 }: LifeExpectancyFieldProps) {
+  const fields = useTranslations("Fields");
+  const common = useTranslations("Common");
+  const scenario = useTranslations("Scenario");
   const { options, isReady, isLoading } = useLifeExpectancyOptions();
 
   return (
     <FormField
-      label="Life Expectancy"
+      label={fields("lifeExpectancy")}
       variant="select"
       isRequired
-      placeholder={isLoading ? "Loading…" : "Select life expectancy"}
+      placeholder={isLoading ? common("loading") : fields("selectLifeExpectancy")}
       options={options}
       value={value}
       onChange={onChange}
       disabled={disabled || !isReady || isLoading}
       hint={
           <>
-        Select either your <strong>estimated life expectancy</strong>,
-        calculated from your country, gender, and lifestyle habits, or your{" "}
-        <strong>desired target lifespan</strong>.
+        {scenario("lifeExpectancyHint")}
       </>
       }
     />

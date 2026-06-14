@@ -13,6 +13,7 @@ import { userInfoService } from "@/services/userInfo.service";
 import { tokenService } from "@/services/token.service";
 import { useAuthStore } from "@/store/auth.store";
 import type { UserContextData } from "@/types/userContext";
+import { useApiErrorMessage } from "@/hooks/useApiErrorMessage";
 
 interface UserContextValue {
   data: UserContextData | null;
@@ -42,12 +43,15 @@ export default function UserContextProvider({
   const [data, setData] = useState<UserContextData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const getApiErrorMessage = useApiErrorMessage();
   const refreshPromiseRef = useRef<Promise<void> | null>(null);
   const refreshSequenceRef = useRef(0);
   const sessionActive = isAuthenticated && Boolean(tokenService.get());
 
   const refresh = useCallback(async () => {
     if (!tokenService.get()) {
+      refreshSequenceRef.current += 1;
+      refreshPromiseRef.current = null;
       setData(null);
       setError(null);
       setIsLoading(false);
@@ -70,8 +74,7 @@ export default function UserContextProvider({
           setData(result);
         }
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Failed to load user info";
+        const message = getApiErrorMessage(err, "Failed to load user info");
         if (refreshSequenceRef.current === refreshSequence) {
           setError(message);
         }
@@ -89,9 +92,11 @@ export default function UserContextProvider({
     });
 
     return refreshPromiseRef.current;
-  }, []);
+  }, [getApiErrorMessage]);
 
   const clear = useCallback(() => {
+    refreshSequenceRef.current += 1;
+    refreshPromiseRef.current = null;
     setData(null);
     setError(null);
     setIsLoading(false);

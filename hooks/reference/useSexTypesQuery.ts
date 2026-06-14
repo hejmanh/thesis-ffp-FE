@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { referenceApi } from "@/api/reference.api";
+import { throwApiClientError } from "@/lib/ApiClientError";
 
 export const useSexTypesQuery = () => {
   return useQuery({
@@ -7,7 +8,7 @@ export const useSexTypesQuery = () => {
     queryFn: async () => {
       const res = await referenceApi.getSexTypes();
       if (!res.success) {
-        throw new Error(res.error ?? "Failed to load sex types");
+        throwApiClientError(res, "Failed to load sex types");
       }
       return res.data;
     },

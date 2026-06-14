@@ -16,6 +16,7 @@ import {
 import { Line } from "react-chartjs-2";
 import { formatCompact } from "@/utils/formatCompact";
 import { useGetScenario2Output } from "@/hooks/scenario/useScenario2";
+import { useLocale, useTranslations } from "@/i18n/client";
 
 ChartJS.register(
   CategoryScale,
@@ -28,7 +29,8 @@ ChartJS.register(
   SubTitle,
 );
 
-const OPTIONS: ChartOptions<"line"> = {
+function createOptions(locale: "en" | "vi"): ChartOptions<"line"> {
+  return {
   responsive: true,
   maintainAspectRatio: true,
   interaction: { mode: "index", intersect: false },
@@ -51,7 +53,7 @@ const OPTIONS: ChartOptions<"line"> = {
     tooltip: {
       callbacks: {
         label: (ctx) =>
-          `${ctx.dataset.label}: ${formatCompact(ctx.parsed.y ?? 0)}`,
+          `${ctx.dataset.label}: ${formatCompact(ctx.parsed.y ?? 0, locale)}`,
       },
     },
   },
@@ -59,12 +61,15 @@ const OPTIONS: ChartOptions<"line"> = {
     x: { title: { display: true, text: "Age" } },
     y: {
       title: { display: true, text: "Wealth" },
-      ticks: { callback: (v) => formatCompact(Number(v)) },
+      ticks: { callback: (v) => formatCompact(Number(v), locale) },
     },
   },
-};
+  };
+}
 
 export default function Scenario2Widget() {
+  const t = useTranslations("Scenario");
+  const locale = useLocale();
   const { data, isLoading } = useGetScenario2Output();
 
   if (isLoading) {
@@ -79,7 +84,7 @@ export default function Scenario2Widget() {
     return (
       <div className="flex h-40 flex-col items-center justify-center gap-2 text-center text-muted-foreground">
         <Icon icon="mingcute:calendar-2-line" className="h-8 w-8 opacity-30" aria-hidden="true" />
-        <p className="text-sm">No result yet — try Scenario 02 on the home page.</p>
+        <p className="text-sm">{t("outputs.empty", { id: "02" })}</p>
       </div>
     );
   }
@@ -107,7 +112,7 @@ export default function Scenario2Widget() {
     labels,
     datasets: [
       {
-        label: "Projected Wealth",
+        label: t("charts.projectedWealth"),
         data: wealthData,
         borderColor: "#6366f1",
         backgroundColor: "#6366f120",
@@ -116,7 +121,7 @@ export default function Scenario2Widget() {
         tension: 0.3,
       },
       {
-        label: "Age-Specific Required Wealth",
+        label: t("charts.ageSpecificRequiredWealth"),
         data: requiredData,
         borderColor: "#f59e0b",
         backgroundColor: "#f59e0b20",
@@ -129,13 +134,57 @@ export default function Scenario2Widget() {
 
   return (
     <div className="space-y-3">
-      {ffpAge > 0 && (
-        <div className="inline-flex items-center gap-2 rounded-full bg-green-50 px-3 py-1 text-sm font-semibold text-green-700">
-          <Icon icon="mdi:flag-checkered" className="h-4 w-4" aria-hidden="true" />
-          FFP achieved at age {ffpAge}
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="flex items-center justify-between rounded-xl bg-primary-soft px-5 py-3">
+          <div className="flex items-center gap-3">
+            {/* <Icon
+              icon="mdi:calendar-check-outline"
+              className="h-5 w-5 text-primary"
+              aria-hidden="true"
+            /> */}
+            <span className="text-sm text-muted-foreground">
+              {t("outputs.ffpAge")}
+            </span>
+          </div>
+          <span className="text-lg font-bold text-primary">
+            {ffpAge ?? "-"}
+          </span>
         </div>
-      )}
-      <Line data={chartData} options={OPTIONS} />
+        <div className="flex items-center justify-between rounded-xl bg-primary-soft px-5 py-3">
+          <div className="flex items-center gap-3">
+            {/* <Icon
+              icon="mdi:cash-multiple"
+              className="h-5 w-5 text-primary"
+              aria-hidden="true"
+            /> */}
+            <span className="text-sm text-muted-foreground">
+              {t("outputs.annualSpending")}
+            </span>
+          </div>
+          <span className="text-lg font-bold text-primary">
+            {formatCompact(data.inputFfpAnnualSpending, locale)}
+          </span>
+        </div>
+      </div>
+      
+      <div
+        className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold ${
+          ffpAge == null
+            ? "bg-red-50 text-red-600"
+            : "bg-green-50 text-green-700"
+        }`}
+      >
+        <Icon
+          icon={ffpAge == null ? "mdi:close-circle" : "mdi:flag-checkered"}
+          className="h-4 w-4"
+          aria-hidden="true"
+        />
+        {ffpAge == null
+          ? t("outputs.ffpNotAchievable")
+          : t("outputs.ffpAchievedAtAge", { age: ffpAge })}
+      </div>
+
+      <Line data={chartData} options={createOptions(locale)} />
     </div>
   );
 }

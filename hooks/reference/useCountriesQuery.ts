@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { referenceApi } from "@/api/reference.api";
+import { throwApiClientError } from "@/lib/ApiClientError";
 
 export const useCountriesQuery = () => {
   return useQuery({
@@ -7,7 +8,7 @@ export const useCountriesQuery = () => {
     queryFn: async () => {
       const res = await referenceApi.getCountries();
       if (!res.success) {
-        throw new Error(res.error ?? "Failed to load countries");
+        throwApiClientError(res, "Failed to load countries");
       }
       return res.data;
     },
