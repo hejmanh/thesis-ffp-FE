@@ -155,7 +155,7 @@
     }
   },
   "Fields": {
-    "annualSpendingAtFfp": "Chi tiêu hằng năm tại FFP",
+    "annualSpendingAtFfp": "Mục tiêu chi tiêu hằng năm tại FFP",
     "annualGrowthRate": "Tỷ lệ tăng trưởng hằng năm",
     "annualRate": "Tỷ lệ hằng năm",
     "assetType": "Loại tài sản",
@@ -251,12 +251,15 @@
       "yesAchievable": "Có, mục tiêu có thể đạt được",
       "yesAchievableModal": "Có, mục tiêu có thể đạt được!",
       "notYet": "Chưa đạt, hãy điều chỉnh kế hoạch",
+      "targetFfpAge": "Tuổi FFP mục tiêu",
       "ffpAge": "Tuổi FFP",
       "ffpAchievedAtAge": "Đạt FFP ở tuổi {age}",
       "ffpNotAchievable": "Chưa thể đạt FFP với kế hoạch này",
-      "annualSpending": "Chi tiêu hằng năm",
+      "annualSpending": "Mục tiêu chi tiêu hằng năm",
+      "availableAnnualSpending": "Chi tiêu hằng năm khả dụng",
       "monthlySpending": "Chi tiêu hằng tháng",
-      "requiredAnnualSaving": "Tiết kiệm hằng năm cần thiết",
+      "availableMonthlySpending": "Chi tiêu hằng tháng khả dụng",
+      "requiredAnnualSaving": "Mức tiết kiệm hằng năm cần thiết",
       "requiredWealthAtFfp": "Tài sản cần thiết tại FFP",
       "empty": "Chưa có kết quả, hãy thử Bối cảnh {id} trên trang chủ."
     }
