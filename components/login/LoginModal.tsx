@@ -167,9 +167,9 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
           <FormField
             id="email"
             name="email"
-            label={t("username")}
+            label={t("email")}
             inputClassName="h-10 border-primary/60"
-            placeholder={t("usernamePlaceholder")}
+            placeholder={t("emailPlaceholder")}
             inputProps={{
               type: "email",
               value: email,

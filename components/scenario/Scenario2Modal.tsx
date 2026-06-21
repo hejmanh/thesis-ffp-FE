@@ -45,34 +45,54 @@ ChartJS.register(
   SubTitle,
 );
 
-function createChartOptions(locale: "en" | "vi"): ChartOptions<"line"> {
+type ChartLabels = {
+  title: string;
+  subtitle: string;
+  age: string;
+  wealth: string;
+};
+
+function createChartOptions(
+  locale: "en" | "vi",
+  chartLabels: ChartLabels,
+): ChartOptions<"line"> {
   return {
-  responsive: true,
-  maintainAspectRatio: true,
-  interaction: { mode: "index", intersect: false },
-  plugins: {
-    legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 8 } },
-    title: {
+    responsive: true,
+    maintainAspectRatio: true,
+    interaction: { mode: "index", intersect: false },
+    plugins: {
+      legend: {
+        position: "bottom",
+        labels: { usePointStyle: true, boxWidth: 8 },
+      },
+      title: {
         display: true,
-        text: "Financial Freedom Point (FFP) Age Projection",
+        text: chartLabels.title,
         color: "#374151",
         font: { size: 16, weight: "bold" },
         padding: { bottom: 10 },
-    },
-    tooltip: {
-      callbacks: {
-        label: (ctx) =>
-          `${ctx.dataset.label}: ${formatCompact(ctx.parsed.y ?? 0, locale)}`,
+      },
+      subtitle: {
+        display: true,
+        text: chartLabels.subtitle,
+        color: "#6b7280",
+        font: { size: 12 },
+        padding: { bottom: 20 },
+      },
+      tooltip: {
+        callbacks: {
+          label: (ctx) =>
+            `${ctx.dataset.label}: ${formatCompact(ctx.parsed.y ?? 0, locale)}`,
+        },
       },
     },
-  },
-  scales: {
-    x: { title: { display: true, text: "Age" } },
-    y: {
-      title: { display: true, text: "Wealth" },
-      ticks: { callback: (v) => formatCompact(Number(v), locale) },
+    scales: {
+      x: { title: { display: true, text: chartLabels.age } },
+      y: {
+        title: { display: true, text: chartLabels.wealth },
+        ticks: { callback: (v) => formatCompact(Number(v), locale) },
+      },
     },
-  },
   };
 }
 
@@ -89,7 +109,12 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
   const getApiErrorMessage = useApiErrorMessage();
   const locale = useLocale();
   const toLocalizedPath = useLocalizedPath();
-  const chartOptions = createChartOptions(locale);
+  const chartOptions = createChartOptions(locale, {
+    title: t("charts.timelineTitle"),
+    subtitle: t("charts.timelineRangeSubtitle"),
+    age: t("charts.age"),
+    wealth: t("charts.wealth"),
+  });
   const inputQuery = useGetScenario2Input();
   const outputQuery = useGetScenario2Output();
   const createMutation = useCreateScenario2Input();
@@ -191,7 +216,7 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
       {output !== null && output !== undefined && (
         <div className="mt-5 border-t border-border pt-5">
           <p className="mb-2 text-sm font-bold text-slate-500">{t("result")}</p>
-          <p className="mb-4 text-sm text-red-600">
+          <p className="mb-4 text-sm text-slate-600">
             {t("incompleteStageNotice")}{" "}
             <button
               type="button"
@@ -205,43 +230,77 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
           {/* FFP age badge */}
           <div
             className={`mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold ${
-              output.outputFfpAge == null
+              output.outputFfpAge == null && output.outputFfpAgeHigh == null
                 ? "bg-red-50 text-red-600"
-                : "bg-green-50 text-green-700"
+                : output.outputFfpAge == null || output.outputFfpAgeLow == null
+                  ? "bg-amber-50 text-amber-700"
+                  : "bg-green-50 text-green-700"
             }`}
           >
             <Icon
-              icon={output.outputFfpAge == null ? "mdi:close-circle" : "mdi:flag-checkered"}
+              icon={
+                output.outputFfpAge == null && output.outputFfpAgeHigh == null
+                  ? "mdi:close-circle"
+                  : output.outputFfpAge == null || output.outputFfpAgeLow == null
+                    ? "mdi:alert-circle"
+                    : "mdi:flag-checkered"
+              }
               className="h-4 w-4"
               aria-hidden="true"
             />
-            {output.outputFfpAge == null
+            {output.outputFfpAgeHigh == null
               ? t("outputs.ffpNotAchievable")
-              : t("outputs.ffpAchievedAtAge", { age: output.outputFfpAge })}
+              : output.outputFfpAgeLow == null
+                ? t("outputs.ffpWithHigherReturns", {
+                    age: output.outputFfpAgeHigh,
+                  })
+                : output.outputFfpAgeHigh === output.outputFfpAgeLow
+                  ? t("outputs.estimatedFfpAge", {
+                      age: output.outputFfpAgeHigh,
+                    })
+                  : t("outputs.estimatedFfpAgeRange", {
+                      earliest: output.outputFfpAgeHigh,
+                      latest: output.outputFfpAgeLow,
+                    })}
           </div>
+          {output.outputFfpAge != null && output.outputFfpAgeLow == null && (
+            <p className="mb-4 text-sm text-amber-700">
+              {t("outputs.lowerReturnsMayMissFfp")}
+            </p>
+          )}
 
           {/* Two-line wealth chart */}
           {output.wealthProjection?.length > 0 && (() => {
             const labels = output.wealthProjection.map((p) => String(p.age));
-            const intersectionIdx = output.wealthProjection.findIndex(
-              (p) => p.wealth >= p.requiredWealth,
-            );
-            const pointRadius = output.wealthProjection.map((_, i) =>
-              i === intersectionIdx ? 7 : 3,
-            );
-            const pointBackgroundColor = output.wealthProjection.map((_, i) =>
-              i === intersectionIdx ? "#22c55e" : "#6366f1",
-            );
+            const pointRadii = (age: number | null) =>
+              output.wealthProjection.map((point) =>
+                point.age === age ? 7 : 3,
+              );
             const chartData = {
               labels,
               datasets: [
                 {
+                  label: t("charts.projectedWealthLow"),
+                  data: output.wealthProjection.map((p) => p.wealthLow),
+                  borderColor: "#ef4444",
+                  backgroundColor: "#ef444420",
+                  pointRadius: pointRadii(output.outputFfpAgeLow),
+                  tension: 0.3,
+                },
+                {
                   label: t("charts.projectedWealth"),
-                  data: output.wealthProjection.map((p) => p.wealth),
+                  data: output.wealthProjection.map((p) => p.wealthExpected),
                   borderColor: "#6366f1",
                   backgroundColor: "#6366f120",
-                  pointRadius,
-                  pointBackgroundColor,
+                  pointRadius: pointRadii(output.outputFfpAge),
+                  tension: 0.3,
+                },
+                {
+                  label: t("charts.projectedWealthHigh"),
+                  data: output.wealthProjection.map((p) => p.wealthHigh),
+                  borderColor: "#22c55e",
+                  backgroundColor: "#22c55e20",
+                  pointRadius: pointRadii(output.outputFfpAgeHigh),
                   tension: 0.3,
                 },
                 {
@@ -258,9 +317,9 @@ export default function Scenario2Modal({ isOpen, onClose }: Scenario2ModalProps)
             return <Line data={chartData} options={chartOptions} />;
           })()}
           <p className="mt-3 text-xs text-muted-foreground">
-            {locale === "vi" ? "Xem chi tiết thống kê tại " : "See detail statss in "}
+            {t("viewDetailedStats")} {" "}
             <Link href={toLocalizedPath("/profile?tab=results")} className="text-primary hover:underline">
-              {locale === "vi" ? "trang hồ sơ" : "Profile page"}
+              {t("profilePage")}
             </Link>
           </p>
 

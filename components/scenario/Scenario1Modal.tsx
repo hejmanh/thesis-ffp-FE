@@ -28,7 +28,12 @@ import {
   useCreateScenario1Input,
   useUpdateScenario1Input,
 } from "@/hooks/scenario/useScenario1";
-import { useLocale, useLocalizedPath, useTranslations, useLocaleRouter } from "@/i18n/client";
+import {
+  useLocale,
+  useLocalizedPath,
+  useTranslations,
+  useLocaleRouter,
+} from "@/i18n/client";
 import { useApiErrorMessage } from "@/hooks/useApiErrorMessage";
 import { useUserContext } from "@/providers/UserContextProvider";
 import { useFinancialPlanningReferences } from "@/hooks/reference/useFinancialPlanningReferences";
@@ -45,41 +50,54 @@ ChartJS.register(
   SubTitle,
 );
 
-function createChartOptions(locale: "en" | "vi"): ChartOptions<"line"> {
+type ChartLabels = {
+  title: string;
+  subtitle: string;
+  age: string;
+  wealth: string;
+};
+
+function createChartOptions(
+  locale: "en" | "vi",
+  chartLabels: ChartLabels,
+): ChartOptions<"line"> {
   return {
-  responsive: true,
-  maintainAspectRatio: true,
-  interaction: { mode: "index", intersect: false },
-  plugins: {
-    legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 8 } },
-    title: {
+    responsive: true,
+    maintainAspectRatio: true,
+    interaction: { mode: "index", intersect: false },
+    plugins: {
+      legend: {
+        position: "bottom",
+        labels: { usePointStyle: true, boxWidth: 8 },
+      },
+      title: {
         display: true,
-        text: "FFP Goal Achievement Projection",
+        text: chartLabels.title,
         color: "#374151",
         font: { size: 16, weight: "bold" },
         padding: { bottom: 10 },
-    },
-    subtitle: {
+      },
+      subtitle: {
         display: true,
-        text: "Compare projected wealth against the required wealth target at your selected FFP age.",
+        text: chartLabels.subtitle,
         color: "#6b7280",
         font: { size: 12 },
         padding: { bottom: 20 },
-    },
-    tooltip: {
-      callbacks: {
-        label: (ctx) =>
-          `${ctx.dataset.label}: ${formatCompact(ctx.parsed.y ?? 0, locale)}`,
+      },
+      tooltip: {
+        callbacks: {
+          label: (ctx) =>
+            `${ctx.dataset.label}: ${formatCompact(ctx.parsed.y ?? 0, locale)}`,
+        },
       },
     },
-  },
-  scales: {
-    x: { title: { display: true, text: "Age" } },
-    y: {
-      title: { display: true, text: "Wealth" },
-      ticks: { callback: (v) => formatCompact(Number(v), locale) },
+    scales: {
+      x: { title: { display: true, text: chartLabels.age } },
+      y: {
+        title: { display: true, text: chartLabels.wealth },
+        ticks: { callback: (v) => formatCompact(Number(v), locale) },
+      },
     },
-  },
   };
 }
 
@@ -88,7 +106,10 @@ interface Scenario1ModalProps {
   onClose: () => void;
 }
 
-export default function Scenario1Modal({ isOpen, onClose }: Scenario1ModalProps) {
+export default function Scenario1Modal({
+  isOpen,
+  onClose,
+}: Scenario1ModalProps) {
   const t = useTranslations("Scenario");
   const fields = useTranslations("Fields");
   const common = useTranslations("Common");
@@ -96,7 +117,12 @@ export default function Scenario1Modal({ isOpen, onClose }: Scenario1ModalProps)
   const getApiErrorMessage = useApiErrorMessage();
   const locale = useLocale();
   const toLocalizedPath = useLocalizedPath();
-  const chartOptions = createChartOptions(locale);
+  const chartOptions = createChartOptions(locale, {
+    title: t("charts.goalTitle"),
+    subtitle: t("charts.wealthRangeSubtitle"),
+    age: t("charts.age"),
+    wealth: t("charts.wealth"),
+  });
   const inputQuery = useGetScenario1Input();
   const outputQuery = useGetScenario1Output();
   const createMutation = useCreateScenario1Input();
@@ -104,8 +130,11 @@ export default function Scenario1Modal({ isOpen, onClose }: Scenario1ModalProps)
   const { defaultValue: defaultLifeExpectancy } = useLifeExpectancyOptions();
   const { data: userData } = useUserContext();
   const { currencies } = useFinancialPlanningReferences();
-  const currencyCode = resolveCurrencyCode(currencies, userData?.preferredCurrencyId);
-  const router = useLocaleRouter(); 
+  const currencyCode = resolveCurrencyCode(
+    currencies,
+    userData?.preferredCurrencyId,
+  );
+  const router = useLocaleRouter();
 
   const [lifeExpectancy, setLifeExpectancy] = useState("");
   const [inputFfpAge, setInputFfpAge] = useState("");
@@ -114,7 +143,6 @@ export default function Scenario1Modal({ isOpen, onClose }: Scenario1ModalProps)
 
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
-  // Pre-populate fields when existing input loads or default from profile
   useEffect(() => {
     if (inputQuery.data) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -126,7 +154,6 @@ export default function Scenario1Modal({ isOpen, onClose }: Scenario1ModalProps)
     }
   }, [inputQuery.data, defaultLifeExpectancy]);
 
-  // Reset on modal open
   useEffect(() => {
     if (isOpen) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -161,10 +188,7 @@ export default function Scenario1Modal({ isOpen, onClose }: Scenario1ModalProps)
       scenarioId="01"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
-        <LifeExpectancyField
-          value={lifeExpectancy}
-          onChange={setLifeExpectancy}
-        />
+        <LifeExpectancyField value={lifeExpectancy} onChange={setLifeExpectancy} />
         <FormField
           label={fields("targetFfpAge")}
           isRequired
@@ -190,9 +214,7 @@ export default function Scenario1Modal({ isOpen, onClose }: Scenario1ModalProps)
           }}
         />
 
-        {submitError && (
-          <p className="text-sm text-red-600">{submitError}</p>
-        )}
+        {submitError && <p className="text-sm text-red-600">{submitError}</p>}
 
         <Button
           type="submit"
@@ -201,7 +223,11 @@ export default function Scenario1Modal({ isOpen, onClose }: Scenario1ModalProps)
         >
           {isSubmitting ? (
             <span className="inline-flex items-center gap-2">
-              <Icon icon="mdi:loading" className="h-4 w-4 animate-spin" aria-hidden="true" />
+              <Icon
+                icon="mdi:loading"
+                className="h-4 w-4 animate-spin"
+                aria-hidden="true"
+              />
               {common("calculating")}
             </span>
           ) : inputQuery.data ? (
@@ -212,82 +238,93 @@ export default function Scenario1Modal({ isOpen, onClose }: Scenario1ModalProps)
         </Button>
       </form>
 
-      {/* Inline result */}
       {output !== null && output !== undefined && (
         <div className="mt-5 border-t border-border pt-5">
           <p className="mb-2 text-sm font-bold text-slate-500">{t("result")}</p>
-          <p className="mb-4 text-sm text-red-600">
+          <p className="mb-4 text-sm text-slate-600">
             {t("incompleteStageNotice")}{" "}
             <button
               type="button"
               onClick={() => router.push("/profile?tab=financial")}
-              className="font-semibold text-primary underline hover:text-primary-600 transition"
+              className="font-semibold text-primary underline transition hover:text-primary-600"
             >
               {t("profilePage")}
             </button>
           </p>
-          {/* Yes / No badge */}
+
           <div
             className={`mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold ${
-              output.outputIsAchievable
+              output.outputLowIsAchievable
                 ? "bg-green-50 text-green-700"
-                : "bg-red-50 text-red-600"
+                : output.outputHighIsAchievable
+                  ? "bg-amber-50 text-amber-700"
+                  : "bg-red-50 text-red-600"
             }`}
           >
             <Icon
-              icon={output.outputIsAchievable ? "mdi:check-circle" : "mdi:close-circle"}
+              icon={
+                output.outputLowIsAchievable
+                  ? "mdi:check-circle"
+                  : output.outputHighIsAchievable
+                    ? "mdi:alert-circle"
+                    : "mdi:close-circle"
+              }
               className="h-4 w-4"
               aria-hidden="true"
             />
-            {output.outputIsAchievable
-              ? t("outputs.yesAchievableModal")
-              : t("outputs.notYet")}
+            {output.outputLowIsAchievable
+              ? t("outputs.conservativeAchievable")
+              : output.outputHighIsAchievable
+                ? t("outputs.optimisticAchievable")
+                : t("outputs.notYet")}
           </div>
 
-          {/* Wealth vs Required wealth chart */}
           {output.wealthProjection?.length > 0 && (() => {
             const labels = output.wealthProjection.map((p) => String(p.age));
-            const wealthData = output.wealthProjection.map((p) => p.wealth);
-            const requiredData = output.wealthProjection.map(
-              () => output.requiredWealthAtFFPAge,
+            const lowData = output.wealthProjection.map((p) => p.wealthLow);
+            const expectedData = output.wealthProjection.map(
+              (p) => p.wealthExpected,
             );
-            const intersectionIdx = output.wealthProjection.findIndex(
-              (p) => p.wealth >= output.requiredWealthAtFFPAge,
-            );
-            const pointRadius = output.wealthProjection.map((_, i) =>
-              i === intersectionIdx ? 7 : 3,
-            );
-            const pointBackgroundColor = output.wealthProjection.map((_, i) =>
-              i === intersectionIdx ? "#22c55e" : "#6366f1",
-            );
+            const highData = output.wealthProjection.map((p) => p.wealthHigh);
             const chartData = {
               labels,
               datasets: [
                 {
-                  label: t("charts.projectedWealth"),
-                  data: wealthData,
-                  borderColor: "#6366f1",
-                  backgroundColor: "#6366f120",
-                  pointRadius,
-                  pointBackgroundColor,
+                  label: t("charts.projectedWealthLow"),
+                  data: lowData,
+                  borderColor: "#ef4444",
+                  backgroundColor: "#ef444420",
+                  pointRadius: 3,
                   tension: 0.3,
                 },
                 {
-                  label: t("charts.requiredWealth"),
-                  data: requiredData,
-                  borderColor: "#f59e0b",
-                  borderDash: [6, 3],
-                  pointRadius: 0,
-                  tension: 0,
+                  label: t("charts.projectedWealth"),
+                  data: expectedData,
+                  borderColor: "#6366f1",
+                  backgroundColor: "#6366f120",
+                  pointRadius: 3,
+                  tension: 0.3,
+                },
+                {
+                  label: t("charts.projectedWealthHigh"),
+                  data: highData,
+                  borderColor: "#22c55e",
+                  backgroundColor: "#22c55e20",
+                  pointRadius: 3,
+                  tension: 0.3,
                 },
               ],
             };
             return <Line data={chartData} options={chartOptions} />;
           })()}
+
           <p className="mt-3 text-xs text-muted-foreground">
-            {locale === "vi" ? "Xem chi tiết thống kê tại " : "See detail statss in "}
-            <Link href={toLocalizedPath("/profile?tab=results")} className="text-primary hover:underline">
-              {locale === "vi" ? "trang hồ sơ" : "Profile page"}
+            {t("viewDetailedStats")} {" "}
+            <Link
+              href={toLocalizedPath("/profile?tab=results")}
+              className="text-primary hover:underline"
+            >
+              {t("profilePage")}
             </Link>
           </p>
 

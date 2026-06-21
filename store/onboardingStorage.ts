@@ -16,8 +16,8 @@ export function createEmptyOnboardingState(): OnboardingDraft {
       currentSavings: "",
       preferredCurrency: "",
       desiredLifeExpectancy: "",
-      beforeFfp: { u: "", mu: "", rf: "" },
-      afterFfp: { u: "", mu: "", rf: "" },
+      beforeFfp: { u: "", mu: "", rf: "", sigma: "" },
+      afterFfp: { u: "", mu: "", rf: "", sigma: "" },
       habits: {
         smoke: "",
         physical: "",

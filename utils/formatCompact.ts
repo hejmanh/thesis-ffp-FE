@@ -24,3 +24,16 @@ export function formatCompact(
   if (abs >= 1_000) return `${(value / 1_000).toFixed(2)}${suffixes.thousand}`;
   return value.toLocaleString();
 }
+
+export function formatCompactRange(
+  low: number,
+  high: number,
+  locale: "en" | "vi" = "en",
+): string {
+  const formattedLow = formatCompact(low, locale);
+  const formattedHigh = formatCompact(high, locale);
+
+  return Math.abs(low - high) < 1e-9
+    ? formattedLow
+    : `${formattedLow} - ${formattedHigh}`;
+}

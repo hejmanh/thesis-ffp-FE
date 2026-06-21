@@ -79,7 +79,7 @@ export default function StageEditorCard({
           }}
         />
         <FormField
-          label={variant === "account" ? fields("annualRate") : fields("annualGrowthRate")}
+          label={fields("annualGrowthRate")}
           inputClassName="h-11 px-3 pr-8"
           suffix="%"
           placeholder={fields("placeholderRate")}

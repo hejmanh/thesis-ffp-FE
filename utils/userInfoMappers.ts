@@ -52,6 +52,17 @@ function parsePercentGreaterThanMinus100ToRatio(
   return parsedValue / 100;
 }
 
+function parseNonNegativePercentToRatio(
+  value: string,
+  fieldName: string,
+): number {
+  const parsedValue = parseRequiredNumber(value, fieldName);
+  if (parsedValue < 0) {
+    throw new Error(`${fieldName} must be at least 0`);
+  }
+  return parsedValue / 100;
+}
+
 function parseNumberAtLeast(
   value: string,
   fieldName: string,
@@ -137,6 +148,10 @@ export function buildCreateFinancialRequestFromOnboarding(
           draft.step2.beforeFfp.rf,
           "Pre-FFP risk-free rate",
         ),
+        sigma: parseNonNegativePercentToRatio(
+          draft.step2.beforeFfp.sigma,
+          "Pre-FFP risky asset volatility",
+        ),
       },
       {
         allocationType: "POST_FFP",
@@ -153,6 +168,10 @@ export function buildCreateFinancialRequestFromOnboarding(
         rf: parsePercentGreaterThanMinus100ToRatio(
           draft.step2.afterFfp.rf,
           "Post-FFP risk-free rate",
+        ),
+        sigma: parseNonNegativePercentToRatio(
+          draft.step2.afterFfp.sigma,
+          "Post-FFP risky asset volatility",
         ),
       },
     ],
@@ -210,6 +229,10 @@ export function buildFinancialRequestFromFinancialData(
           allocation.before.rf,
           "Pre-FFP risk-free rate",
         ),
+        sigma: parseNonNegativePercentToRatio(
+          allocation.before.sigma,
+          "Pre-FFP risky asset volatility",
+        ),
       },
       {
         allocationType: "POST_FFP",
@@ -226,6 +249,10 @@ export function buildFinancialRequestFromFinancialData(
         rf: parsePercentGreaterThanMinus100ToRatio(
           allocation.after.rf,
           "Post-FFP risk-free rate",
+        ),
+        sigma: parseNonNegativePercentToRatio(
+          allocation.after.sigma,
+          "Post-FFP risky asset volatility",
         ),
       },
     ],
@@ -316,11 +343,19 @@ export function mapUserInfoResourcesToFinancialData({
         u: preFfpAllocation ? ratioToPercent(preFfpAllocation.u) : "",
         mu: preFfpAllocation ? ratioToPercent(preFfpAllocation.mu) : "",
         rf: preFfpAllocation ? ratioToPercent(preFfpAllocation.rf) : "",
+        sigma:
+          preFfpAllocation?.sigma == null
+            ? ""
+            : ratioToPercent(preFfpAllocation.sigma),
       },
       after: {
         u: postFfpAllocation ? ratioToPercent(postFfpAllocation.u) : "",
         mu: postFfpAllocation ? ratioToPercent(postFfpAllocation.mu) : "",
         rf: postFfpAllocation ? ratioToPercent(postFfpAllocation.rf) : "",
+        sigma:
+          postFfpAllocation?.sigma == null
+            ? ""
+            : ratioToPercent(postFfpAllocation.sigma),
       },
     },
     habits: {
