@@ -336,6 +336,61 @@
     "newPasswordMismatch": "New password and confirm password do not match.",
     "fieldRange": "{field} must be between {min} and {max}."
   },
+  "Consent": {
+    "title": "Participant Consent Statement",
+    "subtitle": "Consent to Participate",
+    "intro": "Thank you for participating in this study. Before proceeding, please read the following information carefully.",
+    "byParticipating": "By participating in this research, you acknowledge and agree that:",
+    "points": {
+      "1": "Your responses and usage data within the application may be collected and analyzed for academic research purposes as part of this thesis project.",
+      "2": "The collected data will be used solely for research, evaluation, and improvement of the system and will not be used for commercial purposes.",
+      "3": "Any personal information that could identify you will be anonymized or removed before analysis and publication whenever possible.",
+      "4": "Participation is entirely voluntary. You may choose not to participate or withdraw your consent at any time without penalty.",
+      "5": "Your decision to participate or not participate will not affect your access to the application's core functionality, except for features that require data collection for analysis.",
+      "6": "The research findings may be published in academic reports, presentations, or papers, but no personally identifiable information will be disclosed."
+    },
+    "byAgreeing": "By selecting \"I Agree\", you confirm that:",
+    "agreementPoints": {
+      "1": "You have read and understood the information above.",
+      "2": "You voluntarily consent to the collection and use of your data for this research.",
+      "3": "You are at least the minimum age required to provide consent under applicable laws or have obtained any necessary permission from a parent or legal guardian."
+    },
+    "agreeBtn": "I Agree",
+    "noBtn": "No",
+    "errorMsg": "Something went wrong. Please try again."
+  },
+  "Survey": {
+    "title": "User Experience Survey",
+    "subtitle": "Your feedback helps improve the system",
+    "close": "Close survey",
+    "feedbackLabel": "Additional Feedback",
+    "feedbackOptional": "(optional)",
+    "feedbackPlaceholder": "Share any additional thoughts or suggestions...",
+    "submitBtn": "Submit Survey",
+    "cancelBtn": "Cancel",
+    "thankYouTitle": "Thank you for your feedback!",
+    "thankYouDesc": "Your responses have been recorded and will help improve the system.",
+    "closeBtn": "Close",
+    "scoreDescription": "1 = Strongly disagree, 2 = Disagree, 3 = Neutral, 4 = Agree, 5 = Strongly agree",
+    "errorAnswerAll": "Please answer all questions before submitting.",
+    "errorSubmit": "Failed to submit survey. Please try again.",
+    "takeSurvey": "Take Survey",
+    "scoreLabels": {
+      "1": "Strongly Disagree",
+      "2": "Disagree",
+      "3": "Neutral",
+      "4": "Agree",
+      "5": "Strongly Agree"
+    },
+    "categories": {
+      "USABILITY": "Usability",
+      "USEFULNESS": "Usefulness",
+      "SATISFACTION": "Satisfaction",
+      "EASE_OF_USE": "Ease of Use",
+      "INFORMATION_QUALITY": "Information Quality",
+      "OVERALL": "Overall"
+    }
+  },
   "Account": {
     "tabs": {
       "account": "Account",

@@ -336,6 +336,61 @@
     "allPasswordFieldsRequired": "Tất cả trường mật khẩu đều bắt buộc.",
     "newPasswordMismatch": "Mật khẩu mới và xác nhận mật khẩu không trùng khớp."
   },
+  "Consent": {
+    "title": "Tuyên Bố Đồng Thuận Tham Gia",
+    "subtitle": "Đồng Ý Tham Gia Nghiên Cứu",
+    "intro": "Cảm ơn bạn đã tham gia nghiên cứu này. Trước khi tiếp tục, vui lòng đọc kỹ các thông tin sau.",
+    "byParticipating": "Bằng cách tham gia nghiên cứu này, bạn xác nhận và đồng ý rằng:",
+    "points": {
+      "1": "Câu trả lời và dữ liệu sử dụng của bạn trong ứng dụng có thể được thu thập và phân tích cho mục đích nghiên cứu học thuật trong khuôn khổ luận văn này.",
+      "2": "Dữ liệu thu thập sẽ chỉ được dùng cho mục đích nghiên cứu, đánh giá và cải thiện hệ thống, không dùng cho mục đích thương mại.",
+      "3": "Mọi thông tin cá nhân có thể nhận dạng bạn sẽ được ẩn danh hoặc xóa bỏ trước khi phân tích và công bố khi có thể.",
+      "4": "Việc tham gia hoàn toàn là tự nguyện. Bạn có thể chọn không tham gia hoặc rút lại sự đồng ý bất cứ lúc nào mà không bị phạt.",
+      "5": "Quyết định tham gia hay không của bạn sẽ không ảnh hưởng đến quyền truy cập các tính năng cốt lõi của ứng dụng, ngoại trừ các tính năng yêu cầu thu thập dữ liệu để phân tích.",
+      "6": "Kết quả nghiên cứu có thể được công bố trong các báo cáo học thuật, bài thuyết trình hoặc bài báo, nhưng không có thông tin nhận dạng cá nhân nào được tiết lộ."
+    },
+    "byAgreeing": "Bằng cách chọn \"Tôi Đồng Ý\", bạn xác nhận rằng:",
+    "agreementPoints": {
+      "1": "Bạn đã đọc và hiểu các thông tin trên.",
+      "2": "Bạn tự nguyện đồng ý cho việc thu thập và sử dụng dữ liệu của bạn cho nghiên cứu này.",
+      "3": "Bạn đã đủ độ tuổi tối thiểu để đồng ý theo quy định pháp luật hiện hành hoặc đã được sự cho phép của cha mẹ hoặc người giám hộ hợp pháp."
+    },
+    "agreeBtn": "Tôi Đồng Ý",
+    "noBtn": "Không",
+    "errorMsg": "Đã có lỗi xảy ra. Vui lòng thử lại."
+  },
+  "Survey": {
+    "title": "Khảo Sát Trải Nghiệm Người Dùng",
+    "subtitle": "Phản hồi của bạn giúp cải thiện hệ thống",
+    "close": "Đóng khảo sát",
+    "feedbackLabel": "Phản Hồi Thêm",
+    "feedbackOptional": "(không bắt buộc)",
+    "feedbackPlaceholder": "Chia sẻ thêm ý kiến hoặc đề xuất của bạn...",
+    "submitBtn": "Gửi Khảo Sát",
+    "cancelBtn": "Hủy",
+    "thankYouTitle": "Cảm ơn phản hồi của bạn!",
+    "thankYouDesc": "Câu trả lời của bạn đã được ghi lại và sẽ giúp cải thiện hệ thống.",
+    "closeBtn": "Đóng",
+    "scoreDescription": "1 = Hoàn Toàn Không Đồng Ý, 2 = Không Đồng Ý, 3 = Trung Lập, 4 = Đồng Ý, 5 = Hoàn Toàn Đồng Ý",
+    "errorAnswerAll": "Vui lòng trả lời tất cả câu hỏi trước khi gửi.",
+    "errorSubmit": "Gửi khảo sát thất bại. Vui lòng thử lại.",
+    "takeSurvey": "Tham Gia Khảo Sát",
+    "scoreLabels": {
+      "1": "Hoàn Toàn Không Đồng Ý",
+      "2": "Không Đồng Ý",
+      "3": "Trung Lập",
+      "4": "Đồng Ý",
+      "5": "Hoàn Toàn Đồng Ý"
+    },
+    "categories": {
+      "USABILITY": "Khả Năng Sử Dụng",
+      "USEFULNESS": "Tính Hữu Ích",
+      "SATISFACTION": "Sự Hài Lòng",
+      "EASE_OF_USE": "Dễ Sử Dụng",
+      "INFORMATION_QUALITY": "Chất Lượng Thông Tin",
+      "OVERALL": "Tổng Thể"
+    }
+  },
   "Account": {
     "tabs": {
       "account": "Tài khoản",
