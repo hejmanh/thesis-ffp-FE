@@ -44,4 +44,13 @@ export const API_ENDPOINTS = {
     input: "/scenario-4/input",
     output: "/scenario-4/output",
   },
+  consent: {
+    me: "/consent/me",
+    record: "/consent",
+  },
+  survey: {
+    questions: "/survey/questions",
+    responses: "/survey-responses",
+    responseStatus: "/survey-responses/me",
+  },
 } as const;
