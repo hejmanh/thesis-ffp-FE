@@ -60,7 +60,7 @@ export default function Step2PersonalForm({
 
   function updateAllocation(
     section: "beforeFfp" | "afterFfp",
-    key: "u" | "mu" | "rf",
+    key: "u" | "mu" | "rf" | "sigma",
     value: string,
   ) {
     onChange({
@@ -130,7 +130,11 @@ export default function Step2PersonalForm({
             updateRoot(fieldMap[field], value);
           }}
           onAllocationChange={(period, key, value) =>
-            updateAllocation(period === "before" ? "beforeFfp" : "afterFfp", key, value)
+            updateAllocation(
+              period === "before" ? "beforeFfp" : "afterFfp",
+              key,
+              value,
+            )
           }
           onHabitChange={updateHabit}
           idPrefix="step2_"

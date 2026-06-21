@@ -12,6 +12,7 @@ export interface AllocationData {
   u: string;
   mu: string;
   rf: string;
+  sigma: string;
 }
 
 export interface HabitsData {

@@ -15,7 +15,7 @@ import {
   type ChartOptions,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
-import { formatCompact } from "@/utils/formatCompact";
+import { formatCompact, formatCompactRange } from "@/utils/formatCompact";
 import { useGetScenario3Output } from "@/hooks/scenario/useScenario3";
 import { useLocale, useTranslations } from "@/i18n/client";
 
@@ -31,41 +31,56 @@ ChartJS.register(
   SubTitle,
 );
 
-function createOptions(locale: "en" | "vi"): ChartOptions<"line"> {
+type ChartLabels = {
+  title: string;
+  subtitle: string;
+  age: string;
+  wealth: string;
+};
+
+function createOptions(
+  locale: "en" | "vi",
+  chartLabels: ChartLabels,
+): ChartOptions<"line"> {
   return {
-  responsive: true,
-  maintainAspectRatio: true,
-  interaction: { mode: "index", intersect: false },
-  plugins: {
-    legend: { display: false },
-    title: {
+    responsive: true,
+    maintainAspectRatio: true,
+    interaction: { mode: "index", intersect: false },
+    plugins: {
+      legend: {
         display: true,
-        text: "Retirement Cashflow Projection",
+        position: "bottom",
+        labels: { usePointStyle: true, boxWidth: 8 },
+      },
+      title: {
+        display: true,
+        text: chartLabels.title,
         color: "#374151",
         font: { size: 16, weight: "bold" },
         padding: { bottom: 10 },
-    },
-    subtitle: {
+      },
+      subtitle: {
         display: true,
-        text: "Projects the decline of retirement wealth over time based on your spending plan.",
+        text: chartLabels.subtitle,
         color: "#6b7280",
         font: { size: 12 },
         padding: { bottom: 20 },
-    },
-    tooltip: {
-      callbacks: {
-        label: (ctx) => `Wealth: ${formatCompact(ctx.parsed.y ?? 0, locale)}`,
+      },
+      tooltip: {
+        callbacks: {
+          label: (ctx) =>
+            `${ctx.dataset.label}: ${formatCompact(ctx.parsed.y ?? 0, locale)}`,
+        },
       },
     },
-  },
-  scales: {
-    x: { title: { display: true, text: "Age" } },
-    y: {
-      title: { display: true, text: "Wealth" },
-      min: 0,
-      ticks: { callback: (v) => formatCompact(Number(v), locale) },
+    scales: {
+      x: { title: { display: true, text: chartLabels.age } },
+      y: {
+        title: { display: true, text: chartLabels.wealth },
+        min: 0,
+        ticks: { callback: (v) => formatCompact(Number(v), locale) },
+      },
     },
-  },
   };
 }
 
@@ -73,6 +88,12 @@ export default function Scenario3Widget() {
   const t = useTranslations("Scenario");
   const locale = useLocale();
   const { data, isLoading } = useGetScenario3Output();
+  const chartOptions = createOptions(locale, {
+    title: t("charts.cashflowTitle"),
+    subtitle: t("charts.cashflowRangeSubtitle"),
+    age: t("charts.age"),
+    wealth: t("charts.wealth"),
+  });
 
   if (isLoading) {
     return (
@@ -92,17 +113,37 @@ export default function Scenario3Widget() {
   }
 
   const labels = data.retirementCashflow.map((p) => String(p.age));
-  const wealthData = data.retirementCashflow.map((p) => p.wealth);
 
   const chartData = {
     labels,
     datasets: [
       {
-        label: t("charts.wealth"),
-        data: wealthData,
+        label: t("charts.retirementWealthLow"),
+        data: data.retirementCashflow.map(
+          (p) => p.wealthLow ?? p.wealthExpected ?? p.wealth ?? 0,
+        ),
+        borderColor: "#ef4444",
+        backgroundColor: "#ef444420",
+        tension: 0.3,
+        pointRadius: 4,
+      },
+      {
+        label: t("charts.retirementWealthExpected"),
+        data: data.retirementCashflow.map(
+          (p) => p.wealthExpected ?? p.wealth ?? 0,
+        ),
         borderColor: "#6366f1",
-        backgroundColor: "#6366f130",
-        fill: true,
+        backgroundColor: "#6366f120",
+        tension: 0.3,
+        pointRadius: 4,
+      },
+      {
+        label: t("charts.retirementWealthHigh"),
+        data: data.retirementCashflow.map(
+          (p) => p.wealthHigh ?? p.wealthExpected ?? p.wealth ?? 0,
+        ),
+        borderColor: "#22c55e",
+        backgroundColor: "#22c55e20",
         tension: 0.3,
         pointRadius: 4,
       },
@@ -121,17 +162,27 @@ export default function Scenario3Widget() {
         <div className="rounded-xl bg-primary-soft px-4 py-3 text-center">
           <p className="text-xs text-muted-foreground">{t("outputs.availableAnnualSpending")}</p>
           <p className="mt-0.5 text-xl font-bold text-primary">
-            {formatCompact(data.outputFfpAnnualSpending, locale)}
+            {formatCompactRange(
+              data.outputFfpAnnualSpendingLow ?? data.outputFfpAnnualSpending,
+              data.outputFfpAnnualSpendingHigh ?? data.outputFfpAnnualSpending,
+              locale,
+            )}
           </p>
         </div>
         <div className="rounded-xl bg-primary-soft px-4 py-3 text-center">
           <p className="text-xs text-muted-foreground">{t("outputs.availableMonthlySpending")}</p>
           <p className="mt-0.5 text-xl font-bold text-primary">
-            {formatCompact(data.outputFfpMonthlySpending, locale)}
+            {formatCompactRange(
+              data.outputFfpMonthlySpendingLow ??
+                data.outputFfpMonthlySpending,
+              data.outputFfpMonthlySpendingHigh ??
+                data.outputFfpMonthlySpending,
+              locale,
+            )}
           </p>
         </div>
       </div>
-      <Line data={chartData} options={createOptions(locale)} />
+      <Line data={chartData} options={chartOptions} />
     </div>
   );
 }

@@ -37,8 +37,8 @@ const EMPTY_FINANCIAL_DATA: FinancialData = {
   currency: "",
   desiredLE: "",
   allocation: {
-    before: { u: "", mu: "", rf: "" },
-    after: { u: "", mu: "", rf: "" },
+    before: { u: "", mu: "", rf: "", sigma: "" },
+    after: { u: "", mu: "", rf: "", sigma: "" },
   },
   habits: {
     smoking: "",
@@ -454,6 +454,7 @@ export default function FinancialSection() {
       queryClient.invalidateQueries({ queryKey: ["user-info", "financial"] }),
       queryClient.invalidateQueries({ queryKey: ["user-info", "stages"] }),
       queryClient.invalidateQueries({ queryKey: ["user-info", "assets"] }),
+      queryClient.invalidateQueries({ queryKey: ["scenario"] }),
     ]);
   }
 

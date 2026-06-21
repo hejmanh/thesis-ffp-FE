@@ -11,12 +11,13 @@ type RootFieldKey =
   | "preferredCurrency";
 
 type AllocationPeriod = "before" | "after";
-type AllocationKey = "u" | "mu" | "rf";
+type AllocationKey = "u" | "mu" | "rf" | "sigma";
 
 interface AllocationValues {
   u: string;
   mu: string;
   rf: string;
+  sigma: string;
 }
 
 interface HabitField<HabitKey extends string> {
@@ -78,14 +79,37 @@ export default function FinancialProfileFields<HabitKey extends string>({
   };
   const allocationLabels: Record<
     AllocationKey,
-    { description: string; symbol: string }
+    {
+      description: string;
+      symbol: React.ReactNode;
+      accessibleSymbol: string;
+    }
   > = {
-    u: { description: t("allocation.riskyAsset"), symbol: "u" },
+    u: {
+      description: t("allocation.riskyAsset"),
+      symbol: <i>u</i>,
+      accessibleSymbol: "u",
+    },
     mu: {
       description: t("allocation.expectedReturn"),
-      symbol: "mu",
+      symbol: "μ",
+      accessibleSymbol: "mu",
     },
-    rf: { description: t("allocation.riskFreeRate"), symbol: "r_f" },
+    rf: {
+      description: t("allocation.riskFreeRate"),
+      symbol: (
+        <span>
+          <i>r</i>
+          <sub>f</sub>
+        </span>
+      ),
+      accessibleSymbol: "r_f",
+    },
+    sigma: {
+      description: t("allocation.volatility"),
+      symbol: "σ",
+      accessibleSymbol: "sigma",
+    },
   };
   const allocationPeriods: Array<{
     key: AllocationPeriod;
@@ -189,8 +213,8 @@ export default function FinancialProfileFields<HabitKey extends string>({
                   {period.label}
                 </p>
                 <p className={hintClassName}>{period.hint}</p>
-                <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-3">
-                  {(["u", "mu", "rf"] as const).map((key) => (
+                <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-4">
+                  {(["u", "rf", "mu", "sigma"] as const).map((key) => (
                     <div
                       key={`${period.key}_${key}`}
                       className="grid h-full grid-rows-[1fr_auto] gap-2"
@@ -211,7 +235,7 @@ export default function FinancialProfileFields<HabitKey extends string>({
                         inputClassName="h-11 px-2 pr-5"
                         suffix="%"
                         inputProps={{
-                          "aria-label": `${period.label} ${allocationLabels[key].description} (${allocationLabels[key].symbol})`,
+                          "aria-label": `${period.label} ${allocationLabels[key].description} (${allocationLabels[key].accessibleSymbol})`,
                           value: allocations[period.key][key],
                           onChange: (event) =>
                             onAllocationChange(
