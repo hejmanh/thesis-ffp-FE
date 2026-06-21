@@ -15,6 +15,7 @@ export interface UserInfoPortfolioAllocation {
   u: number;
   mu: number;
   rf: number;
+  sigma?: number | null;
 }
 
 export interface UserInfoLifestyleProfile {

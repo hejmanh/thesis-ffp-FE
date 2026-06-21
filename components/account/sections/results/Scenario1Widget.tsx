@@ -29,41 +29,54 @@ ChartJS.register(
   SubTitle,
 );
 
-function createOptions(locale: "en" | "vi"): ChartOptions<"line"> {
+type ChartLabels = {
+  title: string;
+  subtitle: string;
+  age: string;
+  wealth: string;
+};
+
+function createOptions(
+  locale: "en" | "vi",
+  chartLabels: ChartLabels,
+): ChartOptions<"line"> {
   return {
-  responsive: true,
-  maintainAspectRatio: true,
-  interaction: { mode: "index", intersect: false },
-  plugins: {
-    legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 8 } },
-    title: {
+    responsive: true,
+    maintainAspectRatio: true,
+    interaction: { mode: "index", intersect: false },
+    plugins: {
+      legend: {
+        position: "bottom",
+        labels: { usePointStyle: true, boxWidth: 8 },
+      },
+      title: {
         display: true,
-        text: "FFP Goal Achievement Projection",
+        text: chartLabels.title,
         color: "#374151",
         font: { size: 16, weight: "bold" },
         padding: { bottom: 10 },
-    },
-    subtitle: {
+      },
+      subtitle: {
         display: true,
-        text: "Compare projected wealth against the required wealth target at your selected FFP age.",
+        text: chartLabels.subtitle,
         color: "#6b7280",
         font: { size: 12 },
         padding: { bottom: 20 },
-    },
-    tooltip: {
-      callbacks: {
-        label: (ctx) =>
-          `${ctx.dataset.label}: ${formatCompact(ctx.parsed.y ?? 0, locale)}`,
+      },
+      tooltip: {
+        callbacks: {
+          label: (ctx) =>
+            `${ctx.dataset.label}: ${formatCompact(ctx.parsed.y ?? 0, locale)}`,
+        },
       },
     },
-  },
-  scales: {
-    x: { title: { display: true, text: "Age" } },
-    y: {
-      title: { display: true, text: "Wealth" },
-      ticks: { callback: (v) => formatCompact(Number(v), locale) },
+    scales: {
+      x: { title: { display: true, text: chartLabels.age } },
+      y: {
+        title: { display: true, text: chartLabels.wealth },
+        ticks: { callback: (v) => formatCompact(Number(v), locale) },
+      },
     },
-  },
   };
 }
 
@@ -71,11 +84,21 @@ export default function Scenario1Widget() {
   const t = useTranslations("Scenario");
   const locale = useLocale();
   const { data, isLoading } = useGetScenario1Output();
+  const chartOptions = createOptions(locale, {
+    title: t("charts.goalTitle"),
+    subtitle: t("charts.wealthRangeSubtitle"),
+    age: t("charts.age"),
+    wealth: t("charts.wealth"),
+  });
 
   if (isLoading) {
     return (
       <div className="flex h-40 items-center justify-center">
-        <Icon icon="mdi:loading" className="h-6 w-6 animate-spin text-primary" aria-hidden="true" />
+        <Icon
+          icon="mdi:loading"
+          className="h-6 w-6 animate-spin text-primary"
+          aria-hidden="true"
+        />
       </div>
     );
   }
@@ -83,49 +106,58 @@ export default function Scenario1Widget() {
   if (!data || !data.wealthProjection?.length) {
     return (
       <div className="flex h-40 flex-col items-center justify-center gap-2 text-center text-muted-foreground">
-        <Icon icon="mingcute:target-line" className="h-8 w-8 opacity-30" aria-hidden="true" />
+        <Icon
+          icon="mingcute:target-line"
+          className="h-8 w-8 opacity-30"
+          aria-hidden="true"
+        />
         <p className="text-sm">{t("outputs.empty", { id: "01" })}</p>
       </div>
     );
   }
 
-  const achievable = data.outputIsAchievable;
+  const achievable = data.outputLowIsAchievable;
+  const summaryToneClass = achievable
+    ? "bg-green-50 text-green-700"
+    : data.outputHighIsAchievable
+      ? "bg-amber-50 text-amber-700"
+      : "bg-red-50 text-red-600";
   const labels = data.wealthProjection.map((p) => String(p.age));
-  const wealthData = data.wealthProjection.map((p) => p.wealth);
-  const requiredData = data.wealthProjection.map(() => data.requiredWealthAtFFPAge);
-
-  // Find first point where wealth reaches/exceeds required wealth
-  const intersectionIdx = data.wealthProjection.findIndex(
-    (p) => p.wealth >= data.requiredWealthAtFFPAge,
-  );
-
-  const pointRadius = data.wealthProjection.map((_, i) =>
-    i === intersectionIdx ? 7 : 3,
-  );
-  const pointBackgroundColor = data.wealthProjection.map((_, i) =>
-    i === intersectionIdx ? "#22c55e" : "#6366f1",
-  );
+  const lowData = data.wealthProjection.map((p) => p.wealthLow);
+  const expectedData = data.wealthProjection.map((p) => p.wealthExpected);
+  const highData = data.wealthProjection.map((p) => p.wealthHigh);
+  const summaryTone = data.outputLowIsAchievable
+    ? t("outputs.conservativeAchievable")
+    : data.outputHighIsAchievable
+      ? t("outputs.optimisticAchievable")
+      : t("outputs.notYet");
 
   const chartData = {
     labels,
     datasets: [
       {
-        label: t("charts.projectedWealth"),
-        data: wealthData,
-        borderColor: "#6366f1",
-        backgroundColor: "#6366f120",
-        pointRadius,
-        pointBackgroundColor,
+        label: t("charts.projectedWealthLow"),
+        data: lowData,
+        borderColor: "#ef4444",
+        backgroundColor: "#ef444420",
+        pointRadius: 3,
         tension: 0.3,
       },
       {
-        label: t("charts.ffpTargetWealth"),
-        data: requiredData,
-        borderColor: "#f59e0b",
-        backgroundColor: "#f59e0b20",
-        borderDash: [6, 3],
-        pointRadius: 0,
-        tension: 0,
+        label: t("charts.projectedWealth"),
+        data: expectedData,
+        borderColor: "#6366f1",
+        backgroundColor: "#6366f120",
+        pointRadius: 3,
+        tension: 0.3,
+      },
+      {
+        label: t("charts.projectedWealthHigh"),
+        data: highData,
+        borderColor: "#22c55e",
+        backgroundColor: "#22c55e20",
+        pointRadius: 3,
+        tension: 0.3,
       },
     ],
   };
@@ -135,11 +167,6 @@ export default function Scenario1Widget() {
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="flex items-center justify-between rounded-xl bg-primary-soft px-5 py-3">
           <div className="flex items-center gap-3">
-            {/* <Icon
-              icon="mdi:calendar-check-outline"
-              className="h-5 w-5 text-primary"
-              aria-hidden="true"
-            /> */}
             <span className="text-sm text-muted-foreground">
               {t("outputs.ffpAge")}
             </span>
@@ -150,11 +177,6 @@ export default function Scenario1Widget() {
         </div>
         <div className="flex items-center justify-between rounded-xl bg-primary-soft px-5 py-3">
           <div className="flex items-center gap-3">
-            {/* <Icon
-              icon="mdi:cash-multiple"
-              className="h-5 w-5 text-primary"
-              aria-hidden="true"
-            /> */}
             <span className="text-sm text-muted-foreground">
               {t("outputs.annualSpending")}
             </span>
@@ -166,19 +188,23 @@ export default function Scenario1Widget() {
       </div>
 
       <div
-        className={`inline-flex items-center gap-2 rounded-xl px-3 py-1 text-sm font-semibold ${
-          achievable ? "bg-green-50 text-green-700" : "bg-red-50 text-red-600"
-        }`}
+        className={`inline-flex items-center gap-2 rounded-xl px-3 py-1 text-sm font-semibold ${summaryToneClass}`}
       >
         <Icon
-          icon={achievable ? "mdi:check-circle" : "mdi:close-circle"}
+          icon={
+            achievable
+              ? "mdi:check-circle"
+              : data.outputHighIsAchievable
+                ? "mdi:alert-circle"
+                : "mdi:close-circle"
+          }
           className="h-4 w-4"
           aria-hidden="true"
         />
-        {achievable ? t("outputs.yesAchievable") : t("outputs.notYet")}
+        {summaryTone}
       </div>
 
-      <Line data={chartData} options={createOptions(locale)} />
+      <Line data={chartData} options={chartOptions} />
     </div>
   );
 }

@@ -4,6 +4,7 @@ export interface Allocation {
   u: string;
   mu: string;
   rf: string;
+  sigma: string;
 }
 
 export interface Habits {

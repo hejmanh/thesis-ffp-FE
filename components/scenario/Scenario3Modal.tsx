@@ -12,10 +12,11 @@ import {
   Tooltip,
   Legend,
   Title,
+  SubTitle,
   type ChartOptions,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
-import { formatCompact } from "@/utils/formatCompact";
+import { formatCompact, formatCompactRange } from "@/utils/formatCompact";
 import Button from "@/components/common/Button";
 import Link from "next/link";
 import FormField from "@/components/common/FormField";
@@ -40,36 +41,59 @@ ChartJS.register(
   Tooltip,
   Legend,
   Title,
+  SubTitle,
 );
 
-function createChartOptions(locale: "en" | "vi"): ChartOptions<"line"> {
+type ChartLabels = {
+  title: string;
+  subtitle: string;
+  age: string;
+  wealth: string;
+};
+
+function createChartOptions(
+  locale: "en" | "vi",
+  chartLabels: ChartLabels,
+): ChartOptions<"line"> {
   return {
-  responsive: true,
-  maintainAspectRatio: true,
-  interaction: { mode: "index", intersect: false },
-  plugins: {
-    legend: { display: false },
-    title: {
+    responsive: true,
+    maintainAspectRatio: true,
+    interaction: { mode: "index", intersect: false },
+    plugins: {
+      legend: {
         display: true,
-        text: "Retirement Cashflow Projection",
+        position: "bottom",
+        labels: { usePointStyle: true, boxWidth: 8 },
+      },
+      title: {
+        display: true,
+        text: chartLabels.title,
         color: "#374151",
         font: { size: 16, weight: "bold" },
+        padding: { bottom: 10 },
+      },
+      subtitle: {
+        display: true,
+        text: chartLabels.subtitle,
+        color: "#6b7280",
+        font: { size: 12 },
         padding: { bottom: 20 },
-    },
-    tooltip: {
-      callbacks: {
-        label: (ctx) => `Wealth: ${formatCompact(ctx.parsed.y ?? 0, locale)}`,
+      },
+      tooltip: {
+        callbacks: {
+          label: (ctx) =>
+            `${ctx.dataset.label}: ${formatCompact(ctx.parsed.y ?? 0, locale)}`,
+        },
       },
     },
-  },
-  scales: {
-    x: { title: { display: true, text: "Age" } },
-    y: {
-      title: { display: true, text: "Wealth" },
-      min: 0,
-      ticks: { callback: (v) => formatCompact(Number(v), locale) },
+    scales: {
+      x: { title: { display: true, text: chartLabels.age } },
+      y: {
+        title: { display: true, text: chartLabels.wealth },
+        min: 0,
+        ticks: { callback: (v) => formatCompact(Number(v), locale) },
+      },
     },
-  },
   };
 }
 
@@ -86,7 +110,12 @@ export default function Scenario3Modal({ isOpen, onClose }: Scenario3ModalProps)
   const getApiErrorMessage = useApiErrorMessage();
   const locale = useLocale();
   const toLocalizedPath = useLocalizedPath();
-  const chartOptions = createChartOptions(locale);
+  const chartOptions = createChartOptions(locale, {
+    title: t("charts.cashflowTitle"),
+    subtitle: t("charts.cashflowRangeSubtitle"),
+    age: t("charts.age"),
+    wealth: t("charts.wealth"),
+  });
   const inputQuery = useGetScenario3Input();
   const outputQuery = useGetScenario3Output();
   const createMutation = useCreateScenario3Input();
@@ -183,7 +212,7 @@ export default function Scenario3Modal({ isOpen, onClose }: Scenario3ModalProps)
       {output !== null && output !== undefined && (
         <div className="mt-5 border-t border-border pt-5">
           <p className="mb-2 text-sm font-bold text-slate-500">{t("result")}</p>
-          <p className="mb-4 text-sm text-red-600">
+          <p className="mb-4 text-sm text-slate-600">
             {t("incompleteStageNotice")}{" "}
             <button
               type="button"
@@ -205,13 +234,25 @@ export default function Scenario3Modal({ isOpen, onClose }: Scenario3ModalProps)
             <div className="rounded-2xl bg-primary-soft px-4 py-3 text-center">
               <p className="text-xs text-muted-foreground">{t("outputs.availableAnnualSpending")}</p>
               <p className="mt-1 text-xl font-bold text-primary">
-                {formatCompact(output.outputFfpAnnualSpending, locale)}
+                {formatCompactRange(
+                  output.outputFfpAnnualSpendingLow ??
+                    output.outputFfpAnnualSpending,
+                  output.outputFfpAnnualSpendingHigh ??
+                    output.outputFfpAnnualSpending,
+                  locale,
+                )}
               </p>
             </div>
             <div className="rounded-2xl bg-primary-soft px-4 py-3 text-center">
               <p className="text-xs text-muted-foreground">{t("outputs.availableMonthlySpending")}</p>
               <p className="mt-1 text-xl font-bold text-primary">
-                {formatCompact(output.outputFfpMonthlySpending, locale)}
+                {formatCompactRange(
+                  output.outputFfpMonthlySpendingLow ??
+                    output.outputFfpMonthlySpending,
+                  output.outputFfpMonthlySpendingHigh ??
+                    output.outputFfpMonthlySpending,
+                  locale,
+                )}
               </p>
             </div>
           </div>
@@ -223,11 +264,32 @@ export default function Scenario3Modal({ isOpen, onClose }: Scenario3ModalProps)
                 labels: output.retirementCashflow.map((p) => String(p.age)),
                 datasets: [
                   {
-                    label: t("charts.wealth"),
-                    data: output.retirementCashflow.map((p) => p.wealth),
+                    label: t("charts.retirementWealthLow"),
+                    data: output.retirementCashflow.map(
+                      (p) => p.wealthLow ?? p.wealthExpected ?? p.wealth ?? 0,
+                    ),
+                    borderColor: "#ef4444",
+                    backgroundColor: "#ef444420",
+                    tension: 0.3,
+                    pointRadius: 4,
+                  },
+                  {
+                    label: t("charts.retirementWealthExpected"),
+                    data: output.retirementCashflow.map(
+                      (p) => p.wealthExpected ?? p.wealth ?? 0,
+                    ),
                     borderColor: "#6366f1",
-                    backgroundColor: "#6366f130",
-                    fill: true,
+                    backgroundColor: "#6366f120",
+                    tension: 0.3,
+                    pointRadius: 4,
+                  },
+                  {
+                    label: t("charts.retirementWealthHigh"),
+                    data: output.retirementCashflow.map(
+                      (p) => p.wealthHigh ?? p.wealthExpected ?? p.wealth ?? 0,
+                    ),
+                    borderColor: "#22c55e",
+                    backgroundColor: "#22c55e20",
                     tension: 0.3,
                     pointRadius: 4,
                   },
@@ -237,9 +299,9 @@ export default function Scenario3Modal({ isOpen, onClose }: Scenario3ModalProps)
             />
           )}
           <p className="mt-3 text-xs text-muted-foreground">
-            {locale === "vi" ? "Xem chi tiết thống kê tại " : "See detail statss in "}
+            {t("viewDetailedStats")} {" "}
             <Link href={toLocalizedPath("/profile?tab=results")} className="text-primary hover:underline">
-              {locale === "vi" ? "trang hồ sơ" : "Profile page"}
+              {t("profilePage")}
             </Link>
           </p>
 
