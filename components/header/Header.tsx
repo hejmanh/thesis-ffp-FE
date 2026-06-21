@@ -59,7 +59,6 @@ export default function Header({
               >
                 {displayName}
               </Link>
-              <LanguageMenu />
             </>
           ) : (
             <>
@@ -83,6 +82,7 @@ export default function Header({
               ) : null}
             </>
           )}
+          <LanguageMenu />
         </nav>
       </div>
     </header>
