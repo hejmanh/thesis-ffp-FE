@@ -377,7 +377,7 @@
   },
   "Survey": {
     "title": "User Experience Survey",
-    "subtitle": "Your feedback helps improve the system",
+    "subtitle": "Thank you for using the application. Please share your feedback by completing this short survey. Your responses will support this thesis research and help improve the system.",
     "close": "Close survey",
     "feedbackLabel": "Additional Feedback",
     "feedbackOptional": "(optional)",

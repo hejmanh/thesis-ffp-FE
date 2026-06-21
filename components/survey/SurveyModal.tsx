@@ -134,11 +134,11 @@ export default function SurveyModal({ isOpen, onClose }: SurveyModalProps) {
         <div className="max-h-[90vh] overflow-y-auto p-6 sm:p-8">
           <div className="mb-6 flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                <Icon icon="mdi:clipboard-text-outline" className="h-5 w-5 text-primary" />
+              <span className="flex h-15 w-15 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                <Icon icon="mdi:clipboard-text-outline" className="h-8 w-8 text-primary" />
               </span>
               <div>
-                <h2 id="survey-modal-title" className="text-xl font-bold text-slate-900">
+                <h2 id="survey-modal-title" className="text-xl mb-2 font-bold text-slate-900">
                   {t("title")}
                 </h2>
                 <p className="text-sm text-slate-500">{t("subtitle")}</p>
