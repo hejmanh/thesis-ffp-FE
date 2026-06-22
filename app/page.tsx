@@ -50,7 +50,6 @@ export default function Home() {
   const { data: s4Output } = useGetScenario4Output();
 
   const surveySubmitted = surveyStatus?.submitted === true;
-  const showSurveyButton = isAuthenticated && hasConsented === true && !surveySubmitted;
 
   const features: FeatureItem[] = [
     {
@@ -165,16 +164,6 @@ export default function Home() {
                 <Icon icon="mdi:chart-line" className="h-4 w-4" aria-hidden="true" />
                 {t("viewResults")}
               </Link>
-              {showSurveyButton && (
-                <button
-                  type="button"
-                  onClick={() => setShowSurveyModal(true)}
-                  className="inline-flex items-center gap-2 rounded-full bg-transparent px-5 py-2 text-sm font-medium text-primary hover:underline"
-                >
-                  <Icon icon="mdi:clipboard-text-outline" className="h-4 w-4" aria-hidden="true" />
-                  {tSurvey("takeSurvey")}
-                </button>
-              )}
             </div>
           )}
         </FeatureGrid>
