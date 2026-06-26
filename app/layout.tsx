@@ -11,8 +11,8 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Coinfused | Financial Freedom Planner",
-  description: "Plan your path to financial freedom with clear scenario tools.",
+  title: "Retire Safely | Safe Retirement Planner",
+  description: "Plan your path to safe retirement with clear scenario tools.",
 };
 
 export default function RootLayout({

@@ -136,42 +136,42 @@ export function buildCreateFinancialRequestFromOnboarding(
         allocationType: "PRE_FFP",
         u: parsePercentInRangeToRatio(
           draft.step2.beforeFfp.u,
-          "Pre-FFP risky allocation",
+          "Pre-SRP risky allocation",
           0,
           100,
         ),
         mu: parsePercentGreaterThanMinus100ToRatio(
           draft.step2.beforeFfp.mu,
-          "Pre-FFP expected return",
+          "Pre-SRP expected return",
         ),
         rf: parsePercentGreaterThanMinus100ToRatio(
           draft.step2.beforeFfp.rf,
-          "Pre-FFP risk-free rate",
+          "Pre-SRP risk-free rate",
         ),
         sigma: parseNonNegativePercentToRatio(
           draft.step2.beforeFfp.sigma,
-          "Pre-FFP risky asset volatility",
+          "Pre-SRP risky asset volatility",
         ),
       },
       {
         allocationType: "POST_FFP",
         u: parsePercentInRangeToRatio(
           draft.step2.afterFfp.u,
-          "Post-FFP risky allocation",
+          "Post-SRP risky allocation",
           0,
           100,
         ),
         mu: parsePercentGreaterThanMinus100ToRatio(
           draft.step2.afterFfp.mu,
-          "Post-FFP expected return",
+          "Post-SRP expected return",
         ),
         rf: parsePercentGreaterThanMinus100ToRatio(
           draft.step2.afterFfp.rf,
-          "Post-FFP risk-free rate",
+          "Post-SRP risk-free rate",
         ),
         sigma: parseNonNegativePercentToRatio(
           draft.step2.afterFfp.sigma,
-          "Post-FFP risky asset volatility",
+          "Post-SRP risky asset volatility",
         ),
       },
     ],
@@ -217,42 +217,42 @@ export function buildFinancialRequestFromFinancialData(
         allocationType: "PRE_FFP",
         u: parsePercentInRangeToRatio(
           allocation.before.u,
-          "Pre-FFP risky allocation",
+          "Pre-SRP risky allocation",
           0,
           100,
         ),
         mu: parsePercentGreaterThanMinus100ToRatio(
           allocation.before.mu,
-          "Pre-FFP expected return",
+          "Pre-SRP expected return",
         ),
         rf: parsePercentGreaterThanMinus100ToRatio(
           allocation.before.rf,
-          "Pre-FFP risk-free rate",
+          "Pre-SRP risk-free rate",
         ),
         sigma: parseNonNegativePercentToRatio(
           allocation.before.sigma,
-          "Pre-FFP risky asset volatility",
+          "Pre-SRP risky asset volatility",
         ),
       },
       {
         allocationType: "POST_FFP",
         u: parsePercentInRangeToRatio(
           allocation.after.u,
-          "Post-FFP risky allocation",
+          "Post-SRP risky allocation",
           0,
           100,
         ),
         mu: parsePercentGreaterThanMinus100ToRatio(
           allocation.after.mu,
-          "Post-FFP expected return",
+          "Post-SRP expected return",
         ),
         rf: parsePercentGreaterThanMinus100ToRatio(
           allocation.after.rf,
-          "Post-FFP risk-free rate",
+          "Post-SRP risk-free rate",
         ),
         sigma: parseNonNegativePercentToRatio(
           allocation.after.sigma,
-          "Post-FFP risky asset volatility",
+          "Post-SRP risky asset volatility",
         ),
       },
     ],

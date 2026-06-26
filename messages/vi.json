@@ -4,7 +4,7 @@
     "back": "Quay lại",
     "calculate": "Tính toán",
     "calculating": "Đang tính...",
-    "coinfused": "Coinfused",
+    "coinfused": "Retire Safely",
     "close": "Đóng",
     "email": "Email",
     "loading": "Đang tải...",
@@ -23,9 +23,9 @@
   },
   "Home": {
     "hero": {
-      "ffpNote": "*FFP: Tuổi tự do tài chính",
+      "ffpNote": "*SRP: Tuổi Nghỉ Hưu An Toàn",
       "badge": "LÊN KẾ HOẠCH THÔNG MINH, TƯƠNG LAI TỰ DO HƠN",
-      "title": "Lập Kế Hoạch Tự Do Tài Chính",
+      "title": "Lập Kế Hoạch Nghỉ Hưu An Toàn",
       "line1": "Bạn đang rối với kế hoạch tài chính? Đừng lo.",
       "line2": "Trả lời vài câu hỏi đơn giản để nhận được gợi ý rõ ràng cho tương lai."
     },
@@ -33,19 +33,19 @@
       "cta": "Khám phá bối cảnh",
       "viewResults": "Xem kết quả của tôi",
       "reachGoal": {
-        "title": "Tôi có đạt được mục tiêu FFP không?",
+        "title": "Tôi có đạt được mục tiêu SRP không?",
         "description": "Kiểm tra kế hoạch hiện tại có khả thi hay bạn đang tiết kiệm quá ít hoặc quá nhiều.",
         "placeholder": "Ví dụ: Nghỉ hưu ở tuổi 55"
       },
       "timeline": {
-        "title": "Khi nào tôi đạt FFP?",
+        "title": "Khi nào tôi đạt SRP?",
         "description": "Tính độ tuổi bạn có thể đạt tự do tài chính.",
         "placeholder": "Ví dụ: Nếu tôi tiết kiệm 20% mỗi tháng"
       },
       "spending": {
-        "title": "Tôi có thể chi bao nhiêu tại FFP?",
+        "title": "Tôi có thể chi bao nhiêu tại SRP?",
         "description": "Ước tính mức chi tiêu hằng tháng an toàn sau khi đạt tự do tài chính.",
-        "placeholder": "Ví dụ: Ngân sách hằng tháng sau FFP"
+        "placeholder": "Ví dụ: Ngân sách hằng tháng sau SRP"
       },
       "savings": {
         "title": "Tôi nên tiết kiệm bao nhiêu?",
@@ -155,7 +155,7 @@
     }
   },
   "Fields": {
-    "annualSpendingAtFfp": "Mục tiêu chi tiêu hằng năm tại FFP",
+    "annualSpendingAtFfp": "Mục tiêu chi tiêu hằng năm tại SRP",
     "annualGrowthRate": "Tỷ lệ tăng trưởng hằng năm",
     "annualRate": "Tỷ lệ hằng năm",
     "assetType": "Loại tài sản",
@@ -177,7 +177,7 @@
     "password": "Mật khẩu",
     "preferredCurrency": "Tiền tệ ưu tiên",
     "currency": "Tiền tệ",
-    "targetFfpAge": "Tuổi FFP mục tiêu",
+    "targetFfpAge": "Tuổi SRP mục tiêu",
     "selectAssetType": "Chọn loại tài sản",
     "selectCountry": "Chọn quốc gia",
     "selectGender": "Chọn giới tính",
@@ -210,9 +210,9 @@
       "expectedReturn": "Tỷ suất sinh lời hằng năm kỳ vọng của tài sản rủi ro",
       "riskFreeRate": "Tỷ suất sinh lời hằng năm của tài sản phi rủi ro",
       "volatility": "Độ biến động hằng năm của tài sản rủi ro",
-      "beforeLabel": "Trước Tuổi Tự Do Tài Chính",
+      "beforeLabel": "Trước Tuổi Nghỉ Hưu An Toàn",
       "beforeHint": "Mô tả các khoản đầu tư tăng trưởng trước tuổi tự do tài chính. Lương, tiết kiệm và thu nhập khác được quản lý trong dòng tiền theo giai đoạn.",
-      "afterLabel": "Sau Tuổi Tự Do Tài Chính",
+      "afterLabel": "Sau Tuổi Nghỉ Hưu An Toàn",
       "afterHint": "Mô tả các phần đầu tư còn lại tăng trưởng sau nghỉ hưu. Lương hưu và thu nhập thụ động được quản lý riêng."
     },
     "habits": {
@@ -245,15 +245,15 @@
       "ageSpecificRequiredWealth": "Tài sản cần thiết theo tuổi",
       "wealthLabel": "Tài sản: {value}",
       "datasetLabel": "{label}: {value}",
-      "goalTitle": "Dự đoán khả năng đạt mục tiêu FFP",
-      "goalSubtitle": "So sánh tài sản dự đoán với mức tài sản cần thiết tại tuổi FFP đã chọn.",
-      "wealthRangeSubtitle": "Hiển thị mức tài sản dự đoán thấp, kỳ vọng và cao đến tuổi FFP đã chọn.",
-      "timelineTitle": "Dự đoán tuổi đạt Tuổi Tự Do Tài Chính (FFP)",
+      "goalTitle": "Dự đoán khả năng đạt mục tiêu SRP",
+      "goalSubtitle": "So sánh tài sản dự đoán với mức tài sản cần thiết tại tuổi SRP đã chọn.",
+      "wealthRangeSubtitle": "Hiển thị mức tài sản dự đoán thấp, kỳ vọng và cao đến tuổi SRP đã chọn.",
+      "timelineTitle": "Dự đoán tuổi đạt Nghỉ Hưu An Toàn (SRP)",
       "timelineSubtitle": "So sánh tài sản dự đoán với mức tài sản cần thiết theo từng tuổi để xác định khi nào đạt tự do tài chính.",
       "timelineRangeSubtitle": "So sánh các mức tài sản thấp, kỳ vọng và cao với mức cần thiết theo từng tuổi để ước tính thời điểm có thể đạt tự do tài chính.",
       "cashflowTitle": "Dự đoán dòng tiền nghỉ hưu",
       "cashflowSubtitle": "Dự đoán mức giảm tài sản nghỉ hưu theo thời gian dựa trên kế hoạch chi tiêu.",
-      "cashflowRangeSubtitle": "Hiển thị các mức tài sản nghỉ hưu thấp, kỳ vọng và cao dựa trên lợi nhuận đầu tư sau FFP.",
+      "cashflowRangeSubtitle": "Hiển thị các mức tài sản nghỉ hưu thấp, kỳ vọng và cao dựa trên lợi nhuận đầu tư sau SRP.",
       "retirementWealthLow": "Tài sản nghỉ hưu - Mức thấp",
       "retirementWealthExpected": "Tài sản nghỉ hưu - Kỳ vọng",
       "retirementWealthHigh": "Tài sản nghỉ hưu - Mức cao"
@@ -264,21 +264,21 @@
       "notYet": "Chưa đạt, hãy điều chỉnh kế hoạch",
       "conservativeAchievable": "Bạn đang đi đúng hướng để đạt mục tiêu, ngay cả khi lợi nhuận đầu tư thấp hơn.",
       "optimisticAchievable": "Bạn có thể đạt mục tiêu, nhưng sẽ cần lợi nhuận đầu tư cao hơn.",
-      "targetFfpAge": "Tuổi FFP mục tiêu",
-      "ffpAge": "Tuổi FFP",
-      "ffpAchievedAtAge": "Đạt FFP ở tuổi {age}",
-      "expectedFfpAge": "Tuổi FFP kỳ vọng: {age}",
-      "estimatedFfpAge": "Tuổi FFP ước tính: {age}",
-      "estimatedFfpAgeRange": "Khoảng tuổi FFP ước tính: {earliest}–{latest}",
-      "ffpWithHigherReturns": "Có thể đạt FFP ở tuổi {age} nếu lợi nhuận đầu tư cao hơn.",
-      "lowerReturnsMayMissFfp": "Nếu lợi nhuận đầu tư thấp hơn, kế hoạch này có thể chưa đạt được FFP.",
-      "ffpNotAchievable": "Chưa thể đạt FFP với kế hoạch này",
+      "targetFfpAge": "Tuổi SRP mục tiêu",
+      "ffpAge": "Tuổi SRP",
+      "ffpAchievedAtAge": "Đạt SRP ở tuổi {age}",
+      "expectedFfpAge": "Tuổi SRP kỳ vọng: {age}",
+      "estimatedFfpAge": "Tuổi SRP ước tính: {age}",
+      "estimatedFfpAgeRange": "Khoảng tuổi SRP ước tính: {earliest}–{latest}",
+      "ffpWithHigherReturns": "Có thể đạt SRP ở tuổi {age} nếu lợi nhuận đầu tư cao hơn.",
+      "lowerReturnsMayMissFfp": "Nếu lợi nhuận đầu tư thấp hơn, kế hoạch này có thể chưa đạt được SRP.",
+      "ffpNotAchievable": "Chưa thể đạt SRP với kế hoạch này",
       "annualSpending": "Mục tiêu chi tiêu hằng năm",
       "availableAnnualSpending": "Khoảng chi tiêu hằng năm khả dụng",
       "monthlySpending": "Chi tiêu hằng tháng",
       "availableMonthlySpending": "Khoảng chi tiêu hằng tháng khả dụng",
       "requiredAnnualSaving": "Mức tiết kiệm hằng năm cần thiết",
-      "requiredWealthAtFfp": "Tài sản cần thiết tại FFP",
+      "requiredWealthAtFfp": "Tài sản cần thiết tại SRP",
       "empty": "Chưa có kết quả, hãy thử Bối cảnh {id} trên trang chủ."
     }
   },
@@ -302,17 +302,17 @@
     "steps": {
       "generalInformation": "Thông tin chung",
       "lifeStages": "Giai đoạn cuộc đời",
-      "postFfpAssets": "Tài sản sau FFP",
+      "postFfpAssets": "Tài sản sau SRP",
       "completeOnboarding": "Hoàn tất thiết lập"
     },
     "personal": {
       "loadingReferences": "Đang tải dữ liệu thiết lập..."
     },
     "stages": {
-      "description": "Bao gồm lương, thu nhập cho thuê và các khoản tiết kiệm khác trước Tuổi Tự Do Tài Chính."
+      "description": "Bao gồm lương, thu nhập cho thuê và các khoản tiết kiệm khác trước Tuổi Nghỉ Hưu An Toàn."
     },
     "assets": {
-      "description": "Bao gồm nguồn thu nhập thụ động sau Tuổi Tự Do Tài Chính, như thu nhập cho thuê và lương hưu.",
+      "description": "Bao gồm nguồn thu nhập thụ động sau Tuổi Nghỉ Hưu An Toàn, như thu nhập cho thuê và lương hưu.",
       "addAnother": "+ Thêm tài sản khác",
       "loadingTypes": "Đang tải loại tài sản..."
     },
@@ -425,7 +425,7 @@
       "generalInformation": "Thông tin chung",
       "lifeStages": "Giai đoạn cuộc đời",
       "lifeStagesEmpty": "Các giai đoạn sẽ hiển thị khi năm sinh đăng ký có sẵn.",
-      "postFfpAssets": "Tài sản sau FFP",
+      "postFfpAssets": "Tài sản sau SRP",
       "addAsset": "+ Thêm tài sản",
       "noAssets": "Chưa có tài sản.",
       "deleteAsset": "Không thể xóa tài sản.",

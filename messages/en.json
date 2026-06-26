@@ -4,7 +4,7 @@
     "back": "Back",
     "calculate": "Calculate",
     "calculating": "Calculating...",
-    "coinfused": "Coinfused",
+    "coinfused": "Retire Safely",
     "close": "Close",
     "email": "Email",
     "loading": "Loading...",
@@ -24,28 +24,28 @@
   "Home": {
     "hero": {
       "badge": "SMART PLANNING, FREER FUTURE",
-      "title": "Plan Your Financial Freedom",
+      "title": "Plan Your Safe Retirement",
       "line1": "Confused about your financial planning? Don't worry.",
       "line2": "Answer a few simple questions and get clear insights to take control of your future.",
-      "ffpNote": "*FFP: Financial Freedom Point"
+      "ffpNote": "*SRP: Safe Retirement Point"
     },
     "features": {
       "cta": "Explore Scenario",
       "viewResults": "View my results",
       "reachGoal": {
-        "title": "Can I reach my FFP goal?",
+        "title": "Can I reach my SRP goal?",
         "description": "Check if your current plan is achievable or if you're saving too little or too much.",
         "placeholder": "Example: Retire by age 55"
       },
       "timeline": {
-        "title": "When will I reach FFP?",
-        "description": "Calculate the age you can achieve financial freedom.",
+        "title": "When will I reach SRP?",
+        "description": "Calculate the age you can achieve safe retirement.",
         "placeholder": "Example: If I save 20% monthly"
       },
       "spending": {
-        "title": "How much can I spend at FFP?",
-        "description": "Find out your safe monthly spending once you reach financial freedom.",
-        "placeholder": "Example: Monthly budget after FFP"
+        "title": "How much can I spend at SRP?",
+        "description": "Find out your safe monthly spending once you reach safe retirement.",
+        "placeholder": "Example: Monthly budget after SRP"
       },
       "savings": {
         "title": "How much should I save?",
@@ -155,7 +155,7 @@
     }
   },
   "Fields": {
-    "annualSpendingAtFfp": "Target Annual Spending at FFP",
+    "annualSpendingAtFfp": "Target Annual Spending at SRP",
     "annualGrowthRate": "Annual Growth Rate",
     "annualRate": "Annual Rate",
     "assetType": "Asset Type",
@@ -177,7 +177,7 @@
     "password": "Password",
     "preferredCurrency": "Preferred Currency",
     "currency": "Currency",
-    "targetFfpAge": "Target FFP Age",
+    "targetFfpAge": "Target SRP Age",
     "selectAssetType": "Select asset type",
     "selectCountry": "Select country",
     "selectGender": "Select gender",
@@ -210,9 +210,9 @@
       "expectedReturn": "Expected annual return rate of risky asset",
       "riskFreeRate": "Annual return rate of risk-free asset",
       "volatility": "Annual volatility of risky asset",
-      "beforeLabel": "Before Financial Freedom Point",
-      "beforeHint": "Defines how your investments grow before financial freedom. Salary, savings, and other income are managed through life-stage cash flow projections.",
-      "afterLabel": "After Financial Freedom Point",
+      "beforeLabel": "Before Safe Retirement Point",
+      "beforeHint": "Defines how your investments grow before safe retirement. Salary, savings, and other income are managed through life-stage cash flow projections.",
+      "afterLabel": "After Safe Retirement Point",
       "afterHint": "Defines how your remaining investments grow after retirement. Pension and passive income are projected separately."
     },
     "habits": {
@@ -245,15 +245,15 @@
       "ageSpecificRequiredWealth": "Age-Specific Required Wealth",
       "wealthLabel": "Wealth: {value}",
       "datasetLabel": "{label}: {value}",
-      "goalTitle": "FFP Goal Achievement Projection",
-      "goalSubtitle": "Compare projected wealth against the required wealth target at your selected FFP age.",
-      "wealthRangeSubtitle": "Shows lower, expected, and higher projected wealth through your selected FFP age.",
-      "timelineTitle": "Financial Freedom Point (FFP) Age Projection",
-      "timelineSubtitle": "Compare projected wealth against the age-specific wealth requirement to identify when financial freedom is achieved.",
-      "timelineRangeSubtitle": "Compare lower, expected, and higher wealth paths with the age-specific requirement to estimate when financial freedom may be reached.",
+      "goalTitle": "SRP Goal Achievement Projection",
+      "goalSubtitle": "Compare projected wealth against the required wealth target at your selected SRP age.",
+      "wealthRangeSubtitle": "Shows lower, expected, and higher projected wealth through your selected SRP age.",
+      "timelineTitle": "Safe Retirement Point (SRP) Age Projection",
+      "timelineSubtitle": "Compare projected wealth against the age-specific wealth requirement to identify when safe retirement is achieved.",
+      "timelineRangeSubtitle": "Compare lower, expected, and higher wealth paths with the age-specific requirement to estimate when safe retirement may be reached.",
       "cashflowTitle": "Retirement Cashflow Projection",
       "cashflowSubtitle": "Projects the decline of retirement wealth over time based on your spending plan.",
-      "cashflowRangeSubtitle": "Shows lower, expected, and higher retirement wealth paths based on post-FFP investment returns.",
+      "cashflowRangeSubtitle": "Shows lower, expected, and higher retirement wealth paths based on post-SRP investment returns.",
       "retirementWealthLow": "Retirement Wealth - Low",
       "retirementWealthExpected": "Retirement Wealth - Expected",
       "retirementWealthHigh": "Retirement Wealth - High"
@@ -264,21 +264,21 @@
       "notYet": "Not yet, adjust your plan",
       "conservativeAchievable": "You are on track to reach your goal, even with lower investment returns.",
       "optimisticAchievable": "You may reach your goal, but it will depend on higher investment returns.",
-      "targetFfpAge": "Target FFP age",
-      "ffpAge": "FFP age",
-      "ffpAchievedAtAge": "FFP achieved at age {age}",
-      "expectedFfpAge": "Expected FFP age: {age}",
-      "estimatedFfpAge": "Estimated FFP age: {age}",
-      "estimatedFfpAgeRange": "Estimated FFP age range: {earliest}–{latest}",
-      "ffpWithHigherReturns": "FFP may be reached at age {age} if investment returns are higher.",
-      "lowerReturnsMayMissFfp": "With lower investment returns, FFP may not be reached within this plan.",
-      "ffpNotAchievable": "FFP is not achievable with this plan",
+      "targetFfpAge": "Target SRP age",
+      "ffpAge": "SRP age",
+      "ffpAchievedAtAge": "SRP achieved at age {age}",
+      "expectedFfpAge": "Expected SRP age: {age}",
+      "estimatedFfpAge": "Estimated SRP age: {age}",
+      "estimatedFfpAgeRange": "Estimated SRP age range: {earliest}–{latest}",
+      "ffpWithHigherReturns": "SRP may be reached at age {age} if investment returns are higher.",
+      "lowerReturnsMayMissFfp": "With lower investment returns, SRP may not be reached within this plan.",
+      "ffpNotAchievable": "SRP is not achievable with this plan",
       "annualSpending": "Target annual spending",
       "availableAnnualSpending": "Available annual spending range",
       "monthlySpending": "Monthly spending",
       "availableMonthlySpending": "Available monthly spending range",
       "requiredAnnualSaving": "Required annual saving",
-      "requiredWealthAtFfp": "Required wealth at FFP",
+      "requiredWealthAtFfp": "Required wealth at SRP",
       "empty": "No result yet, try Scenario {id} on the home page."
     }
   },
@@ -302,17 +302,17 @@
     "steps": {
       "generalInformation": "General Information",
       "lifeStages": "Life Stages",
-      "postFfpAssets": "Post FFP Assets",
+      "postFfpAssets": "Post SRP Assets",
       "completeOnboarding": "Complete Onboarding"
     },
     "personal": {
       "loadingReferences": "Loading onboarding references..."
     },
     "stages": {
-      "description": "Includes salary, rental income, and other savings contributions before Financial Freedom Point."
+      "description": "Includes salary, rental income, and other savings contributions before Safe Retirement Point."
     },
     "assets": {
-      "description": "Includes passive income sources after Financial Freedom Point, such as rental income and pensions.",
+      "description": "Includes passive income sources after Safe Retirement Point, such as rental income and pensions.",
       "addAnother": "+ Add another asset",
       "loadingTypes": "Loading asset types..."
     },
@@ -425,7 +425,7 @@
       "generalInformation": "General Information",
       "lifeStages": "Life Stages",
       "lifeStagesEmpty": "Life stages will appear here once your registration birth year is available.",
-      "postFfpAssets": "Post-FFP Assets",
+      "postFfpAssets": "Post-SRP Assets",
       "addAsset": "+ Add asset",
       "noAssets": "No assets yet.",
       "deleteAsset": "Unable to delete asset.",
