@@ -35,14 +35,12 @@ export default function SurveyModal({ isOpen, onClose }: SurveyModalProps) {
 
     previouslyFocusedElement.current = document.activeElement as HTMLElement;
 
-    function handleEsc(event: KeyboardEvent) {
+    function handleFocusTrap(event: KeyboardEvent) {
       if (event.key === "Escape") {
         event.preventDefault();
-        onClose();
+        return;
       }
-    }
 
-    function handleFocusTrap(event: KeyboardEvent) {
       if (event.key !== "Tab" || !modalRef.current) return;
 
       const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
@@ -66,16 +64,14 @@ export default function SurveyModal({ isOpen, onClose }: SurveyModalProps) {
 
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", handleEsc);
     window.addEventListener("keydown", handleFocusTrap);
 
     return () => {
-      window.removeEventListener("keydown", handleEsc);
       window.removeEventListener("keydown", handleFocusTrap);
       document.body.style.overflow = originalOverflow;
       previouslyFocusedElement.current?.focus();
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   function handleClose() {
     setAnswers({});
@@ -121,7 +117,6 @@ export default function SurveyModal({ isOpen, onClose }: SurveyModalProps) {
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4"
       role="presentation"
-      onClick={handleClose}
     >
       <div
         ref={modalRef}
@@ -144,14 +139,6 @@ export default function SurveyModal({ isOpen, onClose }: SurveyModalProps) {
                 <p className="text-sm text-slate-500">{t("subtitle")}</p>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={handleClose}
-              aria-label={t("close")}
-              className="flex h-8 w-8 items-center justify-center rounded transition hover:bg-gray-100"
-            >
-              <Icon icon="mdi:close" className="h-5 w-5 text-slate-500" />
-            </button>
           </div>
           {submitted ? (
             <div className="flex flex-col items-center gap-4 py-8 text-center">
@@ -236,9 +223,6 @@ export default function SurveyModal({ isOpen, onClose }: SurveyModalProps) {
               ) : null}
 
               <div className="mt-6 flex justify-end gap-3">
-                <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
-                  {t("cancelBtn")}
-                </Button>
                 <Button
                   onClick={handleSubmit}
                   disabled={
