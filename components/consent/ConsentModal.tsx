@@ -52,14 +52,8 @@ export default function ConsentModal({
         }
       }
     }
-
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", handleFocusTrap);
-
     return () => {
       window.removeEventListener("keydown", handleFocusTrap);
-      document.body.style.overflow = originalOverflow;
     };
   }, [isOpen]);
 
