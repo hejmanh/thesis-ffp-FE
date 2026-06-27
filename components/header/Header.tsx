@@ -35,14 +35,14 @@ export default function Header({
           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary to-indigo-90 shadow-sm sm:h-10 sm:w-10">
             <Image
               src="/CoinfusedLogo.png"
-              alt="Coinfused Logo"
+              alt="Retire Safely Logo"
               width={28}
               height={28}
               className="h-6 w-6 object-contain sm:h-7 sm:w-7"
             />
           </span>
           <span className="bg-gradient-to-r from-blue-600 via-primary to-indigo-400 bg-clip-text text-xl font-extrabold tracking-tight text-transparent sm:text-2xl">
-            Coinfused
+            Retire Safely
           </span>
         </Link>
         <nav className="flex items-center gap-2 sm:gap-3">
