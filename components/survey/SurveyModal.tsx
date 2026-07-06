@@ -61,14 +61,6 @@ export default function SurveyModal({ isOpen, onClose }: SurveyModalProps) {
         }
       }
     }
-
-    const originalOverflow = document.body.style.overflow;
-
-    return () => {
-      window.removeEventListener("keydown", handleFocusTrap);
-      document.body.style.overflow = originalOverflow;
-      previouslyFocusedElement.current?.focus();
-    };
   }, [isOpen]);
 
   function handleClose() {
