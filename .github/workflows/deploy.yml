@@ -1,0 +1,39 @@
+name: Deploy Frontend
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to GCP VM
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+            cd ${{ secrets.VM_FE_PATH }}
+
+            git fetch origin main
+            git reset --hard origin/main
+
+            echo "NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}" > .env.production
+
+            npm ci
+            npm run build
+
+            if pm2 describe ffp-fe > /dev/null 2>&1; then
+              pm2 restart ffp-fe
+            else
+              pm2 start npm --name ffp-fe -- start
+              pm2 save
+            fi
+
+            pm2 status
