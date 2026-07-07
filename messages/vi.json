@@ -73,7 +73,7 @@
       "resendVerification": "Gửi lại email xác thực",
       "resendingVerification": "Đang gửi email xác thực...",
       "resendSuccess": "Đã gửi email xác thực. Vui lòng kiểm tra hộp thư.",
-      "successDescription": "Nếu bạn không nhận được email, xin vui lòng kiểm tra thư mục Spam hoặc Junk.",
+      "successDescription": "Nếu bạn không nhận được email, xin vui lòng kiểm tra thư mục Thư rác.",
       "resendFailed": "Không thể gửi lại email xác thực."
     },
     "forgotPassword": {
@@ -352,7 +352,8 @@
     "passwordMismatch": "Mật khẩu và xác nhận mật khẩu phải trùng khớp.",
     "generalInformationIncomplete": "Vui lòng hoàn tất tất cả trường trong Thông Tin Chung.",
     "allPasswordFieldsRequired": "Tất cả trường mật khẩu đều bắt buộc.",
-    "newPasswordMismatch": "Mật khẩu mới và xác nhận mật khẩu không trùng khớp."
+    "newPasswordMismatch": "Mật khẩu mới và xác nhận mật khẩu không trùng khớp.",
+    "passwordComplexity": "Mật khẩu phải chứa ít nhất 1 chữ cái, 1 số và 1 ký tự đặc biệt."
   },
   "Consent": {
     "title": "Tuyên Bố Đồng Thuận Tham Gia",

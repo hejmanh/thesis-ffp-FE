@@ -7,6 +7,8 @@ import enMessages from "@/messages/en.json";
 import type { ApiErrorDetail } from "@/shared/config/api";
 
 const ERROR_NAMESPACE = "Errors";
+const PASSWORD_COMPLEXITY_MESSAGE =
+  "Password must contain at least 1 letter, 1 number and 1 special character";
 const RANGE_MESSAGE_PATTERN =
   /^(.+?)\s+must be between\s+(-?\d+(?:\.\d+)?)\s+and\s+(-?\d+(?:\.\d+)?)/i;
 
@@ -53,6 +55,17 @@ export function useApiErrorMessage() {
 
   const translateDetailMessage = useCallback(
     (detail: ApiErrorDetail): string | null => {
+      if (
+        normalizeFieldName(detail.path ?? "") === "password" &&
+        detail.message.trim() === PASSWORD_COMPLEXITY_MESSAGE
+      ) {
+        const translated = validation("passwordComplexity");
+
+        return translated === "Validation.passwordComplexity"
+          ? detail.message
+          : translated;
+      }
+
       const rangeMatch = detail.message.match(RANGE_MESSAGE_PATTERN);
       if (!rangeMatch) {
         return null;

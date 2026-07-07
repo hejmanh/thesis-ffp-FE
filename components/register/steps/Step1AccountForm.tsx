@@ -108,7 +108,7 @@ export default function Step1AccountForm({
           <p className="text-sm font-semibold text-emerald-600">
             {successMessage}
           </p>
-          <p className="mt-2 text-sm font-semibold text-emerald-600">
+          <p className="mt-2 text-sm font-medium text-muted-foreground">
             {successDescription}
           </p>
           <p className="mt-6 text-center text-sm text-muted-foreground">

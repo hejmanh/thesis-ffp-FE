@@ -73,7 +73,7 @@
       "resendVerification": "Resend verification email",
       "resendingVerification": "Sending verification email...",
       "resendSuccess": "Verification email sent. Please check your inbox.",
-      "successDescription": "If you don't receive the email, please check your Spam or Junk folder.",
+      "successDescription": "If you don't receive the email, please check your Spam folder.",
       "resendFailed": "Unable to resend verification email."
     },
     "forgotPassword": {
@@ -352,6 +352,7 @@
     "generalInformationIncomplete": "Please complete all fields in General Information.",
     "allPasswordFieldsRequired": "All password fields are required.",
     "newPasswordMismatch": "New password and confirm password do not match.",
+    "passwordComplexity": "Password must contain at least 1 letter, 1 number and 1 special character",
     "fieldRange": "{field} must be between {min} and {max}."
   },
   "Consent": {
