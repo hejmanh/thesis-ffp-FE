@@ -13,6 +13,7 @@ interface Step1AccountFormProps {
   data: Step1AccountData;
   error: string;
   successMessage?: string;
+  successDescription?: string;
   submissionStage: "registering" | "resending" | null;
   countryOptions: SelectOption[];
   sexOptions: SelectOption[];
@@ -28,6 +29,7 @@ export default function Step1AccountForm({
   data,
   error,
   successMessage,
+  successDescription,
   submissionStage,
   countryOptions,
   sexOptions,
@@ -105,6 +107,9 @@ export default function Step1AccountForm({
         <div className="mt-4 text-center">
           <p className="text-sm font-semibold text-emerald-600">
             {successMessage}
+          </p>
+          <p className="mt-2 text-sm font-semibold text-emerald-600">
+            {successDescription}
           </p>
           <p className="mt-6 text-center text-sm text-muted-foreground">
             {t("emailNotReceived")}{" "}

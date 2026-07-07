@@ -73,6 +73,7 @@
       "resendVerification": "Resend verification email",
       "resendingVerification": "Sending verification email...",
       "resendSuccess": "Verification email sent. Please check your inbox.",
+      "successDescription": "If you don't receive the email, please check your Spam or Junk folder.",
       "resendFailed": "Unable to resend verification email."
     },
     "forgotPassword": {
@@ -291,6 +292,7 @@
       "alreadyHaveAccount": "Already have an account?",
       "signIn": "Sign in",
       "success": "Account created. Please check your email to verify it.",
+      "successDescription": "If you don't receive the email, please check your Spam or Junk folder.",
       "emailNotReceived": "Didn't receive the email?",
       "resendVerification": "Resend verification email",
       "resendingVerification": "Sending verification email...",

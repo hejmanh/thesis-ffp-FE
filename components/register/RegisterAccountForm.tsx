@@ -28,6 +28,7 @@ export default function RegisterAccountForm() {
   );
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [successDescription, setSuccessDescription] = useState(t("successDescription"));
   const [submissionStage, setSubmissionStage] = useState<SubmissionStage>(null);
   const { register, resendVerificationEmail } = useAuth();
   const {
@@ -90,6 +91,7 @@ export default function RegisterAccountForm() {
       });
 
       setSuccessMessage(t("success"));
+      setSuccessDescription(t("successDescription"));
     } catch (submitError) {
       setError(getApiErrorMessage(submitError, t("fallbackError")));
     } finally {
@@ -123,6 +125,7 @@ export default function RegisterAccountForm() {
           data={data}
           error={displayError}
           successMessage={successMessage}
+          successDescription={successDescription}
           submissionStage={submissionStage}
           countryOptions={countryOptions}
           sexOptions={sexOptions}
