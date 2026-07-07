@@ -13,6 +13,11 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "Retire Safely | Safe Retirement Planner",
   description: "Plan your path to safe retirement with clear scenario tools.",
+  icons: {
+    icon: "/CoinfusedLogo.png",
+    shortcut: "/CoinfusedLogo.png",
+    apple: "/CoinfusedLogo.png",
+  },
 };
 
 export default function RootLayout({
