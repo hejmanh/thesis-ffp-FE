@@ -22,8 +22,8 @@ export default function FormErrorMessages({
 
   return (
     <ul className={`mx-auto max-w-md list-disc space-y-1 pl-5 text-left ${className}`}>
-      {messages.map((entry) => (
-        <li key={entry}>{entry}</li>
+      {messages.map((entry, index) => (
+        <li key={`${entry}-${index}`}>{entry}</li>
       ))}
     </ul>
   );
