@@ -13,7 +13,7 @@ export type Step1ValidationCode =
   | "passwordMismatch";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PASSWORD_MIN_LENGTH = 8;
+export const PASSWORD_MIN_LENGTH = 8;
 const PASSWORD_COMPLEXITY_PATTERN =
   /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/;
 
