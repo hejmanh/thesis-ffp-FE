@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import AnimatedPanel from "@/components/common/AnimatedPanel";
 import Step1AccountForm from "@/components/register/steps/Step1AccountForm";
 import type { Step1AccountData } from "@/types/onboarding";
-import { validateStep1 } from "@/utils/onboardingValidators";
+import { PASSWORD_MIN_LENGTH, validateStep1 } from "@/utils/onboardingValidators";
 import { createEmptyOnboardingState } from "@/store/onboardingStorage";
 import { useAuth, usePersonalInfoReferences } from "@/hooks";
 import { useAuthStore } from "@/store/auth.store";
@@ -65,9 +65,9 @@ export default function RegisterAccountForm() {
     const validation = validateStep1(data);
     if (validation) {
       setError(
-        validation === "Password and confirm password must match."
-          ? validationT("passwordMismatch")
-          : validationT("requiredFields"),
+        validation === "passwordMinLength"
+          ? validationT("passwordMinLength", { min: PASSWORD_MIN_LENGTH })
+          : validationT(validation),
       );
       return;
     }

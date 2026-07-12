@@ -20,12 +20,6 @@ export default function HeroSection() {
       <p className="mx-auto mt-4 max-w-2xl text-xs tracking-wide text-slate-600 sm:text-sm">
         {t("ffpNote")}
       </p>
-      <div className="absolute right-6 top-12 hidden items-center gap-1 rounded-full border border-border bg-surface px-2 py-1 shadow-md lg:flex">
-        <span className="text-xs text-slate-500">AI</span>
-        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-500 text-sm font-semibold text-white">
-          A
-        </span>
-      </div>
     </section>
   );
 }

@@ -5,6 +5,18 @@ import type {
   Step2PersonalData,
 } from "@/types/onboarding";
 
+export type Step1ValidationCode =
+  | "requiredFields"
+  | "invalidEmail"
+  | "passwordMinLength"
+  | "passwordComplexity"
+  | "passwordMismatch";
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export const PASSWORD_MIN_LENGTH = 8;
+const PASSWORD_COMPLEXITY_PATTERN =
+  /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/;
+
 // avoid falsy values like "0" or "false" to be considered as empty
 function isFilledValue(value: unknown): boolean {
   if (value == null) {
@@ -14,7 +26,7 @@ function isFilledValue(value: unknown): boolean {
   return String(value).trim() !== "";
 }
 
-export function validateStep1(data: Step1AccountData): string | null {
+export function validateStep1(data: Step1AccountData): Step1ValidationCode | null {
   if (
     !isFilledValue(data.name) ||
     !isFilledValue(data.email) ||
@@ -24,10 +36,19 @@ export function validateStep1(data: Step1AccountData): string | null {
     !isFilledValue(data.country) ||
     !isFilledValue(data.sex)
   ) {
-    return "Please fill all required fields.";
+    return "requiredFields";
+  }
+  if (!EMAIL_PATTERN.test(data.email.trim())) {
+    return "invalidEmail";
+  }
+  if (data.password.length < PASSWORD_MIN_LENGTH) {
+    return "passwordMinLength";
+  }
+  if (!PASSWORD_COMPLEXITY_PATTERN.test(data.password)) {
+    return "passwordComplexity";
   }
   if (data.password !== data.confirmPassword) {
-    return "Password and confirm password must match.";
+    return "passwordMismatch";
   }
   return null;
 }
