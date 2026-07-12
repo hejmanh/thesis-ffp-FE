@@ -361,6 +361,7 @@
     "allPasswordFieldsRequired": "All password fields are required.",
     "newPasswordMismatch": "New password and confirm password do not match.",
     "passwordComplexity": "Password must contain at least 1 letter, 1 number and 1 special character",
+    "passwordMinLength": "Password must be at least {min} characters.",
     "fieldRange": "{field} must be between {min} and {max}.",
     "invalidEmail": "Invalid email address",
     "fieldGreaterThan": "{field} must be greater than {min}.",

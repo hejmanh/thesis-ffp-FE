@@ -65,9 +65,9 @@ export default function RegisterAccountForm() {
     const validation = validateStep1(data);
     if (validation) {
       setError(
-        validation === "Password and confirm password must match."
-          ? validationT("passwordMismatch")
-          : validationT("requiredFields"),
+        validation === "passwordMinLength"
+          ? validationT("passwordMinLength", { min: 8 })
+          : validationT(validation),
       );
       return;
     }

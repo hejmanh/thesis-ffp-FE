@@ -2,6 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import Button from "@/components/common/Button";
+import FormErrorMessages from "@/components/common/FormErrorMessages";
 import FormField from "@/components/common/FormField";
 import PersonalInfoFields from "@/components/common/PersonalInfoFields";
 import { useEnterToFocusNextField } from "@/components/common/useEnterToFocusNextField";
@@ -98,11 +99,7 @@ export default function Step1AccountForm({
           }
         />
       </div>
-      {error ? (
-        <p className="mt-4 text-center text-sm font-semibold text-red-600">
-          {error}
-        </p>
-      ) : null}
+      {error ? <FormErrorMessages message={error} /> : null}
       {!error && successMessage ? (
         <div className="mt-4 text-center">
           <p className="text-sm font-semibold text-emerald-600">

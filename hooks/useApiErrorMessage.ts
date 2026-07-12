@@ -7,17 +7,17 @@ import enMessages from "@/messages/en.json";
 import type { ApiErrorDetail } from "@/shared/config/api";
 
 const ERROR_NAMESPACE = "Errors";
-const PASSWORD_COMPLEXITY_MESSAGE =
-  "Password must contain at least 1 letter, 1 number and 1 special character";
+const PASSWORD_COMPLEXITY_MESSAGE_PATTERN =
+  /^password must contain at least 1 letter,\s*1 number and 1 special character\.?$/i;
 const RANGE_MESSAGE_PATTERN =
   /^(.+?)\s+must be between\s+(-?\d+(?:\.\d+)?)\s+and\s+(-?\d+(?:\.\d+)?)/i;
 const GREATER_THAN_MESSAGE_PATTERN =
   /^(.+?)\s+must be greater than\s+(-?\d+(?:\.\d+)?)/i;
 const AT_LEAST_MESSAGE_PATTERN =
-  /^(.+?)\s+must be at least\s+(-?\d+(?:\.\d+)?)/i;
-const REQUIRED_MESSAGE_PATTERN = /^(.+?)\s+is required$/i;
-const VALID_NUMBER_MESSAGE_PATTERN = /^(.+?)\s+must be a valid number$/i;
-const VALID_INTEGER_MESSAGE_PATTERN = /^(.+?)\s+must be a valid integer$/i;
+  /^(.+?)\s+must be at least\s+(-?\d+(?:\.\d+)?)(?:\s+characters?)?\.?$/i;
+const REQUIRED_MESSAGE_PATTERN = /^(.+?)\s+is required\.?$/i;
+const VALID_NUMBER_MESSAGE_PATTERN = /^(.+?)\s+must be a valid number\.?$/i;
+const VALID_INTEGER_MESSAGE_PATTERN = /^(.+?)\s+must be a valid integer\.?$/i;
 const INVALID_EMAIL_MESSAGE_PATTERN = /^invalid email address\.?$/i;
 
 const FIELD_KEY_ALIASES: Record<string, string> = {
@@ -76,6 +76,11 @@ function isApiClientError(error: unknown): error is ApiClientError {
   );
 }
 
+function isPasswordField(rawField: string, path?: string): boolean {
+  const fieldKey = getFieldKey(path) ?? getFieldKey(rawField);
+  return fieldKey === "password" || fieldKey === "newPassword";
+}
+
 export function useApiErrorMessage() {
   const t = useTranslations(ERROR_NAMESPACE);
   const fields = useTranslations("Fields");
@@ -106,6 +111,13 @@ export function useApiErrorMessage() {
         return translated === "Validation.invalidEmail" ? null : translated;
       }
 
+      if (PASSWORD_COMPLEXITY_MESSAGE_PATTERN.test(trimmed)) {
+        const translated = validation("passwordComplexity");
+        return translated === "Validation.passwordComplexity"
+          ? null
+          : translated;
+      }
+
       const rangeMatch = trimmed.match(RANGE_MESSAGE_PATTERN);
       if (rangeMatch) {
         const [, rawField, min, max] = rangeMatch;
@@ -130,6 +142,13 @@ export function useApiErrorMessage() {
       const atLeastMatch = trimmed.match(AT_LEAST_MESSAGE_PATTERN);
       if (atLeastMatch) {
         const [, rawField, min] = atLeastMatch;
+        if (isPasswordField(rawField, path)) {
+          const translated = validation("passwordMinLength", { min });
+          return translated === "Validation.passwordMinLength"
+            ? null
+            : translated;
+        }
+
         const translated = validation("fieldAtLeast", {
           field: resolveFieldLabel(rawField, path),
           min,
@@ -171,19 +190,12 @@ export function useApiErrorMessage() {
     [resolveFieldLabel, validation],
   );
 
-  const translateDetailMessage = useCallback(
-    (detail: ApiErrorDetail): string | null => {
-      return translateMessage(detail.message, detail.path);
-    },
-    [translateMessage],
-  );
-
-  return useCallback(
-    (error: unknown, fallback: string): string => {
+  const resolveMessages = useCallback(
+    (error: unknown, fallback: string): string[] => {
       if (isApiClientError(error)) {
         const detailMessages = error.details
           ?.map((detail) => {
-            const translated = translateDetailMessage(detail);
+            const translated = translateMessage(detail.message, detail.path);
             if (translated) {
               return translated;
             }
@@ -192,39 +204,70 @@ export function useApiErrorMessage() {
             return message && message.length > 0 ? message : null;
           })
           .filter((message): message is string => Boolean(message));
+
         if (detailMessages && detailMessages.length > 0) {
-          return detailMessages.join("; ");
+          return [...new Set(detailMessages)];
         }
 
         const knownMessage = error.message
           ? translateMessage(error.message)
           : null;
         if (knownMessage) {
-          return knownMessage;
+          return [knownMessage];
+        }
+
+        // error.message may already join multiple English details with "; "
+        if (error.message?.includes("; ")) {
+          const parts = error.message
+            .split(";")
+            .map((part) => part.trim())
+            .filter(Boolean)
+            .map((part) => translateMessage(part) ?? part);
+          if (parts.length > 0) {
+            return [...new Set(parts)];
+          }
         }
 
         const translated = t(error.code);
         if (translated !== `${ERROR_NAMESPACE}.${error.code}`) {
-          return translated;
+          return [translated];
         }
 
         const detailCode = error.details?.find((detail) => detail.code)?.code;
         if (detailCode) {
           const detailTranslated = t(detailCode);
           if (detailTranslated !== `${ERROR_NAMESPACE}.${detailCode}`) {
-            return detailTranslated;
+            return [detailTranslated];
           }
         }
 
-        return error.message || fallback;
+        return [error.message || fallback];
       }
 
       if (error instanceof Error) {
-        return translateMessage(error.message) ?? error.message;
+        if (error.message.includes("; ")) {
+          const parts = error.message
+            .split(";")
+            .map((part) => part.trim())
+            .filter(Boolean)
+            .map((part) => translateMessage(part) ?? part);
+          if (parts.length > 0) {
+            return [...new Set(parts)];
+          }
+        }
+
+        return [translateMessage(error.message) ?? error.message];
       }
 
-      return fallback;
+      return [fallback];
     },
-    [t, translateDetailMessage, translateMessage],
+    [t, translateMessage],
+  );
+
+  return useCallback(
+    (error: unknown, fallback: string): string => {
+      return resolveMessages(error, fallback).join("\n");
+    },
+    [resolveMessages],
   );
 }

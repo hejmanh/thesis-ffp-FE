@@ -362,6 +362,7 @@
     "allPasswordFieldsRequired": "Tất cả trường mật khẩu đều bắt buộc.",
     "newPasswordMismatch": "Mật khẩu mới và xác nhận mật khẩu không trùng khớp.",
     "passwordComplexity": "Mật khẩu phải chứa ít nhất 1 chữ cái, 1 số và 1 ký tự đặc biệt.",
+    "passwordMinLength": "Mật khẩu phải có ít nhất {min} ký tự.",
     "invalidEmail": "Địa chỉ email không hợp lệ",
     "fieldGreaterThan": "{field} phải lớn hơn {min}.",
     "fieldAtLeast": "{field} phải ít nhất là {min}.",
